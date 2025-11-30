@@ -13,7 +13,6 @@ from .base_rag import BaseRAGProvider, Document, SearchResult, DocumentType
 # Optional import - ChromaDB support
 try:
     import chromadb
-    from chromadb.config import Settings
     CHROMADB_AVAILABLE = True
 except ImportError:
     CHROMADB_AVAILABLE = False
@@ -44,12 +43,10 @@ class ChromaRAGProvider(BaseRAGProvider):
     async def initialize(self) -> bool:
         """Initialize ChromaDB client and collection"""
         try:
-            # Create ChromaDB client with persistence
-            self._client = chromadb.Client(Settings(
-                chroma_db_impl="duckdb+parquet",
-                persist_directory=self.persist_directory,
-                anonymized_telemetry=False
-            ))
+            # Create ChromaDB client with persistence (new API)
+            self._client = chromadb.PersistentClient(
+                path=self.persist_directory
+            )
             
             # Get or create collection
             self._collection = self._client.get_or_create_collection(
@@ -115,8 +112,16 @@ class ChromaRAGProvider(BaseRAGProvider):
                     results['metadatas'][0],
                     results['distances'][0]
                 )):
-                    # Convert distance to similarity score (ChromaDB returns distances)
-                    score = 1.0 - distance if distance <= 1.0 else 0.0
+                    # Convert distance to similarity score
+                    # For cosine distance (0-2 range): similarity = 1 - (distance / 2)
+                    # For L2 distance: similarity = 1 / (1 + distance)
+                    # Using cosine-normalized calculation since we configured cosine space
+                    if distance < 0:
+                        score = 0.0
+                    elif distance > 2:
+                        score = 0.0
+                    else:
+                        score = 1.0 - (distance / 2.0)  # Normalized for cosine distance (0-2 range)
                     
                     document = Document(
                         id=doc_id,
@@ -213,11 +218,6 @@ class ChromaRAGProvider(BaseRAGProvider):
             }
         except Exception as e:
             return {"status": "unhealthy", "error": str(e)}
-    
-    def persist(self):
-        """Persist ChromaDB data to disk"""
-        if self._client:
-            self._client.persist()
 
 
 __all__ = ['ChromaRAGProvider']

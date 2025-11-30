@@ -108,13 +108,18 @@ class QdrantRAGProvider(BaseRAGProvider):
     
     async def query(self, query: str, top_k: int = 5,
                     filters: Optional[Dict[str, Any]] = None) -> List[SearchResult]:
-        """Query Qdrant for similar documents"""
+        """Query Qdrant for similar documents
+        
+        Note: This implementation uses placeholder zero vectors for query embedding.
+        In production, integrate a proper embedding model like sentence-transformers.
+        """
         if not self._client:
             raise RuntimeError("Qdrant not initialized")
         
         try:
             # Generate query embedding
-            # Placeholder - in production, use actual embedding model
+            # IMPORTANT: This is a placeholder. In production, use actual embedding model.
+            # Example: query_embedding = embedding_model.encode(query)
             query_embedding = [0.0] * self._embedding_dimension
             
             # Build filter if provided

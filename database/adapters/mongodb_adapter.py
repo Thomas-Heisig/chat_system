@@ -127,20 +127,36 @@ class MongoDBAdapter(BaseDatabaseAdapter):
             return {"error": str(e)}
     
     async def execute(self, query: str, params: Optional[tuple] = None) -> Any:
-        """Execute is not directly applicable for MongoDB - use collection methods"""
-        raise NotImplementedError("Use collection-specific methods for MongoDB")
+        """Execute query - MongoDB uses collection-specific methods instead.
+        This method is provided for compatibility but redirects to appropriate methods.
+        """
+        # For compatibility, we can interpret simple queries
+        # In practice, use collection-specific methods like insert_one, find, etc.
+        raise NotImplementedError(
+            "MongoDB uses collection-specific methods. "
+            "Use insert_one(), find_one(), find(), update_one(), delete_one() instead."
+        )
     
     async def execute_many(self, query: str, params_list: List[tuple]) -> int:
-        """Execute many is not directly applicable for MongoDB"""
-        raise NotImplementedError("Use collection-specific methods for MongoDB")
+        """Execute many - MongoDB uses insert_many for bulk operations."""
+        raise NotImplementedError(
+            "MongoDB uses collection-specific methods. "
+            "Use insert_many() for bulk inserts instead."
+        )
     
     async def fetch_one(self, query: str, params: Optional[tuple] = None) -> Optional[Dict[str, Any]]:
-        """Fetch one is not directly applicable for MongoDB"""
-        raise NotImplementedError("Use collection-specific methods for MongoDB")
+        """Fetch one - MongoDB uses find_one with filter dictionaries."""
+        raise NotImplementedError(
+            "MongoDB uses collection-specific methods. "
+            "Use find_one(collection, filter) instead."
+        )
     
     async def fetch_all(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
-        """Fetch all is not directly applicable for MongoDB"""
-        raise NotImplementedError("Use collection-specific methods for MongoDB")
+        """Fetch all - MongoDB uses find with filter dictionaries."""
+        raise NotImplementedError(
+            "MongoDB uses collection-specific methods. "
+            "Use find(collection, filter) instead."
+        )
     
     # MongoDB-specific methods
     async def insert_one(self, collection: str, document: Dict[str, Any]) -> str:

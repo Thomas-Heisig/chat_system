@@ -66,16 +66,26 @@ class AuthService:
         if self.pwd_context:
             return self.pwd_context.hash(password)
         else:
-            # Fallback to SHA256 (not recommended for production)
-            return hashlib.sha256(password.encode()).hexdigest()
+            # Fallback with salt for better security than plain SHA256
+            # Note: This is still not recommended for production - install passlib
+            import os
+            import base64
+            salt = base64.b64encode(os.urandom(16)).decode()
+            salted_hash = hashlib.sha256(f"{salt}${password}".encode()).hexdigest()
+            return f"{salt}${salted_hash}"
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify a password against its hash"""
         if self.pwd_context:
             return self.pwd_context.verify(plain_password, hashed_password)
         else:
-            # Fallback verification
-            return hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
+            # Fallback verification with salt
+            if '$' not in hashed_password:
+                # Legacy unsalted hash (backward compatibility)
+                return hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
+            salt, stored_hash = hashed_password.split('$', 1)
+            computed_hash = hashlib.sha256(f"{salt}${plain_password}".encode()).hexdigest()
+            return computed_hash == stored_hash
     
     # JWT Token Management
     def create_access_token(self, user_id: str, username: str, 
