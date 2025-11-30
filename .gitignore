@@ -4,3 +4,5 @@ __pycache__/
 chat.db
 .vscode/
 .idea/
+logs/
+*.log

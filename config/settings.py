@@ -60,6 +60,7 @@ class EnvironmentSettings(BaseSettings):
     
     # Database
     DATABASE_URL: str = Field(default="sqlite:///./chat_system.db")
+    DATABASE_TIMEOUT: int = Field(default=30)
     
     # Logging (alte Variablen)
     LOG_LEVEL: str = Field(default="INFO")

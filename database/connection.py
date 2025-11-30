@@ -133,6 +133,13 @@ def init_database():
                     message_type TEXT DEFAULT 'user', -- user, ai, system, notification
                     parent_id INTEGER, -- For thread replies
                     room_id TEXT, -- For room/channel support
+                    project_id TEXT, -- Associated project ID
+                    ticket_id TEXT, -- Associated ticket ID
+                    is_ai_response BOOLEAN DEFAULT FALSE,
+                    ai_model_used TEXT,
+                    context_message_ids TEXT DEFAULT '[]', -- JSON array of message IDs
+                    rag_sources TEXT DEFAULT '[]', -- JSON array of RAG sources
+                    sentiment TEXT, -- JSON sentiment analysis
                     metadata TEXT DEFAULT '{}',
                     is_edited BOOLEAN DEFAULT FALSE,
                     edit_history TEXT DEFAULT '[]', -- JSON array of edits
@@ -160,7 +167,8 @@ def init_database():
                     last_login DATETIME,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    preferences TEXT DEFAULT '{}' -- JSON user preferences
+                    preferences TEXT DEFAULT '{}', -- JSON user preferences
+                    metadata TEXT DEFAULT '{}'
                 )
             """)
             
@@ -175,7 +183,13 @@ def init_database():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     due_date DATETIME,
+                    tags TEXT DEFAULT '[]', -- JSON array
+                    members TEXT DEFAULT '[]', -- JSON array of user IDs
+                    settings TEXT DEFAULT '{}', -- JSON settings
                     metadata TEXT DEFAULT '{}',
+                    ticket_count INTEGER DEFAULT 0,
+                    completed_ticket_count INTEGER DEFAULT 0,
+                    progress_percentage FLOAT DEFAULT 0.0,
                     
                     FOREIGN KEY (created_by) REFERENCES users (id)
                 )
@@ -199,7 +213,11 @@ def init_database():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     resolved_at DATETIME,
+                    related_tickets TEXT DEFAULT '[]', -- JSON array
+                    tags TEXT DEFAULT '[]', -- JSON array
                     metadata TEXT DEFAULT '{}',
+                    comment_count INTEGER DEFAULT 0,
+                    attachment_count INTEGER DEFAULT 0,
                     
                     FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
                     FOREIGN KEY (created_by) REFERENCES users (id),
@@ -217,18 +235,22 @@ def init_database():
                     file_size INTEGER NOT NULL,
                     file_hash TEXT NOT NULL, -- MD5 hash for duplicate detection
                     mime_type TEXT NOT NULL,
+                    file_type TEXT DEFAULT 'other', -- document, image, audio, video, etc.
                     uploaded_by TEXT NOT NULL,
                     project_id TEXT,
                     ticket_id TEXT,
+                    message_id INTEGER,
                     upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                     description TEXT,
                     download_count INTEGER DEFAULT 0,
                     is_public BOOLEAN DEFAULT FALSE,
                     metadata TEXT DEFAULT '{}',
+                    tags TEXT DEFAULT '[]', -- JSON array
                     
                     FOREIGN KEY (uploaded_by) REFERENCES users (id),
                     FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE SET NULL,
-                    FOREIGN KEY (ticket_id) REFERENCES tickets (id) ON DELETE SET NULL
+                    FOREIGN KEY (ticket_id) REFERENCES tickets (id) ON DELETE SET NULL,
+                    FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE SET NULL
                 )
             """)
             
@@ -257,7 +279,11 @@ def init_database():
                     created_by TEXT NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     member_count INTEGER DEFAULT 0,
+                    message_count INTEGER DEFAULT 0,
+                    settings TEXT DEFAULT '{}', -- JSON room settings
                     metadata TEXT DEFAULT '{}',
+                    allowed_roles TEXT DEFAULT '[]', -- JSON array of allowed roles
+                    is_archived BOOLEAN DEFAULT FALSE,
                     
                     FOREIGN KEY (created_by) REFERENCES users (id)
                 )
@@ -289,6 +315,9 @@ def init_database():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     is_archived BOOLEAN DEFAULT FALSE,
+                    ai_model TEXT, -- Preferred AI model
+                    conversation_settings TEXT DEFAULT '{}', -- JSON conversation settings
+                    metadata TEXT DEFAULT '{}',
                     
                     FOREIGN KEY (user_id) REFERENCES users (id)
                 )
