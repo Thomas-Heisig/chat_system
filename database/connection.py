@@ -33,8 +33,21 @@ def get_db_connection(read_only: bool = False):
                 delattr(thread_local, 'db_connection')
         
         if conn is None:
-            # Create new connection
-            db_uri = f"file:{settings.DATABASE_URL}?mode={'ro' if read_only else 'rwc'}"
+            # Create new connection - extract database path from URL
+            db_url = settings.DATABASE_URL
+            if db_url.startswith('sqlite:///'):
+                db_path = db_url[10:]  # Remove 'sqlite:///' prefix
+            elif db_url.startswith('sqlite://'):
+                db_path = db_url[9:]   # Remove 'sqlite://' prefix
+            else:
+                db_path = db_url
+            
+            # Ensure parent directory exists
+            db_dir = Path(db_path).parent
+            if db_dir and str(db_dir) != '.':
+                db_dir.mkdir(parents=True, exist_ok=True)
+            
+            db_uri = f"file:{db_path}?mode={'ro' if read_only else 'rwc'}"
             conn = sqlite3.connect(
                 db_uri, 
                 timeout=settings.DATABASE_TIMEOUT,

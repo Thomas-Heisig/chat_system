@@ -26,9 +26,15 @@ class EnvironmentSettings(BaseSettings):
     # Server
     HOST: str = Field(default="0.0.0.0")
     PORT: int = Field(default=8000)
+    RELOAD: bool = Field(default=True)
+    WORKERS: int = Field(default=1)
     
     # CORS
     CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000"])
+    CORS_ALLOW_CREDENTIALS: bool = Field(default=True)
+    CORS_ALLOW_METHODS: List[str] = Field(default=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"])
+    CORS_ALLOW_HEADERS: List[str] = Field(default=["Authorization", "Content-Type", "X-Requested-With"])
+    CORS_EXPOSE_HEADERS: List[str] = Field(default=["X-Total-Count", "X-Error-Message"])
     
     # Security
     SECRET_KEY: str = Field(default="your-secret-key-here")
@@ -42,6 +48,8 @@ class EnvironmentSettings(BaseSettings):
     OLLAMA_DEFAULT_MODEL: str = Field(default="llama2")
     AI_MAX_RESPONSE_LENGTH: int = Field(default=1000)
     AI_CONTEXT_MESSAGES: int = Field(default=10)
+    AI_AUTO_RESPOND: bool = Field(default=True)
+    CUSTOM_MODEL_ENABLED: bool = Field(default=False)
     
     # RAG Configuration
     RAG_ENABLED: bool = Field(default=False)
@@ -60,6 +68,7 @@ class EnvironmentSettings(BaseSettings):
     
     # Database
     DATABASE_URL: str = Field(default="sqlite:///./chat_system.db")
+    DATABASE_TIMEOUT: int = Field(default=30)
     
     # Logging (alte Variablen)
     LOG_LEVEL: str = Field(default="INFO")

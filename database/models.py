@@ -693,6 +693,8 @@ class WebSocketMessage(BaseDatabaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
     user_id: Optional[str] = None
     room_id: Optional[str] = None
+    username: Optional[str] = Field(default=None, description="Username for chat messages")
+    message: Optional[str] = Field(default=None, description="Message content for chat messages")
 
 class ChatMessageData(BaseDatabaseModel):
     """Chat message data for WebSocket"""

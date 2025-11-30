@@ -319,6 +319,126 @@ class MessageRepository:
             logger.error(f"❌ Error converting row to message: {e}")
             raise
 
+    @staticmethod
+    def get_all_messages() -> List[Message]:
+        """Get all messages (simple compatibility method)"""
+        filters = MessageFilter(limit=1000)
+        return MessageRepository.get_messages_by_filter(filters).items
+
+    @staticmethod
+    def get_message_count() -> int:
+        """Get total message count"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT COUNT(*) FROM messages")
+                return cursor.fetchone()[0]
+        except Exception as e:
+            logger.error(f"❌ Failed to get message count: {e}")
+            return 0
+
+    @staticmethod
+    def search_messages_semantic(query: str, limit: int = 20) -> List[Message]:
+        """Search messages using semantic search (keyword fallback)"""
+        try:
+            filters = MessageFilter(contains_text=query, limit=limit)
+            return MessageRepository.get_messages_by_filter(filters).items
+        except Exception as e:
+            logger.error(f"❌ Failed to search messages: {e}")
+            return []
+
+    @staticmethod
+    def get_conversation_context(message_id: int, context_window: int = 10) -> List[Message]:
+        """Get conversation context around a specific message"""
+        try:
+            with get_db_connection() as conn:
+                # Get the message timestamp
+                cursor = conn.execute(
+                    "SELECT timestamp FROM messages WHERE id = ?",
+                    (message_id,)
+                )
+                row = cursor.fetchone()
+                if not row:
+                    return []
+                
+                timestamp = row['timestamp']
+                
+                # Get messages around this timestamp
+                cursor = conn.execute(
+                    """SELECT id, username, message, message_compressed, timestamp, message_type,
+                              parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
+                              context_message_ids, rag_sources, sentiment, is_edited, edit_history,
+                              reaction_count, flags, metadata
+                       FROM messages 
+                       WHERE timestamp >= datetime(?, '-5 minutes') 
+                       AND timestamp <= datetime(?, '+5 minutes')
+                       ORDER BY timestamp
+                       LIMIT ?""",
+                    (timestamp, timestamp, context_window)
+                )
+                
+                return [MessageRepository._row_to_message(row) for row in cursor.fetchall()]
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to get conversation context: {e}")
+            return []
+
+    @staticmethod
+    def cleanup_old_messages(days_old: int = 30, preserve_ai: bool = True) -> int:
+        """Clean up old messages"""
+        try:
+            with get_db_connection() as conn:
+                if preserve_ai:
+                    cursor = conn.execute(
+                        """DELETE FROM messages 
+                           WHERE timestamp < datetime('now', ?) AND is_ai_response = 0""",
+                        (f'-{days_old} days',)
+                    )
+                else:
+                    cursor = conn.execute(
+                        "DELETE FROM messages WHERE timestamp < datetime('now', ?)",
+                        (f'-{days_old} days',)
+                    )
+                deleted_count = cursor.rowcount
+                logger.info(f"🧹 Cleaned up {deleted_count} old messages")
+                return deleted_count
+        except Exception as e:
+            logger.error(f"❌ Failed to cleanup old messages: {e}")
+            return 0
+
+    @staticmethod
+    def get_ai_interaction_stats() -> Dict[str, Any]:
+        """Get AI interaction statistics"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("""
+                    SELECT 
+                        COUNT(*) as total_ai_responses,
+                        COUNT(DISTINCT ai_model_used) as models_used,
+                        AVG(LENGTH(message)) as avg_response_length
+                    FROM messages 
+                    WHERE is_ai_response = 1
+                """)
+                row = cursor.fetchone()
+                
+                # Get model breakdown
+                cursor = conn.execute("""
+                    SELECT ai_model_used, COUNT(*) as count
+                    FROM messages 
+                    WHERE is_ai_response = 1 AND ai_model_used IS NOT NULL
+                    GROUP BY ai_model_used
+                """)
+                models = dict(cursor.fetchall())
+                
+                return {
+                    'total_ai_responses': row['total_ai_responses'] or 0,
+                    'models_used_count': row['models_used'] or 0,
+                    'avg_response_length': row['avg_response_length'] or 0,
+                    'models_breakdown': models
+                }
+        except Exception as e:
+            logger.error(f"❌ Failed to get AI interaction stats: {e}")
+            return {'total_ai_responses': 0, 'models_used_count': 0, 'avg_response_length': 0, 'models_breakdown': {}}
+
 class UserRepository:
     """Repository for user management operations"""
     
@@ -770,6 +890,20 @@ class FileRepository:
             logger.error(f"❌ Failed to increment download count for file {file_id}: {e}")
 
     @staticmethod
+    def get_all_files(limit: int = 100) -> List[File]:
+        """Get all files with optional limit"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    "SELECT * FROM files ORDER BY upload_date DESC LIMIT ?",
+                    (limit,)
+                )
+                return [FileRepository._row_to_file(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error(f"❌ Failed to get all files: {e}")
+            return []
+
+    @staticmethod
     def _row_to_file(row) -> File:
         """Convert database row to File object"""
         return File(
@@ -914,23 +1048,3 @@ class StatisticsRepository:
         except Exception as e:
             enhanced_logger.error("Failed to collect system statistics", error=str(e))
             return {}
-
-# Compatibility methods
-class MessageRepository:
-    # Keep original simple methods for compatibility
-    @staticmethod
-    def get_all_messages() -> List[Message]:
-        """Get all messages (simple compatibility method)"""
-        filters = MessageFilter(limit=1000)
-        return MessageRepository.get_messages_by_filter(filters).items
-
-    @staticmethod
-    def get_message_count() -> int:
-        """Get total message count"""
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.execute("SELECT COUNT(*) FROM messages")
-                return cursor.fetchone()[0]
-        except Exception as e:
-            logger.error(f"❌ Failed to get message count: {e}")
-            return 0
