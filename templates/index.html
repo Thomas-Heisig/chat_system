@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Chat System - AI Powered Collaboration</title>
+    <meta name="description" content="Echtzeit-Chat-System mit AI, Projektmanagement und WebSocket-Unterstützung">
+    <meta name="keywords" content="chat, AI, collaboration, realtime, websocket, project management">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preload" href="/static/js/chat.js" as="script">
+</head>
+<body class="theme-light">
+    <!-- Main Application Container -->
+    <div class="app-container">
+        <!-- Sidebar for Navigation and Features -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="app-title">🚀 Chat System</h1>
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Sidebar ein-/ausblenden">
+                    <span class="toggle-icon">☰</span>
+                </button>
+            </div>
+
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">
+                    <span class="avatar-placeholder">👤</span>
+                </div>
+                <div class="user-info">
+                    <h3 id="currentUsername">Gast</h3>
+                    <p class="user-status" id="userStatus">Offline</p>
+                </div>
+                <button class="profile-settings" id="profileSettings" aria-label="Profileinstellungen">
+                    ⚙️
+                </button>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav" aria-label="Hauptnavigation">
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <button class="nav-link" data-section="chat">
+                            <span class="nav-icon">💬</span>
+                            <span class="nav-text">Chat</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="projects">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Projekte</span>
+                            <span class="nav-badge" id="projectsBadge">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="tickets">
+                            <span class="nav-icon">🎫</span>
+                            <span class="nav-text">Tickets</span>
+                            <span class="nav-badge" id="ticketsBadge">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="files">
+                            <span class="nav-icon">📁</span>
+                            <span class="nav-text">Dateien</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="ai">
+                            <span class="nav-icon">🤖</span>
+                            <span class="nav-text">AI Assistant</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="analytics">
+                            <span class="nav-icon">📈</span>
+                            <span class="nav-text">Analytics</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Room/Channel List -->
+            <div class="rooms-section">
+                <div class="section-header">
+                    <h4>🗨️ Räume</h4>
+                    <button class="add-room" id="addRoomBtn" aria-label="Neuen Raum erstellen">+</button>
+                </div>
+                <div class="rooms-list" id="roomsList">
+                    <div class="room-item active" data-room="general">
+                        <span class="room-icon">🌐</span>
+                        <span class="room-name">General</span>
+                        <span class="room-members" id="generalRoomMembers">0</span>
+                    </div>
+                    <!-- Dynamic rooms will be added here -->
+                </div>
+            </div>
+
+            <!-- Online Users -->
+            <div class="online-users">
+                <div class="section-header">
+                    <h4>👥 Online</h4>
+                    <span class="online-count" id="onlineCount">0</span>
+                </div>
+                <div class="users-list" id="usersList">
+                    <!-- Online users will be populated here -->
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="system-status">
+                <div class="status-item">
+                    <span class="status-label">AI Status:</span>
+                    <span class="status-value ai-status" id="aiStatus">Prüfe...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Verbindung:</span>
+                    <span class="status-value connection-status" id="sidebarConnectionStatus">Verbinde...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Chat Section -->
+            <section class="content-section active" id="chatSection">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-info">
+                            <h2 id="chatTitle">General Chat</h2>
+                            <div class="chat-meta">
+                                <span class="room-info" id="roomInfo">Öffentlicher Raum</span>
+                                <span class="message-count" id="messageCount">0 Nachrichten</span>
+                            </div>
+                        </div>
+                        <div class="chat-controls">
+                            <div class="control-group">
+                                <label id="languageLabel" for="languageSelect">🌐 Sprache</label>
+                                <select id="languageSelect" aria-label="Sprache auswählen">
+                                    <option value="de">Deutsch</option>
+                                    <option value="en">English</option>
+                                    <option value="fr">Français</option>
+                                    <option value="es">Español</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label id="themeLabel" for="themeSelect">🎨 Theme</label>
+                                <select id="themeSelect" aria-label="Theme auswählen">
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                    <option value="contrast">High Contrast</option>
+                                    <option value="auto">Auto</option>
+                                </select>
+                            </div>
+                            <button class="chat-settings" id="chatSettings" aria-label="Chat-Einstellungen">
+                                ⚙️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced User Info Panel -->
+                    <div class="user-info-panel">
+                        <div class="user-input-group">
+                            <input type="text" id="usernameInput" placeholder="Dein Name" value="Benutzer" 
+                                   aria-label="Ihr Benutzername" maxlength="50">
+                            <button id="setUsernameBtn" class="primary-btn" aria-label="Benutzernamen speichern">
+                                <span class="button-text">Speichern</span>
+                                <span class="button-icon">✓</span>
+                            </button>
+                        </div>
+                        <div class="user-stats" id="userStats" aria-live="polite">
+                            <div class="stat-item">
+                                <span class="stat-label">Nachrichten:</span>
+                                <span class="stat-value" id="userMessageCount">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Online seit:</span>
+                                <span class="stat-value" id="userOnlineSince">--:--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Area -->
+                    <div class="chat-messages-container">
+                        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat-Nachrichten">
+                            <div class="message system welcome" id="welcomeMessage" role="status">
+                                <div class="message-content">
+                                    <h3>Willkommen im Enhanced Chat System! 🚀</h3>
+                                    <p>Verbinde dich mit anderen, erstelle Projekte und nutze die AI-Unterstützung.</p>
+                                    <div class="welcome-features">
+                                        <div class="feature-item">
+                                            <span class="feature-icon">💬</span>
+                                            <span>Echtzeit-Chat</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <span class="feature-icon">🤖</span>
+                                            <span>AI Assistant</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <span class="feature-icon">📊</span>
+                                            <span>Projektmanagement</span>
+                                        </div>
+                                        <div class="feature-item">
+                                            <span class="feature-icon">📁</span>
+                                            <span>Datei-Sharing</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Typing Indicators -->
+                        <div class="typing-indicators" id="typingIndicators" aria-live="polite">
+                            <!-- Typing indicators will appear here -->
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Chat Input -->
+                    <div class="chat-input-panel">
+                        <div class="input-actions">
+                            <button class="action-btn" id="fileUploadBtn" aria-label="Datei hochladen" title="Datei hochladen">
+                                📎
+                            </button>
+                            <button class="action-btn" id="emojiPickerBtn" aria-label="Emoji auswählen" title="Emoji auswählen">
+                                😊
+                            </button>
+                            <button class="action-btn" id="aiAssistantBtn" aria-label="AI Assistant öffnen" title="AI Assistant">
+                                🤖
+                            </button>
+                            <button class="action-btn" id="formattingBtn" aria-label="Textformatierung" title="Textformatierung">
+                                𝐀
+                            </button>
+                        </div>
+                        <div class="message-input-group">
+                            <input type="text" id="messageInput" placeholder="Schreibe eine Nachricht..." 
+                                   aria-label="Nachricht eingeben" maxlength="4000" disabled>
+                            <div class="input-options">
+                                <label class="option-checkbox">
+                                    <input type="checkbox" id="aiAutoRespond" checked>
+                                    <span class="checkmark"></span>
+                                    <span class="option-label">AI Antwort</span>
+                                </label>
+                                <button id="sendMessageBtn" class="send-btn" disabled aria-label="Nachricht senden">
+                                    <span class="button-icon">🚀</span>
+                                    <span class="button-text">Senden</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section class="content-section" id="projectsSection">
+                <div class="section-header">
+                    <h2>📊 Projektmanagement</h2>
+                    <button class="primary-btn" id="createProjectBtn">
+                        <span class="button-icon">+</span>
+                        <span class="button-text">Neues Projekt</span>
+                    </button>
+                </div>
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Tickets Section -->
+            <section class="content-section" id="ticketsSection">
+                <div class="section-header">
+                    <h2>🎫 Ticket System</h2>
+                    <button class="primary-btn" id="createTicketBtn">
+                        <span class="button-icon">+</span>
+                        <span class="button-text">Neues Ticket</span>
+                    </button>
+                </div>
+                <div class="tickets-container" id="ticketsContainer">
+                    <!-- Tickets will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Files Section -->
+            <section class="content-section" id="filesSection">
+                <div class="section-header">
+                    <h2>📁 Dateimanager</h2>
+                    <button class="primary-btn" id="uploadFileBtn">
+                        <span class="button-icon">📤</span>
+                        <span class="button-text">Datei hochladen</span>
+                    </button>
+                </div>
+                <div class="files-container" id="filesContainer">
+                    <!-- Files will be displayed here -->
+                </div>
+            </section>
+
+            <!-- AI Assistant Section -->
+            <section class="content-section" id="aiSection">
+                <div class="ai-container">
+                    <div class="ai-header">
+                        <h2>🤖 AI Assistant</h2>
+                        <div class="ai-status-panel">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" id="aiAssistantStatus">Verbinde...</span>
+                        </div>
+                    </div>
+                    <div class="ai-conversation" id="aiConversation">
+                        <!-- AI conversation will appear here -->
+                    </div>
+                    <div class="ai-input-panel">
+                        <div class="model-selector">
+                            <label for="aiModelSelect">Modell:</label>
+                            <select id="aiModelSelect">
+                                <option value="llama2">Llama 2</option>
+                                <option value="mistral">Mistral</option>
+                                <option value="custom">Custom Model</option>
+                            </select>
+                        </div>
+                        <div class="ai-input-group">
+                            <input type="text" id="aiMessageInput" placeholder="Frage den AI Assistant..." 
+                                   aria-label="AI Nachricht eingeben">
+                            <button id="sendAIMessageBtn" class="primary-btn">
+                                <span class="button-icon">🤖</span>
+                                <span class="button-text">Fragen</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section class="content-section" id="analyticsSection">
+                <div class="analytics-container">
+                    <h2>📈 System Analytics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-info">
+                                <h3 id="totalMessages">0</h3>
+                                <p>Nachrichten gesamt</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <h3 id="totalUsers">0</h3>
+                                <p>Benutzer online</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🤖</div>
+                            <div class="stat-info">
+                                <h3 id="aiResponses">0</h3>
+                                <p>AI Antworten</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-info">
+                                <h3 id="activeProjects">0</h3>
+                                <p>Aktive Projekte</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="charts-container">
+                        <!-- Analytics charts will be added here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals and Overlays -->
+    <div class="modal-overlay" id="modalOverlay">
+        <!-- Profile Settings Modal -->
+        <div class="modal" id="profileModal" role="dialog" aria-labelledby="profileModalTitle">
+            <div class="modal-header">
+                <h3 id="profileModalTitle">Profileinstellungen</h3>
+                <button class="modal-close" aria-label="Schließen">×</button>
+            </div>
+            <div class="modal-content">
+                <!-- Profile settings form will be here -->
+            </div>
+        </div>
+
+        <!-- Room Creation Modal -->
+        <div class="modal" id="roomModal" role="dialog" aria-labelledby="roomModalTitle">
+            <div class="modal-header">
+                <h3 id="roomModalTitle">Neuen Raum erstellen</h3>
+                <button class="modal-close" aria-label="Schließen">×</button>
+            </div>
+            <div class="modal-content">
+                <!-- Room creation form will be here -->
+            </div>
+        </div>
+
+        <!-- File Upload Modal -->
+        <div class="modal" id="uploadModal" role="dialog" aria-labelledby="uploadModalTitle">
+            <div class="modal-header">
+                <h3 id="uploadModalTitle">Datei hochladen</h3>
+                <button class="modal-close" aria-label="Schließen">×</button>
+            </div>
+            <div class="modal-content">
+                <!-- File upload form will be here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notificationContainer" class="notification-container" aria-live="assertive"></div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner" aria-live="polite">
+        <div class="spinner"></div>
+        <p>Lade...</p>
+    </div>
+
+    <!-- Connection Status Bar -->
+    <div class="connection-bar" id="connectionBar" role="status" aria-live="polite">
+        <div class="connection-info">
+            <span class="status-indicator" id="connectionIndicator"></span>
+            <span class="status-text" id="connectionStatusText">Verbinde mit Server...</span>
+        </div>
+        <div class="connection-stats">
+            <span class="stat" id="pingStat">Ping: --ms</span>
+            <span class="stat" id="messageRate">Rate: --/s</span>
+        </div>
+    </div>
+
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>
