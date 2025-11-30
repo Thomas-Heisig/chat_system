@@ -166,7 +166,7 @@ class Message(BaseDatabaseModel):
         """Increment reaction count"""
         self.reaction_count += 1
 
-    def mark_edited(self, old_content: str, edit_reason: str = None):
+    def mark_edited(self, old_content: str, edit_reason: Optional[str] = None):
         """Mark message as edited and add to history"""
         self.is_edited = True
         self.edit_history.append({
@@ -505,7 +505,7 @@ class RoomMember(BaseDatabaseModel):
 
 class MessageReaction(BaseDatabaseModel):
     """Message reaction model"""
-    id: int = Field(default=None, description="Reaction ID")
+    id: Optional[int] = Field(default=None, description="Reaction ID")
     message_id: int = Field(..., description="Message ID")
     user_id: str = Field(..., description="User ID")
     reaction: str = Field(..., min_length=1, max_length=10, description="Reaction emoji or code")

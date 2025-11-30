@@ -75,7 +75,7 @@ class ConnectionManager:
             ]
         )
 
-    async def connect(self, websocket: WebSocket, user_agent: str = None) -> str:
+    async def connect(self, websocket: WebSocket, user_agent: Optional[str] = None) -> str:
         """Accept WebSocket connection with enhanced tracking"""
         start_time = datetime.now()
         
@@ -252,8 +252,8 @@ class ConnectionManager:
             self.message_stats['total_errors'] += 1
             return False
 
-    async def broadcast(self, message: dict, room_id: str = None, 
-                       exclude: List[WebSocket] = None, message_type: str = "broadcast") -> Dict[str, int]:
+    async def broadcast(self, message: dict, room_id: Optional[str] = None, 
+                       exclude: Optional[List[WebSocket]] = None, message_type: str = "broadcast") -> Dict[str, Any]:
         """
         Enhanced broadcast with room support and exclusions
         Returns delivery statistics
@@ -442,7 +442,7 @@ class ConnectionManager:
             return False
 
     # User Management Methods
-    def authenticate_user(self, websocket: WebSocket, username: str, user_id: str = None) -> bool:
+    def authenticate_user(self, websocket: WebSocket, username: Optional[str], user_id: Optional[str] = None) -> bool:
         """Authenticate user and update connection info"""
         try:
             if websocket in self.connection_info:
@@ -452,8 +452,8 @@ class ConnectionManager:
                 self.connection_info[websocket].update({
                     'username': username,
                     'user_id': user_id,
-                    'state': ConnectionState.AUTHENTICATED,
-                    'connection_type': ConnectionType.USER
+                    'state': ConnectionState.AUTHENTICATED if username else ConnectionState.CONNECTED,
+                    'connection_type': ConnectionType.USER if username else ConnectionType.GUEST
                 })
                 
                 # Update user connections mapping
@@ -462,9 +462,10 @@ class ConnectionManager:
                     if not self.user_connections[old_username]:
                         del self.user_connections[old_username]
                 
-                if username not in self.user_connections:
-                    self.user_connections[username] = set()
-                self.user_connections[username].add(websocket)
+                if username:
+                    if username not in self.user_connections:
+                        self.user_connections[username] = set()
+                    self.user_connections[username].add(websocket)
                 
                 enhanced_logger.info(
                     "User authenticated",
@@ -509,18 +510,23 @@ class ConnectionManager:
             'connections': []
         }
         
-        for websocket, info in self.connection_info.items():
+        for info in self.connection_info.values():
+            state = info.get('state')
+            connection_type = info.get('connection_type')
+            connected_at = info.get('connected_at')
+            last_activity = info.get('last_activity')
+
             connection_stats = {
                 'connection_id': info.get('id'),
                 'client_info': info.get('client_info'),
                 'username': info.get('username'),
                 'user_id': info.get('user_id'),
-                'state': info.get('state').value if info.get('state') else None,
-                'connection_type': info.get('connection_type').value if info.get('connection_type') else None,
+                'state': state.value if isinstance(state, Enum) else None,
+                'connection_type': connection_type.value if isinstance(connection_type, Enum) else None,
                 'message_count': info.get('message_count', 0),
                 'rooms': list(info.get('rooms', set())),
-                'connected_at': info.get('connected_at').isoformat() if info.get('connected_at') else None,
-                'last_activity': info.get('last_activity').isoformat() if info.get('last_activity') else None,
+                'connected_at': connected_at.isoformat() if isinstance(connected_at, datetime) else None,
+                'last_activity': last_activity.isoformat() if isinstance(last_activity, datetime) else None,
                 'connection_duration_seconds': None
             }
             
@@ -598,15 +604,16 @@ class ConnectionManager:
             if last_activity:
                 inactive_time = (current_time - last_activity).total_seconds()
                 if inactive_time > max_inactive_seconds:
-                    inactive_connections.append(websocket)
+                    # store both connection and its inactive duration
+                    inactive_connections.append((websocket, inactive_time))
         
-        for connection in inactive_connections:
-            username = self.connection_info[connection].get('username', 'unknown')
+        for connection, inactive_seconds in inactive_connections:
+            username = self.connection_info.get(connection, {}).get('username', 'unknown')
             enhanced_logger.warning(
                 "Cleaning up inactive connection",
                 username=username,
                 client_info=self._get_client_info(connection),
-                inactive_seconds=inactive_time
+                inactive_seconds=inactive_seconds
             )
             self.disconnect(connection, reason="inactivity_timeout")
         

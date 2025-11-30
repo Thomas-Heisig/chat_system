@@ -27,8 +27,8 @@ class FileService:
                filename.rsplit('.', 1)[1].lower() in settings.ALLOWED_EXTENSIONS  # Korrigiert: settings.ALLOWED_EXTENSIONS
 
     async def save_uploaded_file(self, file: UploadFile, username: str, 
-                               project_id: str = None, ticket_id: str = None,
-                               description: str = None, is_public: bool = False) -> File:
+                               project_id: Optional[str] = None, ticket_id: Optional[str] = None,
+                               description: Optional[str] = None, is_public: bool = False) -> File:
         """Save uploaded file and create database record"""
         start_time = datetime.now()
         
@@ -56,13 +56,14 @@ class FileService:
             file_type = self._determine_file_type(file.filename, file.content_type)
 
             # Create file record
+            safe_mime_type = file.content_type or 'application/octet-stream'
             file_record = create_file(
                 original_filename=file.filename,
                 stored_filename=unique_filename,
                 file_path=file_path,
                 file_size=len(content),
                 file_hash=file_hash,
-                mime_type=file.content_type,
+                mime_type=safe_mime_type,
                 uploaded_by=username,
                 project_id=project_id,
                 ticket_id=ticket_id,
@@ -103,7 +104,7 @@ class FileService:
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
 
-    def _determine_file_type(self, filename: str, mime_type: str) -> FileType:
+    def _determine_file_type(self, filename: str, mime_type: Optional[str]) -> FileType:
         """Determine file type from filename and MIME type"""
         # Check by MIME type first
         if mime_type and mime_type.startswith('image/'):
@@ -141,10 +142,8 @@ class FileService:
     def get_project_files(self, project_id: str) -> List[File]:
         """Get all files for a project"""
         try:
-            # This would typically call file_repo.get_project_files(project_id)
-            # For now, return empty list
-            files = self.file_repo.get_all_files()
-            project_files = [f for f in files if f.project_id == project_id]
+            # Retrieve files for the given project using file_repo.get_files with a filter
+            project_files = [file for file in self.file_repo.get_files() if file.project_id == project_id]
             
             logger.info(f"✅ Retrieved {len(project_files)} files for project {project_id}")
             return project_files

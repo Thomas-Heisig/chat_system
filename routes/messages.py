@@ -354,7 +354,10 @@ async def get_message_stats(
         
         # Time-based statistics
         if all_messages and all_messages[0].timestamp:
-            messages_sorted = sorted(all_messages, key=lambda x: x.timestamp)
+            messages_sorted = sorted(
+                all_messages,
+                key=lambda x: x.timestamp if x.timestamp is not None else datetime.min
+            )
             first_message = messages_sorted[0].timestamp
             last_message = messages_sorted[-1].timestamp
             time_span = last_message - first_message if first_message and last_message else None

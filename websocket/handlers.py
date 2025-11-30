@@ -24,7 +24,7 @@ class WebSocketHandler:
     - Advanced error handling and recovery
     """
     
-    def __init__(self, message_service: MessageService, project_service: ProjectService = None, file_service: FileService = None):
+    def __init__(self, message_service: MessageService, project_service: Optional[ProjectService] = None, file_service: Optional[FileService] = None):
         self.message_service = message_service
         self.project_service = project_service
         self.file_service = file_service
@@ -58,7 +58,7 @@ class WebSocketHandler:
             ]
         )
 
-    async def handle_websocket(self, websocket: WebSocket, user_agent: str = None):
+    async def handle_websocket(self, websocket: WebSocket, user_agent: Optional[str] = None):
         """Handle complete WebSocket connection lifecycle with enhanced features"""
         start_time = datetime.now()
         connection_id = None
@@ -107,8 +107,8 @@ class WebSocketHandler:
                 connection_id=connection_id,
                 client_info=manager._get_client_info(websocket) if websocket else "unknown"
             )
-            await self._handle_disconnect(websocket, connection_id)
-            
+            if connection_id is not None:
+                await self._handle_disconnect(websocket, connection_id)
         except Exception as e:
             connection_duration = (datetime.now() - start_time).total_seconds() * 1000
             enhanced_logger.error(
@@ -118,7 +118,8 @@ class WebSocketHandler:
                 error_type=type(e).__name__,
                 connection_duration_ms=connection_duration
             )
-            await self._handle_disconnect(websocket, connection_id)
+            if connection_id is not None:
+                await self._handle_disconnect(websocket, connection_id)
 
     async def _handle_message_loop(self, websocket: WebSocket, connection_id: str):
         """Enhanced message handling loop with heartbeat and timeout detection"""
@@ -250,13 +251,14 @@ class WebSocketHandler:
         
         try:
             # Update user session
-            if message_data.username and message_data.username != client_session.get('username'):
-                await self._update_user_session(connection_id, message_data.username)
+            username = message_data.data.get('username') if message_data.data else None
+            if username and username != client_session.get('username'):
+                await self._update_user_session(connection_id, username)
             
             # Create message object with enhanced metadata
             message_obj = Message(
-                username=message_data.username,
-                message=message_data.message,
+                username=message_data.data.get('username') if message_data.data else None,
+                message=message_data.data.get('message') if message_data.data else None,
                 message_type=MessageType.USER,
                 room_id=message_data.data.get('room_id') if message_data.data else None,
                 project_id=message_data.data.get('project_id') if message_data.data else None,
@@ -273,8 +275,9 @@ class WebSocketHandler:
             enhanced_logger.debug(
                 "Saving chat message",
                 connection_id=connection_id,
-                username=message_data.username
+                username=message_data.data.get('username') if message_data.data else None
             )
+
             
             saved_message = self.message_service.save_message(message_obj)
             
@@ -328,7 +331,7 @@ class WebSocketHandler:
             enhanced_logger.info(
                 "Chat message processed successfully",
                 connection_id=connection_id,
-                username=message_data.username,
+                username=saved_message.username,
                 message_id=saved_message.id,
                 room_id=saved_message.room_id
             )
@@ -337,7 +340,7 @@ class WebSocketHandler:
             enhanced_logger.error(
                 "Failed to process chat message",
                 connection_id=connection_id,
-                username=message_data.username,
+                username=message_data.data.get('username') if message_data.data else None,
                 error=str(e)
             )
             await self._send_error(websocket, "Failed to process chat message")
@@ -345,52 +348,69 @@ class WebSocketHandler:
     async def _handle_ai_request(self, message_data: WebSocketMessage, connection_id: str):
         """Handle AI conversation requests"""
         client_session = self.client_sessions[connection_id]
-        websocket = client_session['websocket']
-        
-        if not message_data.message:
+        websocket = client_session["websocket"]
+
+        # Validate input data
+        if not message_data.data or not message_data.data.get("message"):
             await self._send_error(websocket, "AI request requires a message")
             return
-        
+
         try:
+            # --- Safely compute message preview ---
+            message_preview = ""
+            if message_data.data:
+                raw_msg = message_data.data.get("message")
+                if isinstance(raw_msg, str):
+                    message_preview = raw_msg[:50]
+
             enhanced_logger.info(
                 "Processing AI request",
                 connection_id=connection_id,
-                username=client_session.get('username'),
-                message_preview=message_data.message[:50]
+                username=client_session.get("username"),
+                message_preview=message_preview
             )
-            
-            # Get context messages if available
+
+            # --- Context messages ---
             context_messages = []
-            if message_data.data and message_data.data.get('use_context', True):
+            if message_data.data and message_data.data.get("use_context", True):
                 context_messages = self.message_service.get_recent_messages(10)
-            
-            # Generate AI response
+
+            # --- Extract and validate user message ---
+            user_message = None
+            if message_data.data:
+                user_message = message_data.data.get("message")
+
+            if not isinstance(user_message, str) or not user_message.strip():
+                await self._send_error(websocket, "Invalid or empty message for AI request")
+                return
+
+            # --- Generate AI response ---
             ai_response = self.message_service.generate_ai_response(
-                message=message_data.message,
+                message=user_message,
                 context_messages=context_messages,
-                model_type=message_data.data.get('model_type', 'ollama') if message_data.data else 'ollama',
-                model_name=message_data.data.get('model_name', 'llama2') if message_data.data else 'llama2'
+                model_type=message_data.data.get("model_type", "ollama"),
+                model_name=message_data.data.get("model_name", "llama2")
             )
-            
-            # Save AI response as message
+
+            # --- Build AI message model ---
             ai_message = Message(
                 username="AI Assistant",
                 message=ai_response,
                 message_type=MessageType.AI,
                 is_ai_response=True,
-                ai_model_used=message_data.data.get('model_type', 'ollama') if message_data.data else 'ollama',
-                room_id=message_data.data.get('room_id') if message_data.data else None,
-                project_id=message_data.data.get('project_id') if message_data.data else None,
+                ai_model_used=message_data.data.get("model_type", "ollama"),
+                room_id=message_data.data.get("room_id"),
+                project_id=message_data.data.get("project_id"),
                 metadata={
-                    'ai_request': message_data.message,
-                    'context_messages': len(context_messages),
-                    'connection_id': connection_id
+                    "ai_request": user_message,
+                    "context_messages": len(context_messages),
+                    "connection_id": connection_id
                 }
             )
-            
+
             saved_ai_message = self.message_service.save_message(ai_message)
-            
-            # Send AI response to requesting client
+
+            # --- Response payload ---
             response_data = {
                 "type": "ai_response",
                 "username": "AI Assistant",
@@ -400,19 +420,19 @@ class WebSocketHandler:
                 "metadata": {
                     "model_used": ai_message.ai_model_used,
                     "context_used": len(context_messages),
-                    "response_time": "instant"  # Would be calculated in real implementation
+                    "response_time": "instant"
                 }
             }
-            
+
             await manager.send_personal_message(response_data, websocket)
-            
+
             enhanced_logger.info(
                 "AI response sent",
                 connection_id=connection_id,
                 message_id=saved_ai_message.id,
                 model_used=ai_message.ai_model_used
             )
-            
+
         except Exception as e:
             enhanced_logger.error(
                 "AI request failed",
@@ -420,6 +440,7 @@ class WebSocketHandler:
                 error=str(e)
             )
             await self._send_error(websocket, f"AI request failed: {str(e)}")
+
 
     async def _handle_room_join(self, message_data: WebSocketMessage, connection_id: str):
         """Handle room join requests"""
@@ -556,12 +577,13 @@ class WebSocketHandler:
         """Handle user join notifications"""
         client_session = self.client_sessions[connection_id]
         
-        if message_data.username:
-            client_session['username'] = message_data.username
+        username = message_data.data.get('username') if message_data.data else None
+        if username:
+            client_session['username'] = username
             enhanced_logger.info(
                 "User join notification",
                 connection_id=connection_id,
-                username=message_data.username
+                username=username
             )
 
     async def _handle_user_leave(self, message_data: WebSocketMessage, connection_id: str):
@@ -673,13 +695,16 @@ class WebSocketHandler:
     # Utility methods
     async def _validate_chat_message(self, message_data: WebSocketMessage, connection_id: str) -> Optional[str]:
         """Validate chat message parameters"""
-        if not message_data.username or not message_data.message:
+        username = message_data.data.get('username') if message_data.data else None
+        message = message_data.data.get('message') if message_data.data else None
+        
+        if not username or not message:
             return "Username and message are required"
         
-        if len(message_data.username) > 50:
+        if len(username) > 50:
             return "Username too long (max 50 characters)"
         
-        if len(message_data.message) > 4000:
+        if len(message) > 4000:
             return "Message too long (max 4000 characters)"
         
         # Check if user is authenticated if required
@@ -775,7 +800,7 @@ class WebSocketHandler:
                 ]
             },
             "system_status": {
-                "active_connections": manager.get_connected_count(),
+                "active_connections": len(manager.active_connections),
                 "active_rooms": len(manager.message_stats['active_rooms']),
                 "ai_available": self.message_service.ollama_available
             }
@@ -853,7 +878,7 @@ class WebSocketHandler:
                 error=str(e)
             )
 
-    async def _send_error(self, websocket: WebSocket, error_message: str, error_code: str = None):
+    async def _send_error(self, websocket: WebSocket, error_message: str, error_code: Optional[str] = None):
         """Send structured error message to client"""
         try:
             error_data = {
@@ -917,20 +942,23 @@ class WebSocketHandler:
         """Get comprehensive connection statistics"""
         stats = {
             "total_connections": len(self.client_sessions),
-            "active_connections": manager.get_connected_count(),
+            "active_connections": len(manager.active_connections),
             "authenticated_users": len([s for s in self.client_sessions.values() if s.get('authenticated')]),
             "clients": [],
             "manager_stats": manager.get_connection_stats()
         }
         
         for connection_id, session in self.client_sessions.items():
+            connected_at = session.get('connected_at')
+            last_activity = session.get('last_activity')
+            
             stats["clients"].append({
                 "connection_id": connection_id,
                 "username": session.get('username'),
                 "user_id": session.get('user_id'),
                 "message_count": session.get('message_count', 0),
-                "connected_at": session.get('connected_at').isoformat(),
-                "last_activity": session.get('last_activity').isoformat(),
+                "connected_at": connected_at.isoformat() if connected_at else None,
+                "last_activity": last_activity.isoformat() if last_activity else None,
                 "authenticated": session.get('authenticated', False),
                 "rooms": list(session.get('rooms', set())),
                 "client_info": session.get('client_info'),

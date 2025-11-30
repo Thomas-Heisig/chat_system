@@ -88,7 +88,7 @@ class MessageService:
 
     def generate_ai_response(self, 
                            message: str, 
-                           context_messages: List[Message] = None,
+                           context_messages: Optional[List[Message]] = None,
                            model_type: str = "ollama",
                            model_name: str = "llama2") -> str:
         """Generate AI response using selected model"""
@@ -297,7 +297,7 @@ Assistant:"""
             }
 
     def ask_question(self, question: str, username: str, use_context: bool = True, 
-                    model_type: str = "ollama", project_id: str = None) -> Dict[str, Any]:
+                    model_type: str = "ollama", project_id: Optional[str] = None) -> Dict[str, Any]:
         """Ask AI a question with optional context"""
         try:
             if not question.strip():

@@ -45,6 +45,24 @@
                         </button>
                     </li>
                     <li class="nav-item">
+                        <button class="nav-link" data-section="settings">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-text">Einstellungen</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="rag">
+                            <span class="nav-icon">🔍</span>
+                            <span class="nav-text">RAG System</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="database">
+                            <span class="nav-icon">🗄️</span>
+                            <span class="nav-text">Datenbank</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
                         <button class="nav-link" data-section="projects">
                             <span class="nav-icon">📊</span>
                             <span class="nav-text">Projekte</span>
@@ -65,15 +83,21 @@
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-section="ai">
-                            <span class="nav-icon">🤖</span>
-                            <span class="nav-text">AI Assistant</span>
+                        <button class="nav-link" data-section="users">
+                            <span class="nav-icon">👥</span>
+                            <span class="nav-text">Benutzer</span>
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-section="analytics">
+                        <button class="nav-link" data-section="monitoring">
                             <span class="nav-icon">📈</span>
-                            <span class="nav-text">Analytics</span>
+                            <span class="nav-text">Monitoring</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-section="integrations">
+                            <span class="nav-icon">🔗</span>
+                            <span class="nav-text">Integrationen</span>
                         </button>
                     </li>
                 </ul>
@@ -364,6 +388,557 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Settings Section -->
+            <section class="content-section" id="settingsSection">
+                <div class="settings-container">
+                    <h2>⚙️ Einstellungen</h2>
+                    
+                    <!-- Settings Tabs -->
+                    <div class="settings-tabs">
+                        <button class="settings-tab active" data-settings-tab="general">Allgemein</button>
+                        <button class="settings-tab" data-settings-tab="ai">AI</button>
+                        <button class="settings-tab" data-settings-tab="security">Sicherheit</button>
+                        <button class="settings-tab" data-settings-tab="features">Features</button>
+                        <button class="settings-tab" data-settings-tab="ui">UI</button>
+                    </div>
+                    
+                    <!-- General Settings -->
+                    <div class="settings-panel active" id="generalSettingsPanel">
+                        <h3>Allgemeine Einstellungen</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="appName">App Name</label>
+                                <input type="text" id="appName" placeholder="Chat System">
+                            </div>
+                            <div class="form-group">
+                                <label for="debugMode">Debug Modus</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="debugMode">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="logLevel">Log Level</label>
+                                <select id="logLevel">
+                                    <option value="DEBUG">DEBUG</option>
+                                    <option value="INFO" selected>INFO</option>
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="ERROR">ERROR</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Settings -->
+                    <div class="settings-panel" id="aiSettingsPanel">
+                        <h3>AI Einstellungen</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="aiEnabled">AI aktivieren</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="aiEnabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="ollamaUrl">Ollama URL</label>
+                                <input type="url" id="ollamaUrl" placeholder="http://localhost:11434">
+                            </div>
+                            <div class="form-group">
+                                <label for="defaultModel">Standard Modell</label>
+                                <select id="defaultModel">
+                                    <option value="llama2">Llama 2</option>
+                                    <option value="mistral">Mistral</option>
+                                    <option value="codellama">Code Llama</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="aiTemperature">Temperatur: <span id="tempValue">0.7</span></label>
+                                <input type="range" id="aiTemperature" min="0" max="1" step="0.1" value="0.7">
+                            </div>
+                            <div class="form-group">
+                                <label for="maxTokens">Max Tokens</label>
+                                <input type="number" id="maxTokens" value="1000" min="100" max="4000">
+                            </div>
+                            <div class="form-group">
+                                <label for="autoRespond">Auto-Antwort</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="autoRespond" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Settings -->
+                    <div class="settings-panel" id="securitySettingsPanel">
+                        <h3>Sicherheitseinstellungen</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="rateLimitEnabled">Rate-Limiting aktivieren</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="rateLimitEnabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="rateLimitRequests">Max Anfragen</label>
+                                <input type="number" id="rateLimitRequests" value="100" min="10" max="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="rateLimitWindow">Zeitfenster (Sekunden)</label>
+                                <input type="number" id="rateLimitWindow" value="60" min="10" max="300">
+                            </div>
+                            <div class="form-group">
+                                <label for="corsOrigins">CORS Origins (kommagetrennt)</label>
+                                <textarea id="corsOrigins" rows="3" placeholder="http://localhost:3000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature Settings -->
+                    <div class="settings-panel" id="featuresSettingsPanel">
+                        <h3>Feature Einstellungen</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="projectManagement">Projektmanagement</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="projectManagement" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="ticketSystem">Ticket-System</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="ticketSystem" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="fileUpload">Datei-Upload</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="fileUpload" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="userAuthentication">Benutzer-Authentifizierung</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="userAuthentication">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="websocketEnabled">WebSocket aktivieren</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="websocketEnabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- UI Settings -->
+                    <div class="settings-panel" id="uiSettingsPanel">
+                        <h3>UI Einstellungen</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="uiTheme">Theme</label>
+                                <select id="uiTheme">
+                                    <option value="light">Hell</option>
+                                    <option value="dark">Dunkel</option>
+                                    <option value="auto">Automatisch</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="uiLanguage">Sprache</label>
+                                <select id="uiLanguage">
+                                    <option value="de" selected>Deutsch</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="showTimestamps">Zeitstempel anzeigen</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="showTimestamps" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="enableSound">Sound aktivieren</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="enableSound" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="enableNotifications">Benachrichtigungen aktivieren</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="enableNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-actions">
+                        <button class="primary-btn" id="saveSettingsBtn">
+                            <span class="button-icon">💾</span>
+                            <span class="button-text">Speichern</span>
+                        </button>
+                        <button class="secondary-btn" id="resetSettingsBtn">
+                            <span class="button-icon">↩️</span>
+                            <span class="button-text">Zurücksetzen</span>
+                        </button>
+                        <button class="secondary-btn" id="exportSettingsBtn">
+                            <span class="button-icon">📤</span>
+                            <span class="button-text">Exportieren</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RAG Section -->
+            <section class="content-section" id="ragSection">
+                <div class="rag-container">
+                    <h2>🔍 RAG System (Retrieval Augmented Generation)</h2>
+                    
+                    <div class="rag-status">
+                        <div class="status-card">
+                            <h4>Status</h4>
+                            <span class="status-indicator" id="ragStatus">Inaktiv</span>
+                        </div>
+                        <div class="status-card">
+                            <h4>Provider</h4>
+                            <span id="ragProvider">ChromaDB</span>
+                        </div>
+                        <div class="status-card">
+                            <h4>Dokumente</h4>
+                            <span id="ragDocCount">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="rag-settings">
+                        <h3>RAG Einstellungen</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="ragEnabled">RAG aktivieren</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="ragEnabled">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="vectorDbProvider">Vector Datenbank</label>
+                                <select id="vectorDbProvider">
+                                    <option value="chromadb">ChromaDB (lokal)</option>
+                                    <option value="qdrant">Qdrant</option>
+                                    <option value="pinecone">Pinecone</option>
+                                    <option value="weaviate">Weaviate</option>
+                                    <option value="milvus">Milvus</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="embeddingModel">Embedding Modell</label>
+                                <select id="embeddingModel">
+                                    <option value="all-MiniLM-L6-v2">all-MiniLM-L6-v2</option>
+                                    <option value="all-mpnet-base-v2">all-mpnet-base-v2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="chunkSize">Chunk Größe</label>
+                                <input type="number" id="chunkSize" value="512" min="100" max="2000">
+                            </div>
+                            <div class="form-group">
+                                <label for="chunkOverlap">Chunk Überlappung</label>
+                                <input type="number" id="chunkOverlap" value="50" min="0" max="500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rag-documents">
+                        <h3>Dokument Upload</h3>
+                        <div class="upload-zone" id="ragUploadZone">
+                            <input type="file" id="ragFileInput" accept=".txt,.pdf,.md,.html" multiple>
+                            <p>Dateien hier ablegen oder klicken zum Hochladen</p>
+                            <p class="file-types">Unterstützt: .txt, .pdf, .md, .html</p>
+                        </div>
+                        <div id="ragUploadedFiles" class="uploaded-files-list"></div>
+                    </div>
+                    
+                    <div class="rag-test">
+                        <h3>RAG Pipeline testen</h3>
+                        <div class="test-form">
+                            <input type="text" id="ragTestQuery" placeholder="Suchbegriff eingeben...">
+                            <button class="primary-btn" id="ragTestBtn">
+                                <span class="button-icon">🔍</span>
+                                <span class="button-text">Suchen</span>
+                            </button>
+                        </div>
+                        <div id="ragTestResults" class="test-results"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Database Section -->
+            <section class="content-section" id="databaseSection">
+                <div class="database-container">
+                    <h2>🗄️ Datenbank</h2>
+                    
+                    <div class="db-status-grid">
+                        <div class="status-card">
+                            <h4>Status</h4>
+                            <span class="status-indicator healthy" id="dbStatus">Verbunden</span>
+                        </div>
+                        <div class="status-card">
+                            <h4>Typ</h4>
+                            <span id="dbType">SQLite</span>
+                        </div>
+                        <div class="status-card">
+                            <h4>Größe</h4>
+                            <span id="dbSize">0 MB</span>
+                        </div>
+                        <div class="status-card">
+                            <h4>Tabellen</h4>
+                            <span id="dbTableCount">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="db-config">
+                        <h3>Datenbank Konfiguration</h3>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="dbTypeSelect">Datenbank Typ</label>
+                                <select id="dbTypeSelect">
+                                    <option value="sqlite" selected>SQLite (Standard)</option>
+                                    <option value="postgresql">PostgreSQL</option>
+                                    <option value="mysql">MySQL</option>
+                                    <option value="mongodb">MongoDB</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="dbHostGroup">
+                                <label for="dbHost">Host</label>
+                                <input type="text" id="dbHost" placeholder="localhost">
+                            </div>
+                            <div class="form-group" id="dbPortGroup">
+                                <label for="dbPort">Port</label>
+                                <input type="number" id="dbPort" value="5432">
+                            </div>
+                            <div class="form-group">
+                                <label for="dbName">Datenbank Name</label>
+                                <input type="text" id="dbName" placeholder="chat_system">
+                            </div>
+                            <div class="form-group">
+                                <label for="dbPoolSize">Pool Größe</label>
+                                <input type="number" id="dbPoolSize" value="10" min="1" max="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="db-actions">
+                        <button class="primary-btn" id="dbTestConnectionBtn">
+                            <span class="button-icon">🔌</span>
+                            <span class="button-text">Verbindung testen</span>
+                        </button>
+                        <button class="secondary-btn" id="dbBackupBtn">
+                            <span class="button-icon">💾</span>
+                            <span class="button-text">Backup erstellen</span>
+                        </button>
+                        <button class="secondary-btn" id="dbOptimizeBtn">
+                            <span class="button-icon">⚡</span>
+                            <span class="button-text">Optimieren</span>
+                        </button>
+                    </div>
+                    
+                    <div class="db-stats">
+                        <h3>Datenbank Statistiken</h3>
+                        <div id="dbStatsTable" class="stats-table">
+                            <!-- Stats will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="db-backups">
+                        <h3>Backups</h3>
+                        <div id="dbBackupsList" class="backups-list">
+                            <!-- Backups will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section class="content-section" id="usersSection">
+                <div class="users-container">
+                    <h2>👥 Benutzer & Authentifizierung</h2>
+                    
+                    <div class="users-header">
+                        <button class="primary-btn" id="createUserBtn">
+                            <span class="button-icon">➕</span>
+                            <span class="button-text">Neuer Benutzer</span>
+                        </button>
+                    </div>
+                    
+                    <div class="users-list" id="usersList">
+                        <!-- Users will be loaded dynamically -->
+                    </div>
+                    
+                    <div class="api-keys-section">
+                        <h3>API Keys</h3>
+                        <button class="secondary-btn" id="createApiKeyBtn">
+                            <span class="button-icon">🔑</span>
+                            <span class="button-text">Neuer API Key</span>
+                        </button>
+                        <div id="apiKeysList" class="api-keys-list">
+                            <!-- API keys will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="sessions-section">
+                        <h3>Aktive Sessions</h3>
+                        <div class="session-stats">
+                            <span>Aktive Sessions: <strong id="activeSessions">0</strong></span>
+                            <button class="text-btn" id="cleanupSessionsBtn">Sessions bereinigen</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monitoring Section -->
+            <section class="content-section" id="monitoringSection">
+                <div class="monitoring-container">
+                    <h2>📈 Monitoring & Logs</h2>
+                    
+                    <div class="system-health">
+                        <h3>System Health</h3>
+                        <div class="health-grid">
+                            <div class="health-card">
+                                <span class="health-icon">🖥️</span>
+                                <div class="health-info">
+                                    <h4>CPU</h4>
+                                    <span id="cpuUsage">0%</span>
+                                </div>
+                            </div>
+                            <div class="health-card">
+                                <span class="health-icon">💾</span>
+                                <div class="health-info">
+                                    <h4>Speicher</h4>
+                                    <span id="memoryUsage">0%</span>
+                                </div>
+                            </div>
+                            <div class="health-card">
+                                <span class="health-icon">💿</span>
+                                <div class="health-info">
+                                    <h4>Disk</h4>
+                                    <span id="diskUsage">0%</span>
+                                </div>
+                            </div>
+                            <div class="health-card">
+                                <span class="health-icon">🌐</span>
+                                <div class="health-info">
+                                    <h4>Netzwerk</h4>
+                                    <span id="networkStatus">OK</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="logs-section">
+                        <h3>Live Logs</h3>
+                        <div class="logs-controls">
+                            <select id="logLevelFilter">
+                                <option value="">Alle Level</option>
+                                <option value="DEBUG">DEBUG</option>
+                                <option value="INFO">INFO</option>
+                                <option value="WARNING">WARNING</option>
+                                <option value="ERROR">ERROR</option>
+                            </select>
+                            <input type="text" id="logSearch" placeholder="Suchen...">
+                            <button class="text-btn" id="refreshLogsBtn">🔄 Aktualisieren</button>
+                        </div>
+                        <div id="logsContainer" class="logs-container">
+                            <!-- Logs will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="api-stats">
+                        <h3>API Nutzung</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h4>Anfragen (24h)</h4>
+                                <span id="apiRequests24h">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Fehler (24h)</h4>
+                                <span id="apiErrors24h">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <h4>Durchschnittliche Latenz</h4>
+                                <span id="avgLatency">0ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Integrations Section -->
+            <section class="content-section" id="integrationsSection">
+                <div class="integrations-container">
+                    <h2>🔗 Integrationen</h2>
+                    
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <span class="integration-icon">🔗</span>
+                            <h3>Webhooks</h3>
+                        </div>
+                        <div class="integration-content">
+                            <p>Externe Dienste bei Ereignissen benachrichtigen</p>
+                            <button class="secondary-btn" id="addWebhookBtn">Webhook hinzufügen</button>
+                        </div>
+                        <div id="webhooksList" class="webhooks-list">
+                            <!-- Webhooks will be loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <span class="integration-icon">💬</span>
+                            <h3>Slack</h3>
+                        </div>
+                        <div class="integration-content">
+                            <p>Nachrichten in Slack Channels senden</p>
+                            <div class="form-group">
+                                <label for="slackWebhookUrl">Slack Webhook URL</label>
+                                <input type="url" id="slackWebhookUrl" placeholder="https://hooks.slack.com/...">
+                            </div>
+                            <button class="secondary-btn" id="testSlackBtn">Testen</button>
+                        </div>
+                    </div>
+                    
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <span class="integration-icon">🎮</span>
+                            <h3>Discord</h3>
+                        </div>
+                        <div class="integration-content">
+                            <p>Nachrichten in Discord Channels senden</p>
+                            <div class="form-group">
+                                <label for="discordWebhookUrl">Discord Webhook URL</label>
+                                <input type="url" id="discordWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                            </div>
+                            <button class="secondary-btn" id="testDiscordBtn">Testen</button>
+                        </div>
+                    </div>
+                    
+                    <div class="plugins-section">
+                        <h3>Plugins (Beta)</h3>
+                        <p class="info-text">Plugin-System ist in Entwicklung. Zukünftige Plugins werden hier angezeigt.</p>
+                        <div id="pluginsList" class="plugins-list">
+                            <!-- Plugins will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -425,5 +1000,6 @@
     </div>
 
     <script src="/static/js/chat.js"></script>
+    <script src="/static/js/admin.js"></script>
 </body>
 </html>

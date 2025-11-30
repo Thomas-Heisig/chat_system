@@ -375,7 +375,7 @@ async def create_new_project(
             "project_id": project_id,
             "name": name,
             "status": "created",
-            "created_at": project.created_at.isoformat()
+            "created_at": project.created_at.isoformat() if project.created_at else datetime.now().isoformat()
         }
         
     except HTTPException:
@@ -498,7 +498,7 @@ async def create_new_ticket(
             "ticket_id": ticket_id,
             "title": title,
             "status": "open",
-            "created_at": ticket.created_at.isoformat()
+            "created_at": ticket.created_at.isoformat() if ticket.created_at else datetime.now().isoformat()
         }
         
     except HTTPException:
@@ -554,7 +554,7 @@ async def upload_file(
             "filename": file_record.original_filename,
             "file_size": file_record.file_size,
             "uploaded_by": uploaded_by,
-            "upload_date": file_record.upload_date.isoformat()
+            "upload_date": file_record.upload_date.isoformat() if file_record.upload_date else datetime.now().isoformat()
         }
         
     except HTTPException:
@@ -661,7 +661,7 @@ async def get_system_statistics():
 async def get_ai_statistics():
     """Get AI interaction statistics"""
     try:
-        stats = message_repository.get_ai_interaction_stats()
+        stats = message_service.get_ai_interaction_stats()
         
         logger.info("🤖 AI statistics requested")
         

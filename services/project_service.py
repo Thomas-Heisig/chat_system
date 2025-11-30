@@ -47,7 +47,7 @@ class ProjectService:
             )
             raise
 
-    def get_projects(self, filters: ProjectFilter = None) -> PaginatedResponse:
+    def get_projects(self, filters: Optional[ProjectFilter] = None) -> PaginatedResponse:
         """Get projects with filtering and pagination"""
         try:
             if filters is None:
@@ -134,9 +134,10 @@ class ProjectService:
             )
             
             # Get project messages
-            messages = self.message_repo.get_messages_by_filter(
-                MessageFilter(project_id=project_id, limit=1000)
-            )
+            messages = self.message_repo.filter_messages(
+    MessageFilter(project_id=project_id, limit=1000)
+)
+
             
             # Calculate statistics
             total_tickets = len(tickets.items)
@@ -193,12 +194,13 @@ class ProjectService:
             
             project = self.get_project(project_id)
             
+            project_name = project.name if project else "Unknown"
             report = {
                 "project_report": {
                     "project_id": project_id,
-                    "project_name": project.name,
+                    "project_name": project_name,
                     "generated_at": datetime.now().isoformat(),
-                    "summary": f"Project '{project.name}' has {stats['ticket_statistics']['total']} tickets "
+                    "summary": f"Project '{project_name}' has {stats['ticket_statistics']['total']} tickets "
                               f"and {stats['message_statistics']['total']} messages.",
                     "key_metrics": stats,
                     "recommendations": self._generate_project_recommendations(stats)

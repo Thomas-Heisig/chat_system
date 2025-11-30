@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +12,10 @@ from config.settings import settings, logger, enhanced_logger
 from database.connection import init_database, get_database_stats, check_database_health
 from routes.chat import router as chat_router
 from routes.messages import router as messages_router
+from routes.settings import router as settings_router
+from routes.rag import router as rag_router
+from routes.database import router as database_router
+from routes.admin import router as admin_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -144,10 +149,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
-    allow_methods=settings.CORS_ALLOW_METHODS,
-    allow_headers=settings.CORS_ALLOW_HEADERS,
-    expose_headers=settings.CORS_EXPOSE_HEADERS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["X-Process-Time", "X-Request-ID"],
 )
 
 # Enhanced logging middleware with performance monitoring
@@ -290,7 +295,11 @@ for route, directory, description in static_dirs:
 # Register routes with enhanced logging
 routes_config = [
     (chat_router, "", "Chat routes (WebSocket, UI, AI)"),
-    (messages_router, "/api", "Messages API routes")
+    (messages_router, "/api", "Messages API routes"),
+    (settings_router, "", "Settings API routes"),
+    (rag_router, "", "RAG API routes"),
+    (database_router, "", "Database Admin API routes"),
+    (admin_router, "", "Admin Dashboard API routes")
 ]
 
 for router, prefix, description in routes_config:
@@ -344,11 +353,10 @@ async def comprehensive_health_check():
             "real_time_chat": settings.WEBSOCKET_ENABLED,
             "rag_system": settings.RAG_ENABLED
         }
-        
         # System information
         health_data["system"] = {
-            "python_version": os.sys.version,
-            "platform": os.sys.platform,
+            "python_version": sys.version,
+            "platform": sys.platform,
             "log_level": settings.LOG_LEVEL,
             "debug_mode": settings.APP_DEBUG
         }
@@ -481,23 +489,24 @@ enhanced_logger.info(
 if __name__ == "__main__":
     import uvicorn
     
+    reload_enabled = settings.APP_DEBUG
+    workers = 1 if reload_enabled else 4
+    
     enhanced_logger.info(
         "Starting Uvicorn server",
         host=settings.HOST,
         port=settings.PORT,
-        reload=settings.RELOAD,
-        workers=settings.WORKERS
+        reload=reload_enabled,
+        workers=workers
     )
     
     uvicorn.run(
         "main:app",
         host=settings.HOST,
         port=settings.PORT,
-        reload=settings.RELOAD,
-        workers=settings.WORKERS if not settings.RELOAD else 1,
+        reload=reload_enabled,
+        workers=workers if not reload_enabled else 1,
         log_level=settings.LOG_LEVEL.lower(),
         access_log=True,
-        timeout_keep_alive=5,
-        timeout_notify=30,
-        timeout_graceful_shutdown=30
+        timeout_keep_alive=5
     )

@@ -53,7 +53,10 @@ class MessageRepository:
                         json.dumps(message.metadata)
                     )
                 )
-                message_id = cursor.lastrowid
+                message_id_raw = cursor.lastrowid
+                if message_id_raw is None:
+                    raise RuntimeError("Failed to retrieve message ID after insert")
+                message_id: int = int(message_id_raw)
                 
                 duration = (datetime.now() - start_time).total_seconds()
                 enhanced_logger.info(
@@ -102,7 +105,7 @@ class MessageRepository:
             return None
 
     @staticmethod
-    def get_recent_messages(limit: int = 50, room_id: str = None, project_id: str = None) -> List[Message]:
+    def get_recent_messages(limit: int = 50, room_id: Optional[str] = None, project_id: Optional[str] = None) -> List[Message]:
         """Retrieve recent messages with room and project filtering"""
         try:
             query = """SELECT id, username, message, message_compressed, timestamp, message_type,
@@ -290,6 +293,23 @@ class MessageRepository:
             return []
 
     @staticmethod
+    def get_all_messages() -> List[Message]:
+        """Get all messages (simple compatibility method)"""
+        filters = MessageFilter(limit=1000)
+        return MessageRepository.get_messages_by_filter(filters).items
+
+    @staticmethod
+    def get_message_count() -> int:
+        """Get total message count"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT COUNT(*) FROM messages")
+                return cursor.fetchone()[0]
+        except Exception as e:
+            logger.error(f"❌ Failed to get message count: {e}")
+            return 0
+
+    @staticmethod
     def _row_to_message(row) -> Message:
         """Convert database row to Message object"""
         try:
@@ -343,8 +363,8 @@ class UserRepository:
                         user.is_active,
                         user.is_verified,
                         user.last_login.isoformat() if user.last_login else None,
-                        user.created_at.isoformat(),
-                        user.updated_at.isoformat(),
+                        (user.created_at or datetime.now()).isoformat(),
+                        (user.updated_at or datetime.now()).isoformat(),
                         json.dumps(user.preferences),
                         json.dumps(user.metadata)
                     )
@@ -443,8 +463,8 @@ class ProjectRepository:
                         project.description,
                         project.status,
                         project.created_by,
-                        project.created_at.isoformat(),
-                        project.updated_at.isoformat(),
+                        (project.created_at or datetime.now()).isoformat(),
+                        (project.updated_at or datetime.now()).isoformat(),
                         project.due_date.isoformat() if project.due_date else None,
                         json.dumps(project.tags),
                         json.dumps(project.members),
@@ -566,8 +586,8 @@ class TicketRepository:
                         ticket.priority,
                         ticket.type,
                         ticket.due_date.isoformat() if ticket.due_date else None,
-                        ticket.created_at.isoformat(),
-                        ticket.updated_at.isoformat(),
+                        (ticket.created_at or datetime.now()).isoformat(),
+                        (ticket.updated_at or datetime.now()).isoformat(),
                         ticket.resolved_at.isoformat() if ticket.resolved_at else None,
                         ticket.estimated_hours,
                         ticket.actual_hours,
@@ -718,7 +738,7 @@ class FileRepository:
                         file.project_id,
                         file.ticket_id,
                         file.message_id,
-                        file.upload_date.isoformat(),
+                        (file.upload_date or datetime.now()).isoformat(),
                         file.description,
                         file.download_count,
                         file.is_public,
@@ -914,23 +934,3 @@ class StatisticsRepository:
         except Exception as e:
             enhanced_logger.error("Failed to collect system statistics", error=str(e))
             return {}
-
-# Compatibility methods
-class MessageRepository:
-    # Keep original simple methods for compatibility
-    @staticmethod
-    def get_all_messages() -> List[Message]:
-        """Get all messages (simple compatibility method)"""
-        filters = MessageFilter(limit=1000)
-        return MessageRepository.get_messages_by_filter(filters).items
-
-    @staticmethod
-    def get_message_count() -> int:
-        """Get total message count"""
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.execute("SELECT COUNT(*) FROM messages")
-                return cursor.fetchone()[0]
-        except Exception as e:
-            logger.error(f"❌ Failed to get message count: {e}")
-            return 0

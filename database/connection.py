@@ -2,10 +2,9 @@ import sqlite3
 import json
 import uuid
 import zlib
-import hashlib
 from contextlib import contextmanager
-from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
+from typing import Dict, Any, Optional
 from pathlib import Path
 import threading
 
@@ -112,7 +111,6 @@ def transaction(conn):
         conn.rollback()
         logger.debug("🔄 Explicit transaction rolled back")
         raise
-
 def init_database():
     """Enhanced database initialization with comprehensive table structure"""
     start_time = datetime.now()
@@ -345,6 +343,9 @@ def init_database():
             """)
             
             # Create indexes for performance
+            conn.commit()
+            
+            # Create indexes for performance (after tables are committed)
             indexes = [
                 "CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp)",
                 "CREATE INDEX IF NOT EXISTS idx_messages_username ON messages(username)",
@@ -365,7 +366,6 @@ def init_database():
                 conn.execute(index_sql)
             
             conn.commit()
-            
         duration = (datetime.now() - start_time).total_seconds()
         enhanced_logger.info(
             "Database initialized successfully",
@@ -503,7 +503,7 @@ def should_compress(text: str, threshold: int = 1000) -> bool:
     return len(text) > threshold
 
 # Enhanced backup functionality
-def backup_database(backup_path: str = None, compress: bool = True) -> str:
+def backup_database(backup_path: Optional[str] = None, compress: bool = True) -> str:
     """Create a compressed backup of the database"""
     import shutil
     from datetime import datetime
@@ -801,7 +801,7 @@ def check_database_health() -> Dict[str, Any]:
         return health
 
 # Export functionality with compression
-def export_database_schema(export_path: str = None) -> str:
+def export_database_schema(export_path: Optional[str] = None) -> str:
     """Export database schema to SQL file"""
     if export_path is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
