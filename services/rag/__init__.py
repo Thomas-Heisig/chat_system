@@ -6,7 +6,7 @@ Supports multiple vector database backends
 
 from typing import Type, Dict
 from .base_rag import BaseRAGProvider
-from .document_processor import DocumentProcessor
+from .document_processor import DocumentProcessor, ChunkConfig
 
 # Registry of available RAG providers
 RAG_PROVIDER_REGISTRY: Dict[str, Type[BaseRAGProvider]] = {}
@@ -49,6 +49,7 @@ def get_available_providers() -> Dict[str, bool]:
 __all__ = [
     'BaseRAGProvider',
     'DocumentProcessor',
+    'ChunkConfig',
     'get_rag_provider',
     'get_available_providers',
     'RAG_PROVIDER_REGISTRY'

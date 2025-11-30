@@ -204,3 +204,506 @@
 2025-11-30 14:04:01 | WARNING  | config.settings      | settings        | warning              | Ollama not available
 2025-11-30 14:04:01 | INFO     | config.settings      | settings        | info                 | MessageService initialized
 2025-11-30 14:04:01 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:12:24 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3881}
+2025-11-30 15:12:24 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:12:24 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:12:24 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:12:24 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:12:24 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:12:24 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:12:24 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:12:24 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:12:24 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:12:24 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:12:48 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3894}
+2025-11-30 15:12:48 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:12:48 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:12:48 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:12:48 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:12:48 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:12:48 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:12:48 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:12:48 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:12:48 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:12:48 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:12:49 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:13:51 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3920}
+2025-11-30 15:13:51 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:13:51 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:13:52 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:13:52 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:13:52 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:13:52 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:13:52 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:14:26 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3942}
+2025-11-30 15:14:26 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:14:26 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:14:26 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:14:26 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:14:26 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:14:26 | INFO     | config.settings      | settings        | info                 | Starting Uvicorn server
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:14:57 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3957}
+2025-11-30 15:14:57 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:14:57 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:14:57 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:14:57 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:14:57 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:14:57 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:14:57 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:14:57 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:14:57 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:14:57 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | Starting Uvicorn server
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:14:58 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3962}
+2025-11-30 15:14:58 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:14:58 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:14:58 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:14:58 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:14:58 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:14:58 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:14:58 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:14:58 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:14:59 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Starting Chat System Application
+2025-11-30 15:14:59 | INFO     | config.settings      | settings        | info                 | Initializing database
+2025-11-30 15:14:59 | ERROR    | config.settings      | settings        | error                | Unexpected database error
+2025-11-30 15:14:59 | ERROR    | config.settings      | settings        | error                | Database initialization failed
+2025-11-30 15:14:59 | ERROR    | config.settings      | settings        | error                | Startup failed
+2025-11-30 15:14:59 | INFO     | watchfiles.main      | main            | _log_changes         | 4 changes detected
+2025-11-30 15:15:00 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:00 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:00 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:01 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:01 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:01 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:02 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:02 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:02 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:03 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:03 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:03 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:04 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:04 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:04 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:05 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:05 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:06 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:06 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:06 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:07 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:07 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: chat_system.db
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:15:41 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3984}
+2025-11-30 15:15:41 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:15:41 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:15:41 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:15:41 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:15:41 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:15:41 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:15:41 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:15:41 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:15:41 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:15:41 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | Starting Uvicorn server
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 2 configured
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: chat_system.db
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 15:15:42 | WARNING  | config.settings      | settings        | validate_environment | ⚠️ Debug mode is enabled - disable in production
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '75.9%', 'process_id': 3989}
+2025-11-30 15:15:42 | WARNING  | config.settings      | settings        | <module>             | ⚠️ Environment configuration has warnings - check logs above
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | ConnectionManager initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | chat            | <module>             | 🔄 Initializing enhanced chat routes dependencies...
+2025-11-30 15:15:42 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | file_service    | __init__             | 🔄 FileService initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | WebSocketHandler initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | chat            | <module>             | ✅ Enhanced chat routes dependencies initialized successfully
+2025-11-30 15:15:42 | INFO     | config.settings      | chat            | <module>             | 🚀 System Features - Projects: True, Tickets: True, Files: True, Auth: False
+2025-11-30 15:15:42 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:42 | INFO     | config.settings      | messages        | <module>             | 🔄 Initializing enhanced messages API routes dependencies...
+2025-11-30 15:15:42 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-11-30 15:15:42 | INFO     | config.settings      | messages        | <module>             | ✅ Enhanced messages API routes dependencies initialized successfully
+2025-11-30 15:15:42 | INFO     | config.settings      | settings        | info                 | SettingsService initialized
+2025-11-30 15:15:42 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | AuthService initialized
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Static directory mounted
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Router registered
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | FastAPI application configured
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Starting Chat System Application
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Initializing database
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Database initialized successfully
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Messages table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Users table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Projects table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Tickets table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Files table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Message Reactions table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Chat Rooms table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Room Members table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Ai Conversations table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Ai Models table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Api Credentials table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _verify_database_setup | ✅ Audit Log table verified
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _insert_default_ai_models | ✅ Default AI models inserted
+2025-11-30 15:15:43 | WARNING  | config.settings      | connection      | _insert_default_admin_user | ⚠️ Default admin user created - PLEASE CHANGE PASSWORD IMMEDIATELY
+2025-11-30 15:15:43 | INFO     | config.settings      | connection      | _insert_default_admin_user | 🔐 Default credentials: admin / admin123
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Database health check completed
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Database initialized
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | System configuration
+2025-11-30 15:15:43 | INFO     | config.settings      | settings        | info                 | Application started successfully
+2025-11-30 15:15:43 | INFO     | watchfiles.main      | main            | _log_changes         | 6 changes detected
+2025-11-30 15:15:44 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:44 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:44 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:45 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:45 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:45 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:46 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:46 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:46 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:47 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:47 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:47 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:48 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:48 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:48 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:49 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:49 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:50 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:50 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:50 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:51 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:51 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:51 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:52 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:52 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:52 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:53 | INFO     | watchfiles.main      | main            | _log_changes         | 1 change detected
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Request started
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Available models retrieved
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Request completed
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Request started
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | All settings retrieved
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Request completed
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Shutting down Chat System
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Performing cleanup tasks
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Final database statistics
+2025-11-30 15:15:53 | INFO     | config.settings      | settings        | info                 | Shutdown completed

@@ -59,7 +59,10 @@ class EnvironmentSettings(BaseSettings):
     ALLOWED_EXTENSIONS: List[str] = Field(default=["jpg", "jpeg", "png", "gif", "pdf", "txt", "doc", "docx"])
     
     # Database
-    DATABASE_URL: str = Field(default="sqlite:///./chat_system.db")
+    DATABASE_URL: str = Field(default="chat_system.db")
+    DATABASE_TIMEOUT: int = Field(default=30)
+    DATABASE_POOL_SIZE: int = Field(default=10)
+    DATABASE_MAX_OVERFLOW: int = Field(default=20)
     
     # Logging (alte Variablen)
     LOG_LEVEL: str = Field(default="INFO")

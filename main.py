@@ -148,10 +148,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
-    allow_methods=settings.CORS_ALLOW_METHODS,
-    allow_headers=settings.CORS_ALLOW_HEADERS,
-    expose_headers=settings.CORS_EXPOSE_HEADERS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["X-Process-Time", "X-Request-ID"],
 )
 
 # Enhanced logging middleware with performance monitoring
@@ -489,23 +489,24 @@ enhanced_logger.info(
 if __name__ == "__main__":
     import uvicorn
     
+    reload_enabled = settings.APP_DEBUG
+    workers = 1 if reload_enabled else 4
+    
     enhanced_logger.info(
         "Starting Uvicorn server",
         host=settings.HOST,
         port=settings.PORT,
-        reload=settings.RELOAD,
-        workers=settings.WORKERS
+        reload=reload_enabled,
+        workers=workers
     )
     
     uvicorn.run(
         "main:app",
         host=settings.HOST,
         port=settings.PORT,
-        reload=settings.RELOAD,
-        workers=settings.WORKERS if not settings.RELOAD else 1,
+        reload=reload_enabled,
+        workers=workers if not reload_enabled else 1,
         log_level=settings.LOG_LEVEL.lower(),
         access_log=True,
-        timeout_keep_alive=5,
-        timeout_notify=30,
-        timeout_graceful_shutdown=30
+        timeout_keep_alive=5
     )
