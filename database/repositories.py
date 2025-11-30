@@ -14,6 +14,43 @@ from database.models import (
 )
 from config.settings import logger, enhanced_logger
 
+
+# Custom Exceptions for consistent error handling
+class RepositoryException(Exception):
+    """Base exception for repository operations"""
+    pass
+
+
+class EntityNotFoundException(RepositoryException):
+    """Raised when an entity is not found"""
+    def __init__(self, entity_type: str, entity_id: Any):
+        self.entity_type = entity_type
+        self.entity_id = entity_id
+        super().__init__(f"{entity_type} with ID '{entity_id}' not found")
+
+
+class EntityAlreadyExistsException(RepositoryException):
+    """Raised when an entity already exists"""
+    def __init__(self, entity_type: str, identifier: Any):
+        self.entity_type = entity_type
+        self.identifier = identifier
+        super().__init__(f"{entity_type} with identifier '{identifier}' already exists")
+
+
+class ValidationException(RepositoryException):
+    """Raised when validation fails"""
+    def __init__(self, message: str, field: str = None):
+        self.field = field
+        super().__init__(message)
+
+
+class DatabaseOperationException(RepositoryException):
+    """Raised when a database operation fails"""
+    def __init__(self, operation: str, details: str = None):
+        self.operation = operation
+        self.details = details
+        super().__init__(f"Database operation '{operation}' failed: {details}")
+
 class MessageRepository:
     """Enhanced message repository with AI, project, and room support"""
     
@@ -290,6 +327,146 @@ class MessageRepository:
             return []
 
     @staticmethod
+    def remove_message_reaction(message_id: int, user_id: str, reaction: str) -> bool:
+        """Remove reaction from message"""
+        try:
+            with get_db_connection() as conn:
+                with transaction(conn):
+                    # Delete reaction
+                    cursor = conn.execute(
+                        """DELETE FROM message_reactions 
+                           WHERE message_id = ? AND user_id = ? AND reaction = ?""",
+                        (message_id, user_id, reaction)
+                    )
+                    
+                    if cursor.rowcount > 0:
+                        # Update message reaction count
+                        conn.execute(
+                            "UPDATE messages SET reaction_count = reaction_count - 1 WHERE id = ? AND reaction_count > 0",
+                            (message_id,)
+                        )
+                        logger.debug(f"👎 Reaction '{reaction}' removed from message {message_id} by user {user_id}")
+                        return True
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Failed to remove reaction: {e}")
+            return False
+
+    @staticmethod
+    def update_message(message_id: int, new_content: str, edit_reason: str = None) -> Optional[Message]:
+        """Update message content and track edit history"""
+        try:
+            with get_db_connection() as conn:
+                # First get the current message
+                cursor = conn.execute(
+                    "SELECT message, edit_history FROM messages WHERE id = ?",
+                    (message_id,)
+                )
+                row = cursor.fetchone()
+                
+                if not row:
+                    raise EntityNotFoundException("Message", message_id)
+                
+                old_content = row['message']
+                edit_history = json.loads(row['edit_history']) if row['edit_history'] else []
+                
+                # Add to edit history
+                edit_history.append({
+                    "old_content": old_content,
+                    "new_content": new_content,
+                    "timestamp": datetime.now().isoformat(),
+                    "reason": edit_reason
+                })
+                
+                # Update message
+                conn.execute(
+                    """UPDATE messages 
+                       SET message = ?, is_edited = 1, edit_history = ?
+                       WHERE id = ?""",
+                    (new_content, json.dumps(edit_history), message_id)
+                )
+                
+                logger.debug(f"📝 Message {message_id} updated")
+                return MessageRepository.get_message(message_id)
+                
+        except EntityNotFoundException:
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update message {message_id}: {e}")
+            raise DatabaseOperationException("update_message", str(e))
+
+    @staticmethod
+    def delete_message(message_id: int, soft_delete: bool = True) -> bool:
+        """Delete message (soft delete by default)"""
+        try:
+            with get_db_connection() as conn:
+                if soft_delete:
+                    # Soft delete - set flag
+                    cursor = conn.execute(
+                        "UPDATE messages SET flags = flags | 1 WHERE id = ?",
+                        (message_id,)
+                    )
+                else:
+                    # Hard delete
+                    cursor = conn.execute(
+                        "DELETE FROM messages WHERE id = ?",
+                        (message_id,)
+                    )
+                
+                if cursor.rowcount > 0:
+                    logger.debug(f"🗑️ Message {message_id} deleted (soft={soft_delete})")
+                    return True
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to delete message {message_id}: {e}")
+            return False
+
+    @staticmethod
+    def get_thread_messages(parent_id: int, limit: int = 50) -> List[Message]:
+        """Get all messages in a thread (replies to a parent message)"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    """SELECT id, username, message, message_compressed, timestamp, message_type,
+                              parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
+                              context_message_ids, rag_sources, sentiment, is_edited, edit_history,
+                              reaction_count, flags, metadata
+                       FROM messages 
+                       WHERE parent_id = ?
+                       ORDER BY timestamp ASC
+                       LIMIT ?""",
+                    (parent_id, limit)
+                )
+                rows = cursor.fetchall()
+                messages = [MessageRepository._row_to_message(row) for row in rows]
+                
+                logger.debug(f"🧵 Retrieved {len(messages)} thread messages for parent {parent_id}")
+                return messages
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to get thread messages for parent {parent_id}: {e}")
+            return []
+
+    @staticmethod
+    def get_all_messages() -> List[Message]:
+        """Get all messages (simple compatibility method)"""
+        filters = MessageFilter(limit=1000)
+        return MessageRepository.get_messages_by_filter(filters).items
+
+    @staticmethod
+    def get_message_count() -> int:
+        """Get total message count"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT COUNT(*) FROM messages")
+                return cursor.fetchone()[0]
+        except Exception as e:
+            logger.error(f"❌ Failed to get message count: {e}")
+            return 0
+
+    @staticmethod
     def _row_to_message(row) -> Message:
         """Convert database row to Message object"""
         try:
@@ -402,6 +579,98 @@ class UserRepository:
                 logger.debug(f"🕐 Updated last login for user {user_id}")
         except Exception as e:
             logger.error(f"❌ Failed to update last login for user {user_id}: {e}")
+
+    @staticmethod
+    def update_user(user_id: str, updates: Dict[str, Any]) -> Optional[User]:
+        """Update user with given fields"""
+        allowed_fields = {
+            'email', 'display_name', 'avatar_url', 'role', 
+            'is_active', 'is_verified', 'preferences', 'metadata'
+        }
+        
+        try:
+            # Filter to only allowed fields
+            valid_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            
+            if not valid_updates:
+                raise ValidationException("No valid fields to update")
+            
+            # Handle JSON fields
+            if 'preferences' in valid_updates:
+                valid_updates['preferences'] = json.dumps(valid_updates['preferences'])
+            if 'metadata' in valid_updates:
+                valid_updates['metadata'] = json.dumps(valid_updates['metadata'])
+            
+            valid_updates['updated_at'] = datetime.now().isoformat()
+            
+            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
+            values = list(valid_updates.values()) + [user_id]
+            
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    f"UPDATE users SET {set_clause} WHERE id = ?",
+                    values
+                )
+                
+                if cursor.rowcount == 0:
+                    raise EntityNotFoundException("User", user_id)
+                
+                logger.debug(f"👤 User {user_id} updated")
+                return UserRepository.get_user_by_id(user_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update user {user_id}: {e}")
+            raise DatabaseOperationException("update_user", str(e))
+
+    @staticmethod
+    def delete_user(user_id: str, soft_delete: bool = True) -> bool:
+        """Delete user (soft delete by default - sets is_active to False)"""
+        try:
+            with get_db_connection() as conn:
+                if soft_delete:
+                    cursor = conn.execute(
+                        "UPDATE users SET is_active = 0, updated_at = ? WHERE id = ?",
+                        (datetime.now().isoformat(), user_id)
+                    )
+                else:
+                    cursor = conn.execute(
+                        "DELETE FROM users WHERE id = ?",
+                        (user_id,)
+                    )
+                
+                if cursor.rowcount > 0:
+                    logger.debug(f"🗑️ User {user_id} deleted (soft={soft_delete})")
+                    return True
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to delete user {user_id}: {e}")
+            return False
+
+    @staticmethod
+    def get_all_users(include_inactive: bool = False, limit: int = 100, offset: int = 0) -> List[User]:
+        """Get all users with optional filtering"""
+        try:
+            with get_db_connection() as conn:
+                if include_inactive:
+                    query = "SELECT * FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?"
+                    params = (limit, offset)
+                else:
+                    query = "SELECT * FROM users WHERE is_active = 1 ORDER BY created_at DESC LIMIT ? OFFSET ?"
+                    params = (limit, offset)
+                
+                cursor = conn.execute(query, params)
+                rows = cursor.fetchall()
+                users = [UserRepository._row_to_user(row) for row in rows]
+                
+                logger.debug(f"👥 Retrieved {len(users)} users")
+                return users
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to get all users: {e}")
+            return []
 
     @staticmethod
     def _row_to_user(row) -> User:
@@ -518,6 +787,94 @@ class ProjectRepository:
         except Exception as e:
             logger.error(f"❌ Failed to get projects: {e}")
             return PaginatedResponse(items=[], total=0, page=1, page_size=filters.limit, total_pages=0)
+
+    @staticmethod
+    def get_project_by_id(project_id: str) -> Optional[Project]:
+        """Get project by ID"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,))
+                row = cursor.fetchone()
+                return ProjectRepository._row_to_project(row) if row else None
+        except Exception as e:
+            logger.error(f"❌ Failed to get project {project_id}: {e}")
+            return None
+
+    @staticmethod
+    def update_project(project_id: str, updates: Dict[str, Any]) -> Optional[Project]:
+        """Update project with given fields"""
+        allowed_fields = {
+            'name', 'description', 'status', 'due_date', 
+            'tags', 'members', 'settings', 'metadata',
+            'ticket_count', 'completed_ticket_count', 'progress_percentage'
+        }
+        
+        try:
+            # Filter to only allowed fields
+            valid_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            
+            if not valid_updates:
+                raise ValidationException("No valid fields to update")
+            
+            # Handle JSON fields
+            for json_field in ['tags', 'members', 'settings', 'metadata']:
+                if json_field in valid_updates:
+                    valid_updates[json_field] = json.dumps(valid_updates[json_field])
+            
+            # Handle datetime fields
+            if 'due_date' in valid_updates and valid_updates['due_date']:
+                if isinstance(valid_updates['due_date'], datetime):
+                    valid_updates['due_date'] = valid_updates['due_date'].isoformat()
+            
+            valid_updates['updated_at'] = datetime.now().isoformat()
+            
+            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
+            values = list(valid_updates.values()) + [project_id]
+            
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    f"UPDATE projects SET {set_clause} WHERE id = ?",
+                    values
+                )
+                
+                if cursor.rowcount == 0:
+                    raise EntityNotFoundException("Project", project_id)
+                
+                logger.debug(f"📁 Project {project_id} updated")
+                return ProjectRepository.get_project_by_id(project_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update project {project_id}: {e}")
+            raise DatabaseOperationException("update_project", str(e))
+
+    @staticmethod
+    def delete_project(project_id: str, cascade: bool = False) -> bool:
+        """Delete project (with optional cascade to delete related tickets)"""
+        try:
+            with get_db_connection() as conn:
+                with transaction(conn):
+                    if cascade:
+                        # Delete related tickets first
+                        conn.execute(
+                            "DELETE FROM tickets WHERE project_id = ?",
+                            (project_id,)
+                        )
+                    
+                    cursor = conn.execute(
+                        "DELETE FROM projects WHERE id = ?",
+                        (project_id,)
+                    )
+                    
+                    if cursor.rowcount > 0:
+                        logger.debug(f"🗑️ Project {project_id} deleted (cascade={cascade})")
+                        return True
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Failed to delete project {project_id}: {e}")
+            return False
 
     @staticmethod
     def _row_to_project(row) -> Project:
@@ -665,6 +1022,135 @@ class TicketRepository:
             return PaginatedResponse(items=[], total=0, page=1, page_size=filters.limit, total_pages=0)
 
     @staticmethod
+    def get_ticket_by_id(ticket_id: str) -> Optional[Ticket]:
+        """Get ticket by ID"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
+                row = cursor.fetchone()
+                return TicketRepository._row_to_ticket(row) if row else None
+        except Exception as e:
+            logger.error(f"❌ Failed to get ticket {ticket_id}: {e}")
+            return None
+
+    @staticmethod
+    def update_ticket(ticket_id: str, updates: Dict[str, Any]) -> Optional[Ticket]:
+        """Update ticket with given fields"""
+        allowed_fields = {
+            'title', 'description', 'assigned_to', 'status', 'priority', 'type',
+            'due_date', 'estimated_hours', 'actual_hours', 'related_tickets',
+            'tags', 'metadata', 'comment_count', 'attachment_count'
+        }
+        
+        try:
+            # Filter to only allowed fields
+            valid_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            
+            if not valid_updates:
+                raise ValidationException("No valid fields to update")
+            
+            # Handle JSON fields
+            for json_field in ['related_tickets', 'tags', 'metadata']:
+                if json_field in valid_updates:
+                    valid_updates[json_field] = json.dumps(valid_updates[json_field])
+            
+            # Handle datetime fields
+            if 'due_date' in valid_updates and valid_updates['due_date']:
+                if isinstance(valid_updates['due_date'], datetime):
+                    valid_updates['due_date'] = valid_updates['due_date'].isoformat()
+            
+            # Handle status change to resolved
+            if valid_updates.get('status') == TicketStatus.RESOLVED:
+                valid_updates['resolved_at'] = datetime.now().isoformat()
+            
+            valid_updates['updated_at'] = datetime.now().isoformat()
+            
+            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
+            values = list(valid_updates.values()) + [ticket_id]
+            
+            with get_db_connection() as conn:
+                with transaction(conn):
+                    # Get the ticket first to check project_id for counter update
+                    cursor = conn.execute("SELECT project_id, status FROM tickets WHERE id = ?", (ticket_id,))
+                    row = cursor.fetchone()
+                    
+                    if not row:
+                        raise EntityNotFoundException("Ticket", ticket_id)
+                    
+                    old_status = row['status']
+                    project_id = row['project_id']
+                    new_status = valid_updates.get('status', old_status)
+                    
+                    # Update the ticket
+                    conn.execute(
+                        f"UPDATE tickets SET {set_clause} WHERE id = ?",
+                        values
+                    )
+                    
+                    # Update project completed count if status changed
+                    if old_status != new_status:
+                        if new_status in [TicketStatus.RESOLVED, TicketStatus.CLOSED]:
+                            conn.execute(
+                                "UPDATE projects SET completed_ticket_count = completed_ticket_count + 1 WHERE id = ?",
+                                (project_id,)
+                            )
+                        elif old_status in [TicketStatus.RESOLVED, TicketStatus.CLOSED]:
+                            conn.execute(
+                                "UPDATE projects SET completed_ticket_count = completed_ticket_count - 1 WHERE id = ? AND completed_ticket_count > 0",
+                                (project_id,)
+                            )
+                
+                logger.debug(f"🎫 Ticket {ticket_id} updated")
+                return TicketRepository.get_ticket_by_id(ticket_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update ticket {ticket_id}: {e}")
+            raise DatabaseOperationException("update_ticket", str(e))
+
+    @staticmethod
+    def delete_ticket(ticket_id: str) -> bool:
+        """Delete ticket and update project counters"""
+        try:
+            with get_db_connection() as conn:
+                with transaction(conn):
+                    # Get ticket info first
+                    cursor = conn.execute(
+                        "SELECT project_id, status FROM tickets WHERE id = ?",
+                        (ticket_id,)
+                    )
+                    row = cursor.fetchone()
+                    
+                    if not row:
+                        return False
+                    
+                    project_id = row['project_id']
+                    status = row['status']
+                    
+                    # Delete the ticket
+                    conn.execute("DELETE FROM tickets WHERE id = ?", (ticket_id,))
+                    
+                    # Update project counters
+                    conn.execute(
+                        "UPDATE projects SET ticket_count = ticket_count - 1 WHERE id = ? AND ticket_count > 0",
+                        (project_id,)
+                    )
+                    
+                    if status in [TicketStatus.RESOLVED, TicketStatus.CLOSED]:
+                        conn.execute(
+                            "UPDATE projects SET completed_ticket_count = completed_ticket_count - 1 WHERE id = ? AND completed_ticket_count > 0",
+                            (project_id,)
+                        )
+                    
+                    logger.debug(f"🗑️ Ticket {ticket_id} deleted")
+                    return True
+                    
+        except Exception as e:
+            logger.error(f"❌ Failed to delete ticket {ticket_id}: {e}")
+            return False
+
+    @staticmethod
     def _row_to_ticket(row) -> Ticket:
         """Convert database row to Ticket object"""
         return Ticket(
@@ -770,6 +1256,116 @@ class FileRepository:
             logger.error(f"❌ Failed to increment download count for file {file_id}: {e}")
 
     @staticmethod
+    def update_file(file_id: str, updates: Dict[str, Any]) -> Optional[File]:
+        """Update file metadata with given fields"""
+        allowed_fields = {
+            'description', 'is_public', 'metadata', 'tags',
+            'project_id', 'ticket_id'
+        }
+        
+        try:
+            # Filter to only allowed fields
+            valid_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            
+            if not valid_updates:
+                raise ValidationException("No valid fields to update")
+            
+            # Handle JSON fields
+            for json_field in ['metadata', 'tags']:
+                if json_field in valid_updates:
+                    valid_updates[json_field] = json.dumps(valid_updates[json_field])
+            
+            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
+            values = list(valid_updates.values()) + [file_id]
+            
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    f"UPDATE files SET {set_clause} WHERE id = ?",
+                    values
+                )
+                
+                if cursor.rowcount == 0:
+                    raise EntityNotFoundException("File", file_id)
+                
+                logger.debug(f"📄 File {file_id} updated")
+                return FileRepository.get_file(file_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update file {file_id}: {e}")
+            raise DatabaseOperationException("update_file", str(e))
+
+    @staticmethod
+    def delete_file(file_id: str) -> bool:
+        """Delete file record from database"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    "DELETE FROM files WHERE id = ?",
+                    (file_id,)
+                )
+                
+                if cursor.rowcount > 0:
+                    logger.debug(f"🗑️ File {file_id} deleted")
+                    return True
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to delete file {file_id}: {e}")
+            return False
+
+    @staticmethod
+    def get_files_by_filter(
+        project_id: str = None,
+        ticket_id: str = None,
+        uploaded_by: str = None,
+        file_type: FileType = None,
+        is_public: bool = None,
+        limit: int = 50,
+        offset: int = 0
+    ) -> List[File]:
+        """Get files with optional filtering"""
+        try:
+            query = "SELECT * FROM files WHERE 1=1"
+            params = []
+            
+            if project_id:
+                query += " AND project_id = ?"
+                params.append(project_id)
+            
+            if ticket_id:
+                query += " AND ticket_id = ?"
+                params.append(ticket_id)
+            
+            if uploaded_by:
+                query += " AND uploaded_by = ?"
+                params.append(uploaded_by)
+            
+            if file_type:
+                query += " AND file_type = ?"
+                params.append(file_type)
+            
+            if is_public is not None:
+                query += " AND is_public = ?"
+                params.append(is_public)
+            
+            query += " ORDER BY upload_date DESC LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
+            
+            with get_db_connection() as conn:
+                cursor = conn.execute(query, params)
+                rows = cursor.fetchall()
+                files = [FileRepository._row_to_file(row) for row in rows]
+                
+                logger.debug(f"📁 Retrieved {len(files)} files")
+                return files
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to get files: {e}")
+            return []
+
+    @staticmethod
     def _row_to_file(row) -> File:
         """Convert database row to File object"""
         return File(
@@ -848,6 +1444,13 @@ class SearchRepository:
 class StatisticsRepository:
     """Repository for system statistics and analytics"""
     
+    # Whitelist of allowed table names to prevent SQL injection
+    ALLOWED_TABLES = frozenset({
+        'users', 'projects', 'tickets', 'files', 
+        'messages', 'chat_rooms', 'room_members',
+        'message_reactions', 'ai_conversations', 'ai_models'
+    })
+    
     @staticmethod
     def get_system_statistics() -> Dict[str, Any]:
         """Get comprehensive system statistics"""
@@ -855,8 +1458,8 @@ class StatisticsRepository:
             stats = {}
             
             with get_db_connection() as conn:
-                # Basic counts
-                tables = {
+                # Basic counts - using whitelist to prevent SQL injection
+                tables_to_count = {
                     'users': 'users',
                     'projects': 'projects', 
                     'tickets': 'tickets',
@@ -865,8 +1468,28 @@ class StatisticsRepository:
                     'chat_rooms': 'chat_rooms'
                 }
                 
-                for key, table in tables.items():
-                    cursor = conn.execute(f"SELECT COUNT(*) FROM {table}")
+                for key, table in tables_to_count.items():
+                    # Validate table name against whitelist
+                    if table not in StatisticsRepository.ALLOWED_TABLES:
+                        logger.warning(f"⚠️ Skipping invalid table name: {table}")
+                        continue
+                    
+                    # Use separate queries for each table (safe from SQL injection)
+                    if table == 'users':
+                        cursor = conn.execute("SELECT COUNT(*) FROM users")
+                    elif table == 'projects':
+                        cursor = conn.execute("SELECT COUNT(*) FROM projects")
+                    elif table == 'tickets':
+                        cursor = conn.execute("SELECT COUNT(*) FROM tickets")
+                    elif table == 'files':
+                        cursor = conn.execute("SELECT COUNT(*) FROM files")
+                    elif table == 'messages':
+                        cursor = conn.execute("SELECT COUNT(*) FROM messages")
+                    elif table == 'chat_rooms':
+                        cursor = conn.execute("SELECT COUNT(*) FROM chat_rooms")
+                    else:
+                        continue
+                    
                     stats[f"total_{key}"] = cursor.fetchone()[0]
                 
                 # Message statistics
@@ -915,22 +1538,403 @@ class StatisticsRepository:
             enhanced_logger.error("Failed to collect system statistics", error=str(e))
             return {}
 
-# Compatibility methods
-class MessageRepository:
-    # Keep original simple methods for compatibility
-    @staticmethod
-    def get_all_messages() -> List[Message]:
-        """Get all messages (simple compatibility method)"""
-        filters = MessageFilter(limit=1000)
-        return MessageRepository.get_messages_by_filter(filters).items
 
+class ChatRoomRepository:
+    """Repository for chat room management operations"""
+    
     @staticmethod
-    def get_message_count() -> int:
-        """Get total message count"""
+    def create_room(room: ChatRoom) -> str:
+        """Create new chat room"""
         try:
             with get_db_connection() as conn:
-                cursor = conn.execute("SELECT COUNT(*) FROM messages")
-                return cursor.fetchone()[0]
+                conn.execute(
+                    """INSERT INTO chat_rooms 
+                       (id, name, description, is_public, created_by, created_at,
+                        member_count, message_count, settings, metadata, allowed_roles, is_archived)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        room.id,
+                        room.name,
+                        room.description,
+                        room.is_public,
+                        room.created_by,
+                        room.created_at.isoformat() if room.created_at else datetime.now().isoformat(),
+                        room.member_count,
+                        room.message_count,
+                        json.dumps(room.settings),
+                        json.dumps(room.metadata),
+                        json.dumps([role.value if hasattr(role, 'value') else role for role in room.allowed_roles]),
+                        room.is_archived
+                    )
+                )
+                
+                enhanced_logger.info(
+                    "Chat room created successfully",
+                    room_id=room.id,
+                    room_name=room.name,
+                    created_by=room.created_by
+                )
+                return room.id
+                
         except Exception as e:
-            logger.error(f"❌ Failed to get message count: {e}")
-            return 0
+            enhanced_logger.error(
+                "Failed to create chat room",
+                error=str(e),
+                room_name=room.name
+            )
+            raise
+
+    @staticmethod
+    def get_room_by_id(room_id: str) -> Optional[ChatRoom]:
+        """Get chat room by ID"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT * FROM chat_rooms WHERE id = ?", (room_id,))
+                row = cursor.fetchone()
+                return ChatRoomRepository._row_to_room(row) if row else None
+        except Exception as e:
+            logger.error(f"❌ Failed to get room {room_id}: {e}")
+            return None
+
+    @staticmethod
+    def get_public_rooms(limit: int = 50, offset: int = 0) -> List[ChatRoom]:
+        """Get all public chat rooms"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    """SELECT * FROM chat_rooms 
+                       WHERE is_public = 1 AND is_archived = 0
+                       ORDER BY created_at DESC LIMIT ? OFFSET ?""",
+                    (limit, offset)
+                )
+                rows = cursor.fetchall()
+                return [ChatRoomRepository._row_to_room(row) for row in rows]
+        except Exception as e:
+            logger.error(f"❌ Failed to get public rooms: {e}")
+            return []
+
+    @staticmethod
+    def update_room(room_id: str, updates: Dict[str, Any]) -> Optional[ChatRoom]:
+        """Update chat room with given fields"""
+        allowed_fields = {
+            'name', 'description', 'is_public', 'settings', 
+            'metadata', 'allowed_roles', 'is_archived'
+        }
+        
+        try:
+            valid_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            
+            if not valid_updates:
+                raise ValidationException("No valid fields to update")
+            
+            # Handle JSON fields
+            for json_field in ['settings', 'metadata', 'allowed_roles']:
+                if json_field in valid_updates:
+                    valid_updates[json_field] = json.dumps(valid_updates[json_field])
+            
+            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
+            values = list(valid_updates.values()) + [room_id]
+            
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    f"UPDATE chat_rooms SET {set_clause} WHERE id = ?",
+                    values
+                )
+                
+                if cursor.rowcount == 0:
+                    raise EntityNotFoundException("ChatRoom", room_id)
+                
+                logger.debug(f"💬 Room {room_id} updated")
+                return ChatRoomRepository.get_room_by_id(room_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update room {room_id}: {e}")
+            raise DatabaseOperationException("update_room", str(e))
+
+    @staticmethod
+    def delete_room(room_id: str) -> bool:
+        """Delete chat room"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    "DELETE FROM chat_rooms WHERE id = ?",
+                    (room_id,)
+                )
+                
+                if cursor.rowcount > 0:
+                    logger.debug(f"🗑️ Room {room_id} deleted")
+                    return True
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to delete room {room_id}: {e}")
+            return False
+
+    @staticmethod
+    def add_member(room_id: str, user_id: str, role: RoomRole = RoomRole.MEMBER) -> bool:
+        """Add member to chat room"""
+        try:
+            with get_db_connection() as conn:
+                with transaction(conn):
+                    conn.execute(
+                        """INSERT INTO room_members (room_id, user_id, role, joined_at)
+                           VALUES (?, ?, ?, ?)""",
+                        (room_id, user_id, role.value if hasattr(role, 'value') else role, datetime.now().isoformat())
+                    )
+                    
+                    conn.execute(
+                        "UPDATE chat_rooms SET member_count = member_count + 1 WHERE id = ?",
+                        (room_id,)
+                    )
+                    
+                    logger.debug(f"👤 User {user_id} added to room {room_id}")
+                    return True
+                    
+        except Exception as e:
+            logger.error(f"❌ Failed to add member to room: {e}")
+            return False
+
+    @staticmethod
+    def remove_member(room_id: str, user_id: str) -> bool:
+        """Remove member from chat room"""
+        try:
+            with get_db_connection() as conn:
+                with transaction(conn):
+                    cursor = conn.execute(
+                        "DELETE FROM room_members WHERE room_id = ? AND user_id = ?",
+                        (room_id, user_id)
+                    )
+                    
+                    if cursor.rowcount > 0:
+                        conn.execute(
+                            "UPDATE chat_rooms SET member_count = member_count - 1 WHERE id = ? AND member_count > 0",
+                            (room_id,)
+                        )
+                        logger.debug(f"👤 User {user_id} removed from room {room_id}")
+                        return True
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Failed to remove member from room: {e}")
+            return False
+
+    @staticmethod
+    def get_room_members(room_id: str) -> List[RoomMember]:
+        """Get all members of a chat room"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    """SELECT room_id, user_id, role, joined_at, last_read_at
+                       FROM room_members WHERE room_id = ?
+                       ORDER BY joined_at""",
+                    (room_id,)
+                )
+                
+                members = []
+                for row in cursor.fetchall():
+                    members.append(RoomMember(
+                        room_id=row['room_id'],
+                        user_id=row['user_id'],
+                        role=row['role'],
+                        joined_at=datetime.fromisoformat(row['joined_at']) if row['joined_at'] else None,
+                        last_read_at=datetime.fromisoformat(row['last_read_at']) if row['last_read_at'] else None
+                    ))
+                
+                return members
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to get room members: {e}")
+            return []
+
+    @staticmethod
+    def _row_to_room(row) -> ChatRoom:
+        """Convert database row to ChatRoom object"""
+        return ChatRoom(
+            id=row['id'],
+            name=row['name'],
+            description=row['description'],
+            is_public=bool(row['is_public']),
+            created_by=row['created_by'],
+            created_at=datetime.fromisoformat(row['created_at']) if row['created_at'] else None,
+            member_count=row['member_count'],
+            message_count=row['message_count'],
+            settings=json.loads(row['settings']) if row['settings'] else {},
+            metadata=json.loads(row['metadata']) if row['metadata'] else {},
+            allowed_roles=json.loads(row['allowed_roles']) if row['allowed_roles'] else [],
+            is_archived=bool(row['is_archived']) if row['is_archived'] else False
+        )
+
+
+class AIConversationRepository:
+    """Repository for AI conversation management operations"""
+    
+    @staticmethod
+    def create_conversation(conversation: AIConversation) -> str:
+        """Create new AI conversation"""
+        try:
+            with get_db_connection() as conn:
+                conn.execute(
+                    """INSERT INTO ai_conversations 
+                       (id, title, context, message_count, user_id, created_at, updated_at,
+                        is_archived, ai_model, conversation_settings, metadata)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        conversation.id,
+                        conversation.title,
+                        json.dumps(conversation.context) if conversation.context else None,
+                        conversation.message_count,
+                        conversation.user_id,
+                        conversation.created_at.isoformat() if conversation.created_at else datetime.now().isoformat(),
+                        conversation.updated_at.isoformat() if conversation.updated_at else datetime.now().isoformat(),
+                        conversation.is_archived,
+                        conversation.ai_model,
+                        json.dumps(conversation.conversation_settings),
+                        json.dumps(conversation.metadata)
+                    )
+                )
+                
+                enhanced_logger.info(
+                    "AI conversation created successfully",
+                    conversation_id=conversation.id,
+                    title=conversation.title,
+                    user_id=conversation.user_id
+                )
+                return conversation.id
+                
+        except Exception as e:
+            enhanced_logger.error(
+                "Failed to create AI conversation",
+                error=str(e),
+                title=conversation.title
+            )
+            raise
+
+    @staticmethod
+    def get_conversation_by_id(conversation_id: str) -> Optional[AIConversation]:
+        """Get AI conversation by ID"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute("SELECT * FROM ai_conversations WHERE id = ?", (conversation_id,))
+                row = cursor.fetchone()
+                return AIConversationRepository._row_to_conversation(row) if row else None
+        except Exception as e:
+            logger.error(f"❌ Failed to get conversation {conversation_id}: {e}")
+            return None
+
+    @staticmethod
+    def get_conversations_by_user(user_id: str, include_archived: bool = False, limit: int = 50, offset: int = 0) -> List[AIConversation]:
+        """Get all AI conversations for a user"""
+        try:
+            with get_db_connection() as conn:
+                if include_archived:
+                    query = """SELECT * FROM ai_conversations 
+                               WHERE user_id = ?
+                               ORDER BY updated_at DESC LIMIT ? OFFSET ?"""
+                else:
+                    query = """SELECT * FROM ai_conversations 
+                               WHERE user_id = ? AND is_archived = 0
+                               ORDER BY updated_at DESC LIMIT ? OFFSET ?"""
+                
+                cursor = conn.execute(query, (user_id, limit, offset))
+                rows = cursor.fetchall()
+                return [AIConversationRepository._row_to_conversation(row) for row in rows]
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to get conversations for user {user_id}: {e}")
+            return []
+
+    @staticmethod
+    def update_conversation(conversation_id: str, updates: Dict[str, Any]) -> Optional[AIConversation]:
+        """Update AI conversation with given fields"""
+        allowed_fields = {
+            'title', 'context', 'message_count', 'is_archived',
+            'ai_model', 'conversation_settings', 'metadata'
+        }
+        
+        try:
+            valid_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            
+            if not valid_updates:
+                raise ValidationException("No valid fields to update")
+            
+            # Handle JSON fields
+            for json_field in ['context', 'conversation_settings', 'metadata']:
+                if json_field in valid_updates:
+                    valid_updates[json_field] = json.dumps(valid_updates[json_field])
+            
+            valid_updates['updated_at'] = datetime.now().isoformat()
+            
+            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
+            values = list(valid_updates.values()) + [conversation_id]
+            
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    f"UPDATE ai_conversations SET {set_clause} WHERE id = ?",
+                    values
+                )
+                
+                if cursor.rowcount == 0:
+                    raise EntityNotFoundException("AIConversation", conversation_id)
+                
+                logger.debug(f"🤖 Conversation {conversation_id} updated")
+                return AIConversationRepository.get_conversation_by_id(conversation_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update conversation {conversation_id}: {e}")
+            raise DatabaseOperationException("update_conversation", str(e))
+
+    @staticmethod
+    def delete_conversation(conversation_id: str) -> bool:
+        """Delete AI conversation"""
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.execute(
+                    "DELETE FROM ai_conversations WHERE id = ?",
+                    (conversation_id,)
+                )
+                
+                if cursor.rowcount > 0:
+                    logger.debug(f"🗑️ Conversation {conversation_id} deleted")
+                    return True
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to delete conversation {conversation_id}: {e}")
+            return False
+
+    @staticmethod
+    def increment_message_count(conversation_id: str) -> bool:
+        """Increment message count for conversation"""
+        try:
+            with get_db_connection() as conn:
+                conn.execute(
+                    """UPDATE ai_conversations 
+                       SET message_count = message_count + 1, updated_at = ?
+                       WHERE id = ?""",
+                    (datetime.now().isoformat(), conversation_id)
+                )
+                return True
+        except Exception as e:
+            logger.error(f"❌ Failed to increment message count: {e}")
+            return False
+
+    @staticmethod
+    def _row_to_conversation(row) -> AIConversation:
+        """Convert database row to AIConversation object"""
+        return AIConversation(
+            id=row['id'],
+            title=row['title'],
+            context=json.loads(row['context']) if row['context'] else None,
+            message_count=row['message_count'],
+            user_id=row['user_id'],
+            created_at=datetime.fromisoformat(row['created_at']) if row['created_at'] else None,
+            updated_at=datetime.fromisoformat(row['updated_at']) if row['updated_at'] else None,
+            is_archived=bool(row['is_archived']),
+            ai_model=row['ai_model'] if 'ai_model' in row.keys() else None,
+            conversation_settings=json.loads(row['conversation_settings']) if 'conversation_settings' in row.keys() and row['conversation_settings'] else {},
+            metadata=json.loads(row['metadata']) if 'metadata' in row.keys() and row['metadata'] else {}
+        )
