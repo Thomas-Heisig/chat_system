@@ -498,6 +498,5 @@ if __name__ == "__main__":
         log_level=settings.LOG_LEVEL.lower(),
         access_log=True,
         timeout_keep_alive=5,
-        timeout_notify=30,
         timeout_graceful_shutdown=30
     )
