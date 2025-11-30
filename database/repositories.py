@@ -51,6 +51,35 @@ class DatabaseOperationException(RepositoryException):
         self.details = details
         super().__init__(f"Database operation '{operation}' failed: {details}")
 
+
+def _validate_field_name(field: str) -> bool:
+    """Validate that a field name only contains safe characters.
+    
+    This is a defense-in-depth measure to prevent SQL injection,
+    even though field names should already be from a whitelist.
+    """
+    import re
+    # Only allow alphanumeric characters and underscores
+    return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', field))
+
+
+def _build_update_query(table: str, fields: dict, id_field: str) -> tuple:
+    """Build a safe UPDATE query from validated field names.
+    
+    Returns (query_string, values_list) tuple.
+    Raises ValidationException if any field name is invalid.
+    """
+    # Validate all field names
+    for field in fields.keys():
+        if not _validate_field_name(field):
+            raise ValidationException(f"Invalid field name: {field}")
+    
+    set_clause = ", ".join([f"{k} = ?" for k in fields.keys()])
+    query = f"UPDATE {table} SET {set_clause} WHERE {id_field} = ?"
+    values = list(fields.values())
+    return query, values
+
+
 class MessageRepository:
     """Enhanced message repository with AI, project, and room support"""
     
@@ -603,14 +632,12 @@ class UserRepository:
             
             valid_updates['updated_at'] = datetime.now().isoformat()
             
-            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
-            values = list(valid_updates.values()) + [user_id]
+            # Build safe update query
+            query, values = _build_update_query('users', valid_updates, 'id')
+            values.append(user_id)
             
             with get_db_connection() as conn:
-                cursor = conn.execute(
-                    f"UPDATE users SET {set_clause} WHERE id = ?",
-                    values
-                )
+                cursor = conn.execute(query, values)
                 
                 if cursor.rowcount == 0:
                     raise EntityNotFoundException("User", user_id)
@@ -828,20 +855,24 @@ class ProjectRepository:
             
             valid_updates['updated_at'] = datetime.now().isoformat()
             
-            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
-            values = list(valid_updates.values()) + [project_id]
+            # Build safe update query
+            query, values = _build_update_query('projects', valid_updates, 'id')
+            values.append(project_id)
             
             with get_db_connection() as conn:
-                cursor = conn.execute(
-                    f"UPDATE projects SET {set_clause} WHERE id = ?",
-                    values
-                )
+                cursor = conn.execute(query, values)
                 
                 if cursor.rowcount == 0:
                     raise EntityNotFoundException("Project", project_id)
                 
                 logger.debug(f"📁 Project {project_id} updated")
                 return ProjectRepository.get_project_by_id(project_id)
+                
+        except (EntityNotFoundException, ValidationException):
+            raise
+        except Exception as e:
+            logger.error(f"❌ Failed to update project {project_id}: {e}")
+            raise DatabaseOperationException("update_project", str(e))
                 
         except (EntityNotFoundException, ValidationException):
             raise
@@ -1065,8 +1096,9 @@ class TicketRepository:
             
             valid_updates['updated_at'] = datetime.now().isoformat()
             
-            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
-            values = list(valid_updates.values()) + [ticket_id]
+            # Build safe update query
+            query, values = _build_update_query('tickets', valid_updates, 'id')
+            values.append(ticket_id)
             
             with get_db_connection() as conn:
                 with transaction(conn):
@@ -1082,10 +1114,7 @@ class TicketRepository:
                     new_status = valid_updates.get('status', old_status)
                     
                     # Update the ticket
-                    conn.execute(
-                        f"UPDATE tickets SET {set_clause} WHERE id = ?",
-                        values
-                    )
+                    conn.execute(query, values)
                     
                     # Update project completed count if status changed
                     if old_status != new_status:
@@ -1275,14 +1304,12 @@ class FileRepository:
                 if json_field in valid_updates:
                     valid_updates[json_field] = json.dumps(valid_updates[json_field])
             
-            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
-            values = list(valid_updates.values()) + [file_id]
+            # Build safe update query
+            query, values = _build_update_query('files', valid_updates, 'id')
+            values.append(file_id)
             
             with get_db_connection() as conn:
-                cursor = conn.execute(
-                    f"UPDATE files SET {set_clause} WHERE id = ?",
-                    values
-                )
+                cursor = conn.execute(query, values)
                 
                 if cursor.rowcount == 0:
                     raise EntityNotFoundException("File", file_id)
@@ -1458,39 +1485,13 @@ class StatisticsRepository:
             stats = {}
             
             with get_db_connection() as conn:
-                # Basic counts - using whitelist to prevent SQL injection
-                tables_to_count = {
-                    'users': 'users',
-                    'projects': 'projects', 
-                    'tickets': 'tickets',
-                    'files': 'files',
-                    'messages': 'messages',
-                    'chat_rooms': 'chat_rooms'
-                }
-                
-                for key, table in tables_to_count.items():
-                    # Validate table name against whitelist
-                    if table not in StatisticsRepository.ALLOWED_TABLES:
-                        logger.warning(f"⚠️ Skipping invalid table name: {table}")
-                        continue
-                    
-                    # Use separate queries for each table (safe from SQL injection)
-                    if table == 'users':
-                        cursor = conn.execute("SELECT COUNT(*) FROM users")
-                    elif table == 'projects':
-                        cursor = conn.execute("SELECT COUNT(*) FROM projects")
-                    elif table == 'tickets':
-                        cursor = conn.execute("SELECT COUNT(*) FROM tickets")
-                    elif table == 'files':
-                        cursor = conn.execute("SELECT COUNT(*) FROM files")
-                    elif table == 'messages':
-                        cursor = conn.execute("SELECT COUNT(*) FROM messages")
-                    elif table == 'chat_rooms':
-                        cursor = conn.execute("SELECT COUNT(*) FROM chat_rooms")
-                    else:
-                        continue
-                    
-                    stats[f"total_{key}"] = cursor.fetchone()[0]
+                # Basic counts - using direct queries (no dynamic SQL)
+                stats['total_users'] = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+                stats['total_projects'] = conn.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
+                stats['total_tickets'] = conn.execute("SELECT COUNT(*) FROM tickets").fetchone()[0]
+                stats['total_files'] = conn.execute("SELECT COUNT(*) FROM files").fetchone()[0]
+                stats['total_messages'] = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+                stats['total_chat_rooms'] = conn.execute("SELECT COUNT(*) FROM chat_rooms").fetchone()[0]
                 
                 # Message statistics
                 cursor = conn.execute("""
@@ -1632,14 +1633,12 @@ class ChatRoomRepository:
                 if json_field in valid_updates:
                     valid_updates[json_field] = json.dumps(valid_updates[json_field])
             
-            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
-            values = list(valid_updates.values()) + [room_id]
+            # Build safe update query
+            query, values = _build_update_query('chat_rooms', valid_updates, 'id')
+            values.append(room_id)
             
             with get_db_connection() as conn:
-                cursor = conn.execute(
-                    f"UPDATE chat_rooms SET {set_clause} WHERE id = ?",
-                    values
-                )
+                cursor = conn.execute(query, values)
                 
                 if cursor.rowcount == 0:
                     raise EntityNotFoundException("ChatRoom", room_id)
@@ -1866,14 +1865,12 @@ class AIConversationRepository:
             
             valid_updates['updated_at'] = datetime.now().isoformat()
             
-            set_clause = ", ".join([f"{k} = ?" for k in valid_updates.keys()])
-            values = list(valid_updates.values()) + [conversation_id]
+            # Build safe update query
+            query, values = _build_update_query('ai_conversations', valid_updates, 'id')
+            values.append(conversation_id)
             
             with get_db_connection() as conn:
-                cursor = conn.execute(
-                    f"UPDATE ai_conversations SET {set_clause} WHERE id = ?",
-                    values
-                )
+                cursor = conn.execute(query, values)
                 
                 if cursor.rowcount == 0:
                     raise EntityNotFoundException("AIConversation", conversation_id)
@@ -1925,6 +1922,9 @@ class AIConversationRepository:
     @staticmethod
     def _row_to_conversation(row) -> AIConversation:
         """Convert database row to AIConversation object"""
+        # Convert row keys to set once for efficient lookup
+        row_keys = set(row.keys())
+        
         return AIConversation(
             id=row['id'],
             title=row['title'],
@@ -1934,7 +1934,7 @@ class AIConversationRepository:
             created_at=datetime.fromisoformat(row['created_at']) if row['created_at'] else None,
             updated_at=datetime.fromisoformat(row['updated_at']) if row['updated_at'] else None,
             is_archived=bool(row['is_archived']),
-            ai_model=row['ai_model'] if 'ai_model' in row.keys() else None,
-            conversation_settings=json.loads(row['conversation_settings']) if 'conversation_settings' in row.keys() and row['conversation_settings'] else {},
-            metadata=json.loads(row['metadata']) if 'metadata' in row.keys() and row['metadata'] else {}
+            ai_model=row['ai_model'] if 'ai_model' in row_keys else None,
+            conversation_settings=json.loads(row['conversation_settings']) if 'conversation_settings' in row_keys and row['conversation_settings'] else {},
+            metadata=json.loads(row['metadata']) if 'metadata' in row_keys and row['metadata'] else {}
         )

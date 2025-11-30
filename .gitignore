@@ -6,3 +6,6 @@ chat.db
 .idea/
 logs/
 *.log
+test_chat.db*
+*.db-shm
+*.db-wal
