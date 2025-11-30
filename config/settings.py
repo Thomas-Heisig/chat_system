@@ -27,8 +27,22 @@ class EnvironmentSettings(BaseSettings):
     HOST: str = Field(default="0.0.0.0")
     PORT: int = Field(default=8000)
     
-    # CORS
-    CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000"])
+    # CORS - Default development origins, can be overridden via environment
+    CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000"])
+    
+    def get_effective_debug(self) -> bool:
+        """Get effective debug mode - auto-disabled in production"""
+        if self.APP_ENVIRONMENT.lower() == "production":
+            return False
+        return self.APP_DEBUG
+    
+    def get_effective_cors_origins(self) -> List[str]:
+        """Get effective CORS origins - wildcards filtered in production"""
+        if self.APP_ENVIRONMENT.lower() == "production":
+            # Filter out any wildcard entries in production
+            safe_origins = [origin for origin in self.CORS_ORIGINS if origin != "*"]
+            return safe_origins
+        return self.CORS_ORIGINS
     
     # Security
     SECRET_KEY: str = Field(default="your-secret-key-here")
@@ -384,34 +398,47 @@ def log_configuration_summary():
     logger.info(f"📊 Log Format: {settings.LOG_FORMAT}")
 
 def validate_environment():
-    """Validate environment configuration and log warnings - Aus alter Datei"""
+    """Validate environment configuration and log warnings with auto-correction for production"""
     
     warnings = []
+    corrections_applied = []
     
-    # Development environment warnings
+    # Production environment checks with auto-correction
+    if settings.is_production:
+        # Debug mode is auto-disabled in production via get_effective_debug()
+        if settings.APP_DEBUG and not settings.get_effective_debug():
+            corrections_applied.append("Debug mode auto-disabled in production (get_effective_debug() returns False)")
+        
+        # CORS wildcard auto-filtered in production via get_effective_cors_origins()
+        if "*" in settings.CORS_ORIGINS and "*" not in settings.get_effective_cors_origins():
+            corrections_applied.append("Wildcard CORS origins auto-filtered in production")
+        
+        if not settings.APP_SECRET_KEY or len(settings.APP_SECRET_KEY) < 32:
+            warnings.append("Weak or missing APP_SECRET_KEY in production - please set a secure key (min 32 chars)")
+        
+        if settings.DATABASE_URL and "sqlite" in settings.DATABASE_URL.lower():
+            warnings.append("SQLite database in production - consider PostgreSQL for better performance")
+        
+        if not settings.CORS_ORIGINS or all(o == "*" for o in settings.CORS_ORIGINS):
+            warnings.append("No valid CORS origins configured for production - API calls from browsers may fail")
+    
+    # Development environment informational warnings (less critical)
     if settings.is_development:
         if "*" in settings.CORS_ORIGINS:
-            warnings.append("CORS is set to '*' - consider restricting origins in production")
+            warnings.append("CORS is set to '*' - this is acceptable for development but restrict in production")
         if len(settings.APP_SECRET_KEY) < 32:
-            warnings.append("Consider using a longer APP_SECRET_KEY (min 32 chars) for production")
-        if settings.APP_DEBUG:
-            warnings.append("Debug mode is enabled - disable in production")
+            warnings.append("Consider using a longer APP_SECRET_KEY (min 32 chars) for better security")
     
-    # Production environment checks
-    if settings.is_production:
-        if settings.APP_DEBUG:
-            warnings.append("Debug mode should be disabled in production")
-        if not settings.APP_SECRET_KEY or len(settings.APP_SECRET_KEY) < 32:
-            warnings.append("Weak or missing APP_SECRET_KEY in production")
-        if settings.DATABASE_URL and "sqlite" in settings.DATABASE_URL.lower():
-            warnings.append("SQLite database in production - consider PostgreSQL")
-    
-    # Feature-specific warnings
+    # Feature-specific warnings (all environments)
     if settings.AI_ENABLED and not settings.OLLAMA_BASE_URL:
         warnings.append("AI enabled but OLLAMA_BASE_URL not configured")
     
     if settings.RAG_ENABLED and not settings.VECTOR_STORE_ENABLED:
         warnings.append("RAG enabled but vector store not configured")
+    
+    # Log corrections that were auto-applied
+    for correction in corrections_applied:
+        logger.info(f"✅ Auto-correction: {correction}")
     
     # Log warnings
     for warning in warnings:
