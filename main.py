@@ -306,6 +306,26 @@ for router, prefix, description in routes_config:
     app.include_router(router, prefix=prefix, tags=[description.split(' ')[0].lower()])
     enhanced_logger.info(f"Router registered", prefix=prefix, description=description)
 
+# DevTools JSON route to prevent 404 errors from Chrome DevTools
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", tags=["devtools"])
+async def devtools_json():
+    """Return empty JSON for Chrome DevTools to prevent 404 errors"""
+    return {}
+
+# Favicon route
+@app.get("/favicon.ico", tags=["static"])
+async def favicon():
+    """Return favicon - serves a simple SVG icon"""
+    from fastapi.responses import Response
+    # Simple chat bubble SVG favicon
+    svg_icon = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="#4A90D9"/>
+        <path d="M25 35 Q25 25 35 25 L65 25 Q75 25 75 35 L75 55 Q75 65 65 65 L45 65 L35 75 L35 65 L35 65 Q25 65 25 55 Z" fill="white"/>
+        <circle cx="40" cy="45" r="5" fill="#4A90D9"/>
+        <circle cx="55" cy="45" r="5" fill="#4A90D9"/>
+    </svg>'''
+    return Response(content=svg_icon, media_type="image/svg+xml")
+
 # Enhanced health and info endpoints
 @app.get("/health", tags=["monitoring"])
 async def comprehensive_health_check():

@@ -7070,3 +7070,55 @@
 2025-11-30 20:59:56 | INFO     | config.settings      | settings        | info                 | WebSocket connection closed
 2025-11-30 20:59:56 | INFO     | config.settings      | settings        | info                 | Client disconnected
 2025-11-30 20:59:56 | INFO     | config.settings      | chat            | websocket_endpoint   | ✅ WebSocket connection closed for: 127.0.0.1:49890
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 3 configured
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: chat_system.db
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'python_version': '3.12.3', 'process_id': 3621, 'note': 'psutil not available for detailed system info'}
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             | ✅ Environment configuration validated successfully
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 20:30:24 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: development
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 3 configured
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: chat_system.db
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'python_version': '3.12.3', 'process_id': 3627, 'note': 'psutil not available for detailed system info'}
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             | ✅ Environment configuration validated successfully
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-11-30 20:30:34 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
