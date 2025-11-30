@@ -11,6 +11,10 @@ from config.settings import settings, logger, enhanced_logger
 from database.connection import init_database, get_database_stats, check_database_health
 from routes.chat import router as chat_router
 from routes.messages import router as messages_router
+from routes.settings import router as settings_router
+from routes.rag import router as rag_router
+from routes.database import router as database_router
+from routes.admin import router as admin_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -290,7 +294,11 @@ for route, directory, description in static_dirs:
 # Register routes with enhanced logging
 routes_config = [
     (chat_router, "", "Chat routes (WebSocket, UI, AI)"),
-    (messages_router, "/api", "Messages API routes")
+    (messages_router, "/api", "Messages API routes"),
+    (settings_router, "", "Settings API routes"),
+    (rag_router, "", "RAG API routes"),
+    (database_router, "", "Database Admin API routes"),
+    (admin_router, "", "Admin Dashboard API routes")
 ]
 
 for router, prefix, description in routes_config:
