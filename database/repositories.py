@@ -320,9 +320,9 @@ class MessageRepository:
             raise
 
     @staticmethod
-    def get_all_messages() -> List[Message]:
+    def get_all_messages(limit: int = 1000) -> List[Message]:
         """Get all messages (simple compatibility method)"""
-        filters = MessageFilter(limit=1000)
+        filters = MessageFilter(limit=limit)
         return MessageRepository.get_messages_by_filter(filters).items
 
     @staticmethod
@@ -351,32 +351,60 @@ class MessageRepository:
         """Get conversation context around a specific message"""
         try:
             with get_db_connection() as conn:
-                # Get the message timestamp
+                # Get the message details including room/project context
                 cursor = conn.execute(
-                    "SELECT timestamp FROM messages WHERE id = ?",
+                    "SELECT id, timestamp, room_id, project_id FROM messages WHERE id = ?",
                     (message_id,)
                 )
                 row = cursor.fetchone()
                 if not row:
                     return []
                 
-                timestamp = row['timestamp']
+                msg_id = row['id']
+                room_id = row['room_id']
+                project_id = row['project_id']
                 
-                # Get messages around this timestamp
-                cursor = conn.execute(
-                    """SELECT id, username, message, message_compressed, timestamp, message_type,
-                              parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
-                              context_message_ids, rag_sources, sentiment, is_edited, edit_history,
-                              reaction_count, flags, metadata
-                       FROM messages 
-                       WHERE timestamp >= datetime(?, '-5 minutes') 
-                       AND timestamp <= datetime(?, '+5 minutes')
-                       ORDER BY timestamp
-                       LIMIT ?""",
-                    (timestamp, timestamp, context_window)
-                )
+                # Build query based on context (room or project)
+                if room_id:
+                    context_query = """
+                        SELECT id, username, message, message_compressed, timestamp, message_type,
+                               parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
+                               context_message_ids, rag_sources, sentiment, is_edited, edit_history,
+                               reaction_count, flags, metadata
+                        FROM messages 
+                        WHERE room_id = ?
+                        ORDER BY ABS(id - ?)
+                        LIMIT ?
+                    """
+                    cursor = conn.execute(context_query, (room_id, msg_id, context_window))
+                elif project_id:
+                    context_query = """
+                        SELECT id, username, message, message_compressed, timestamp, message_type,
+                               parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
+                               context_message_ids, rag_sources, sentiment, is_edited, edit_history,
+                               reaction_count, flags, metadata
+                        FROM messages 
+                        WHERE project_id = ?
+                        ORDER BY ABS(id - ?)
+                        LIMIT ?
+                    """
+                    cursor = conn.execute(context_query, (project_id, msg_id, context_window))
+                else:
+                    # General context - get messages around the target message by ID
+                    context_query = """
+                        SELECT id, username, message, message_compressed, timestamp, message_type,
+                               parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
+                               context_message_ids, rag_sources, sentiment, is_edited, edit_history,
+                               reaction_count, flags, metadata
+                        FROM messages 
+                        ORDER BY ABS(id - ?)
+                        LIMIT ?
+                    """
+                    cursor = conn.execute(context_query, (msg_id, context_window))
                 
-                return [MessageRepository._row_to_message(row) for row in cursor.fetchall()]
+                # Sort results by timestamp for proper chronological order
+                messages = [MessageRepository._row_to_message(r) for r in cursor.fetchall()]
+                return sorted(messages, key=lambda m: m.timestamp if m.timestamp else datetime.min)
                 
         except Exception as e:
             logger.error(f"❌ Failed to get conversation context: {e}")

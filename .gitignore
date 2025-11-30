@@ -2,5 +2,9 @@ __pycache__/
 *.pyc
 .env
 chat.db
+chat_system.db
 .vscode/
 .idea/
+logs/
+uploads/
+*.log
