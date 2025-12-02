@@ -10,3 +10,25 @@ backups/
 settings.json
 .vscode/
 .idea/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Python artifacts
+*.so
+*.egg
+*.egg-info
+
+# IDE
+.DS_Store
+*.swp
+*.swo

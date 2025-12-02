@@ -21,5 +21,5 @@ class TestDictionaryService:
     @pytest.mark.asyncio
     async def test_search_term(self, service):
         await service.add_term("API", "Application Programming Interface")
-        results = await service.search_term("API")
+        results = await service.search_terms("API")
         assert len(results) > 0

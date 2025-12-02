@@ -20,6 +20,7 @@ class TestWikiService:
     
     @pytest.mark.asyncio
     async def test_get_page(self, service):
-        await service.create_page("Test", "Content", "author")
-        page = await service.get_page("Test")
+        result = await service.create_page("Test", "Content", "author")
+        page_id = result.get("id")
+        page = await service.get_page(page_id)
         assert page is not None
