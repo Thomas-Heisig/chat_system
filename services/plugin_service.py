@@ -132,7 +132,17 @@ class PluginSandbox:
         - [ ] Add timeout enforcement
         - [ ] Implement permission checks
         - [ ] Add output sanitization
+        
+        SECURITY: This is a stub. Raises NotImplementedError to prevent
+        accidental execution without proper sandboxing.
         """
+        # Prevent execution in stub mode for security
+        if os.getenv("ENABLE_PLUGIN_EXECUTION", "false").lower() != "true":
+            raise NotImplementedError(
+                "Plugin execution is not implemented. "
+                "This is a stub and requires Docker-based sandboxing."
+            )
+        
         logger.warning(
             f"Plugin sandbox execution is a stub - "
             f"plugin={self.plugin.name}, function={function_name}"

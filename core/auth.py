@@ -13,6 +13,7 @@ TODO:
 - [ ] Add rate limiting for login attempts
 """
 
+import os
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from enum import Enum
@@ -376,13 +377,28 @@ async def authenticate_user(username: str, password: str) -> Optional[User]:
     - [ ] Add rate limiting for failed attempts
     - [ ] Log authentication attempts
     - [ ] Implement account lockout after N failed attempts
+    
+    SECURITY WARNING: This is a STUB implementation for development only!
+    DO NOT USE IN PRODUCTION without implementing proper database authentication.
     """
     # TODO: Fetch user from database and verify password
     # This is a stub implementation
     logger.warning("authenticate_user is a stub - implement database lookup")
     
-    # Stub: Accept any user with password "password"
-    if password == "password":
+    # DEVELOPMENT ONLY: Return None to disable authentication in stub mode
+    # Remove this check and implement proper authentication for production
+    if os.getenv("APP_ENVIRONMENT") == "production":
+        raise NotImplementedError(
+            "Authentication stub cannot be used in production. "
+            "Implement proper database-backed authentication."
+        )
+    
+    # Development stub: Only allow authentication if explicitly enabled
+    if os.getenv("ENABLE_STUB_AUTH", "false").lower() != "true":
+        return None
+    
+    # Stub: Accept specific test user for development
+    if username == "test_user" and password == "test_password":
         return User(
             id=f"user_{username}",
             username=username,

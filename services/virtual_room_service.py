@@ -10,6 +10,7 @@ TODO:
 """
 
 import uuid
+import math
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from enum import Enum
@@ -188,7 +189,6 @@ class VirtualRoomService:
             user_pos = user_data["position"]
             
             # Calculate distance
-            import math
             dx = user_pos["x"] - listener_pos["x"]
             dy = user_pos.get("y", 0) - listener_pos.get("y", 0)
             dz = user_pos["z"] - listener_pos["z"]
