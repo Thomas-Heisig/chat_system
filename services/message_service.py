@@ -9,25 +9,60 @@ from database.repositories import MessageRepository
 from database.models import Message, MessageType
 from config.settings import logger, enhanced_logger
 
+
+class ExternalAIUnavailableError(Exception):
+    """
+    Exception raised when external AI services (Ollama, OpenAI) are unavailable
+    
+    This triggers fallback to Elyza service for basic conversational capabilities.
+    """
+    pass
+
 class MessageService:
     """
     Service für Nachrichtenverwaltung mit AI-Funktionalität
     Fokussiert auf Kern-Nachrichtenfunktionen und AI-Integration
+    
+    Features:
+    - External AI integration (Ollama, OpenAI)
+    - Elyza fallback for offline/unavailable AI
+    - WebSocket connection registry
+    - Message persistence and retrieval
     """
     
     def __init__(self, repository: MessageRepository):
         self.repository = repository
         
         # AI Configuration
-        self.ollama_base_url = "http://localhost:11434"
+        self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.ollama_available = self._check_ollama_connection()
         self.custom_model_available = self._check_custom_model()
+        
+        # WebSocket connection registry
+        # TODO: Move to Redis for multi-instance support
+        self.active_connections: Dict[str, List[Any]] = {}
+        
+        # Elyza fallback service
+        self.elyza_service = None
+        self._init_elyza_fallback()
         
         enhanced_logger.info(
             "MessageService initialized",
             ollama_available=self.ollama_available,
-            custom_model_available=self.custom_model_available
+            custom_model_available=self.custom_model_available,
+            elyza_available=self.elyza_service is not None
         )
+    
+    def _init_elyza_fallback(self):
+        """Initialize Elyza fallback service"""
+        try:
+            from services.elyza_service import get_elyza_service
+            self.elyza_service = get_elyza_service()
+            if self.elyza_service.is_available():
+                enhanced_logger.info("Elyza fallback service initialized")
+        except Exception as e:
+            enhanced_logger.warning(f"Could not initialize Elyza fallback: {str(e)}")
+            self.elyza_service = None
 
     def _check_ollama_connection(self) -> bool:
         """Check if Ollama is running and available"""
@@ -226,7 +261,33 @@ Benutzer: {message}
 Assistant:"""
 
     def _generate_fallback_response(self, message: str) -> str:
-        """Generate fallback response when no AI is available"""
+        """
+        Generate fallback response when no AI is available
+        Uses Elyza service if available, otherwise basic response
+        """
+        # Try Elyza fallback service first
+        if self.elyza_service and self.elyza_service.is_available():
+            try:
+                import asyncio
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If we're in an async context, create task
+                    future = asyncio.ensure_future(
+                        self.elyza_service.generate_response(message)
+                    )
+                    # This is a sync function, so we can't await
+                    # Return a placeholder and log
+                    enhanced_logger.info("Elyza fallback triggered (async context)")
+                    return "Elyza ist dabei, eine Antwort zu generieren..."
+                else:
+                    # Run in new loop
+                    result = asyncio.run(self.elyza_service.generate_response(message))
+                    enhanced_logger.info("Elyza fallback response generated")
+                    return result.get("response", "Keine Antwort verfügbar")
+            except Exception as e:
+                enhanced_logger.warning(f"Elyza fallback failed: {str(e)}")
+        
+        # Ultimate fallback: basic templated responses
         import random
         fallback_responses = [
             "Ich habe deine Nachricht erhalten: '{}'",
@@ -599,7 +660,8 @@ Antworte im Format: {{"sentiment": "positive|neutral|negative", "confidence": 0.
                     "message_count": len(recent_messages)
                 },
                 "ai_services": ai_status,
-                "repository": "connected"
+                "repository": "connected",
+                "websocket_connections": sum(len(conns) for conns in self.active_connections.values())
             }
             
             return health_status
@@ -612,3 +674,120 @@ Antworte im Format: {{"sentiment": "positive|neutral|negative", "confidence": 0.
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
+    
+    # ============================================================================
+    # WebSocket Connection Management
+    # TODO: Migrate to Redis for multi-instance support
+    # ============================================================================
+    
+    def register_websocket(self, room_id: str, websocket: Any):
+        """
+        Register a WebSocket connection for a room
+        
+        Args:
+            room_id: Room identifier
+            websocket: WebSocket connection object
+            
+        TODO:
+        - [ ] Move to Redis for distributed deployment
+        - [ ] Add connection timeout handling
+        - [ ] Implement connection heartbeat
+        """
+        if room_id not in self.active_connections:
+            self.active_connections[room_id] = []
+        
+        self.active_connections[room_id].append(websocket)
+        enhanced_logger.info(
+            "WebSocket registered",
+            room_id=room_id,
+            total_connections=len(self.active_connections[room_id])
+        )
+    
+    def unregister_websocket(self, room_id: str, websocket: Any):
+        """
+        Unregister a WebSocket connection from a room
+        
+        Args:
+            room_id: Room identifier
+            websocket: WebSocket connection object
+        """
+        if room_id in self.active_connections:
+            try:
+                self.active_connections[room_id].remove(websocket)
+                enhanced_logger.info(
+                    "WebSocket unregistered",
+                    room_id=room_id,
+                    remaining_connections=len(self.active_connections[room_id])
+                )
+                
+                # Clean up empty room
+                if not self.active_connections[room_id]:
+                    del self.active_connections[room_id]
+                    enhanced_logger.debug(f"Room {room_id} cleaned up (no connections)")
+            except ValueError:
+                enhanced_logger.warning(f"WebSocket not found in room {room_id}")
+    
+    def get_room_connections(self, room_id: str) -> List[Any]:
+        """
+        Get all active WebSocket connections for a room
+        
+        Args:
+            room_id: Room identifier
+            
+        Returns:
+            List of WebSocket connections
+        """
+        return self.active_connections.get(room_id, [])
+    
+    async def broadcast_to_room(self, room_id: str, message: Dict[str, Any]):
+        """
+        Broadcast a message to all connections in a room
+        
+        Args:
+            room_id: Room identifier
+            message: Message data to broadcast
+            
+        TODO:
+        - [ ] Implement Redis Pub/Sub for multi-instance
+        - [ ] Add message priority queue
+        - [ ] Handle disconnected clients gracefully
+        """
+        connections = self.get_room_connections(room_id)
+        
+        if not connections:
+            enhanced_logger.debug(f"No active connections in room {room_id}")
+            return
+        
+        disconnected = []
+        
+        for connection in connections:
+            try:
+                await connection.send_json(message)
+            except Exception as e:
+                enhanced_logger.warning(
+                    f"Failed to send to connection in room {room_id}: {str(e)}"
+                )
+                disconnected.append(connection)
+        
+        # Clean up disconnected connections
+        for conn in disconnected:
+            self.unregister_websocket(room_id, conn)
+        
+        enhanced_logger.info(
+            "Message broadcast to room",
+            room_id=room_id,
+            successful=len(connections) - len(disconnected),
+            failed=len(disconnected)
+        )
+    
+    def get_connection_stats(self) -> Dict[str, Any]:
+        """Get WebSocket connection statistics"""
+        return {
+            "total_rooms": len(self.active_connections),
+            "total_connections": sum(len(conns) for conns in self.active_connections.values()),
+            "rooms": {
+                room_id: len(conns) 
+                for room_id, conns in self.active_connections.items()
+            },
+            "timestamp": datetime.now().isoformat()
+        }
