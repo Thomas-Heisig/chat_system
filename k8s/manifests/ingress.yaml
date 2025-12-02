@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-system-ingress
+  namespace: chat-system
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/websocket-services: chat-system-api
+spec:
+  tls:
+  - hosts:
+    - chat.example.com  # TODO: Change to your domain
+    secretName: chat-system-tls
+  rules:
+  - host: chat.example.com  # TODO: Change to your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chat-system-api
+            port:
+              number: 80

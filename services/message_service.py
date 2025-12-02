@@ -8,6 +8,8 @@ from pathlib import Path
 from database.repositories import MessageRepository
 from database.models import Message, MessageType
 from config.settings import logger, enhanced_logger
+from services.exceptions import ExternalAIUnavailableError
+from services.elyza_service import get_elyza_service
 
 class MessageService:
     """
@@ -111,6 +113,20 @@ class MessageService:
             else:
                 return self._generate_fallback_response(message)
 
+        except ExternalAIUnavailableError as e:
+            enhanced_logger.warning(
+                "External AI unavailable, attempting Elyza fallback",
+                error=str(e),
+                service=e.service_name
+            )
+            # Try Elyza fallback if enabled
+            elyza_service = get_elyza_service()
+            if elyza_service.is_enabled():
+                enhanced_logger.info("Using Elyza fallback service")
+                return elyza_service.generate_response(message)
+            else:
+                enhanced_logger.error("Elyza fallback not enabled, returning error message")
+                return f"AI-Service ist momentan nicht verfügbar: {str(e)}"
         except Exception as e:
             enhanced_logger.error(
                 "Error generating AI response",
@@ -162,15 +178,33 @@ class MessageService:
                     status_code=response.status_code,
                     model=model_name
                 )
-                return "Ollama konnte keine Antwort generieren."
+                # Throw exception to trigger fallback
+                raise ExternalAIUnavailableError(
+                    f"Ollama API returned status {response.status_code}",
+                    service_name="Ollama"
+                )
 
+        except requests.exceptions.RequestException as e:
+            enhanced_logger.error(
+                "Error with Ollama generation - connection failed",
+                error=str(e),
+                model=model_name
+            )
+            # Throw exception to enable fallback to Elyza
+            raise ExternalAIUnavailableError(
+                f"Failed to connect to Ollama: {str(e)}",
+                service_name="Ollama"
+            )
         except Exception as e:
             enhanced_logger.error(
                 "Error with Ollama generation",
                 error=str(e),
                 model=model_name
             )
-            return "Verbindung zu Ollama fehlgeschlagen."
+            raise ExternalAIUnavailableError(
+                f"Ollama error: {str(e)}",
+                service_name="Ollama"
+            )
 
     def _generate_with_custom_model(self, message: str, context: str) -> str:
         """Generate response using custom model (simulated)"""
