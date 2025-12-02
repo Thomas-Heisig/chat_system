@@ -1,0 +1,27 @@
+{
+  "name": "chat-system-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Universal Chat System",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'Frontend is served by FastAPI backend on http://localhost:8000'",
+    "dev": "echo 'Frontend development: Edit files in ../static/ and ../templates/'",
+    "build": "echo 'No build step required - static files are served directly'",
+    "lint": "echo 'Frontend linting not yet configured'",
+    "format": "echo 'Frontend formatting not yet configured'"
+  },
+  "keywords": [
+    "chat",
+    "websocket",
+    "ui",
+    "frontend"
+  ],
+  "author": "Thomas Heisig",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Thomas-Heisig/chat_system.git"
+  }
+}
