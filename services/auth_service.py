@@ -24,16 +24,13 @@ try:
     from jose import jwt as jose_jwt, JWTError as JoseJWTError
     JOSE_AVAILABLE = True
     jwt = jose_jwt
-    # Optionally, you can wrap jose's JWTError to your own
-    class AuthJWTError(JoseJWTError):
-        """Custom JWTError for AuthService, wraps jose JWTError if available."""
-        pass
+    # Use jose's JWTError if available
+    AuthJWTError = JoseJWTError
 except ImportError:
     JOSE_AVAILABLE = False
     jwt = None
-    class AuthJWTError(Exception):
-        """Custom JWTError for AuthService, fallback to Exception if jose is not available."""
-        pass
+    # Fallback to base Exception if jose is not available
+    AuthJWTError = Exception
 
 
 class AuthService:

@@ -495,6 +495,19 @@ class EnhancedChatApp {
             case 'user_count':
                 this.updateOnlineUsers(data.count);
                 break;
+            case 'ping':
+                console.log('🏓 Ping received from server');
+                if (this.isConnected) {
+                    this.ws.send(JSON.stringify({
+                        type: 'pong',
+                        ping_id: data.ping_id,
+                        timestamp: new Date().toISOString()
+                    }));
+                }
+                break;
+            case 'pong':
+                console.log('🏓 Pong received from server');
+                break;
             case 'error':
                 console.error('❌ Server error:', data.message);
                 this.addSystemMessage(this.t('errorPrefix') + data.message);

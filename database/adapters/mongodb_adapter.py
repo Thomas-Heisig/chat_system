@@ -4,8 +4,7 @@ MongoDB Database Adapter
 NoSQL database support for flexible document storage
 """
 
-from typing import Dict, Any, List, Optional, Union, TYPE_CHECKING
-from datetime import datetime
+from typing import Dict, Any, List, Optional, TYPE_CHECKING
 import logging
 
 from .base_adapter import BaseDatabaseAdapter
@@ -17,12 +16,10 @@ if TYPE_CHECKING:
 # Optional import - MongoDB support requires motor
 try:
     import motor.motor_asyncio
-    from pymongo import MongoClient
     MOTOR_AVAILABLE = True
 except ImportError:
     MOTOR_AVAILABLE = False
     motor = None
-    MongoClient = None
 
 logger = logging.getLogger(__name__)
 

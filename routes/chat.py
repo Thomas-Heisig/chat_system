@@ -16,11 +16,10 @@ from database.repositories import (
 )
 from websocket.handlers import WebSocketHandler
 from database.models import (
-    Message, MessageFilter, MessageType, User, UserRole,
-    Project, ProjectStatus, ProjectFilter, Ticket, TicketStatus, 
-    TicketPriority, TicketType, TicketFilter, File as FileModel,
-    PaginatedResponse, SearchResults, create_message, create_user,
-    create_project, create_ticket, create_file
+    MessageFilter, MessageType,
+    ProjectStatus, ProjectFilter,
+    TicketStatus, TicketPriority, TicketType, TicketFilter,
+    create_project, create_ticket
 )
 from config.settings import logger, enhanced_logger, settings
 

@@ -6,12 +6,16 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 from pydantic import Field
 try:
-    from pydantic_settings import BaseSettings
+    from pydantic_settings import BaseSettings  # pydantic v2
+    from pydantic_settings import SettingsConfigDict
+    IS_PYDANTIC_V2 = True
 except ImportError:
     # Fallback für ältere Pydantic Versionen
-    from pydantic import BaseSettings
-from logging.config import dictConfig
-from datetime import datetime
+    from pydantic import BaseSettings  # pydantic v1
+    IS_PYDANTIC_V2 = False
+    # Provide a dummy SettingsConfigDict for compatibility
+    def SettingsConfigDict(**kwargs):
+        return kwargs
 
 class EnvironmentSettings(BaseSettings):
     """Environment-specific settings - Kombination aus alter und neuer Struktur"""
@@ -26,9 +30,22 @@ class EnvironmentSettings(BaseSettings):
     # Server
     HOST: str = Field(default="0.0.0.0")
     PORT: int = Field(default=8000)
+    # CORS - Default development origins, can be overridden via environment
+    CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000"])
     
-    # CORS
-    CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://127.0.0.1:3000"])
+    def get_effective_debug(self) -> bool:
+        """Get effective debug mode - auto-disabled in production"""
+        if self.APP_ENVIRONMENT.lower() == "production":
+            return False
+        return self.APP_DEBUG
+    
+    def get_effective_cors_origins(self) -> List[str]:
+        """Get effective CORS origins - wildcards filtered in production"""
+        if self.APP_ENVIRONMENT.lower() == "production":
+            # Filter out any wildcard entries in production
+            safe_origins = [origin for origin in self.CORS_ORIGINS if origin != "*"]
+            return safe_origins
+        return self.CORS_ORIGINS
     
     # Security
     SECRET_KEY: str = Field(default="your-secret-key-here")
@@ -102,25 +119,31 @@ class EnvironmentSettings(BaseSettings):
     @property
     def is_testing(self) -> bool:
         return self.APP_ENVIRONMENT.lower() == "testing"
-
-    # Pydantic v2 Config
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-        extra = "ignore"
+    
+    # Pydantic Config
+    if IS_PYDANTIC_V2:
+        model_config = SettingsConfigDict(
+            env_file=".env",
+            case_sensitive=False,
+            extra="ignore",
+        )
+    else:
+        class Config:
+            env_file = ".env"
+            case_sensitive = False
+            extra = "ignore"
 
 # Initialize settings
 settings = EnvironmentSettings()
 
 # Erweiterte Logging-Funktionen aus alter Datei
-def setup_logging(level: str = None, log_file: str = None, format_type: str = None):
+def setup_logging(level: Optional[str] = None, log_file: Optional[str] = None, format_type: Optional[str] = None):
     """Setup comprehensive logging configuration with enhanced features - Kompatibel mit alter Funktion"""
     
     # Verwende Settings als Default, falls keine Parameter übergeben
     level = level or settings.LOG_LEVEL
     log_file = log_file or settings.LOG_FILE
     format_type = format_type or settings.LOG_FORMAT
-    
     level_mapping = {
         "DEBUG": logging.DEBUG,
         "INFO": logging.INFO,
@@ -163,9 +186,10 @@ def setup_logging(level: str = None, log_file: str = None, format_type: str = No
                 if record.exc_info:
                     log_entry["exception"] = self.formatException(record.exc_info)
                 if hasattr(record, 'custom_fields'):
-                    log_entry.update(record.custom_fields)
+                    custom = getattr(record, 'custom_fields', None)
+                    if isinstance(custom, dict):
+                        log_entry.update(custom)
                 return json.dumps(log_entry)
-        
         formatter = JsonFormatter()
         
     elif format_type == "detailed":
@@ -279,12 +303,12 @@ class EnhancedLogger:
             self.debug(f"Performance: {operation} took {duration:.2f}s", 
                       operation=operation, duration=duration, **kwargs)
     
-    def security(self, event: str, user: str = None, ip: str = None, **kwargs):
+    def security(self, event: str, user: Optional[str] = None, ip: Optional[str] = None, **kwargs):
         """Log security-related events"""
         self.warning(f"Security event: {event}", 
                     security_event=event, user=user, ip=ip, **kwargs)
     
-    def database(self, operation: str, table: str = None, duration: float = None, **kwargs):
+    def database(self, operation: str, table: Optional[str] = None, duration: Optional[float] = None, **kwargs):
         """Log database operations"""
         self.debug(f"Database {operation} on {table}", 
                   db_operation=operation, table=table, duration=duration, **kwargs)
@@ -384,34 +408,47 @@ def log_configuration_summary():
     logger.info(f"📊 Log Format: {settings.LOG_FORMAT}")
 
 def validate_environment():
-    """Validate environment configuration and log warnings - Aus alter Datei"""
+    """Validate environment configuration and log warnings with auto-correction for production"""
     
     warnings = []
+    corrections_applied = []
     
-    # Development environment warnings
+    # Production environment checks with auto-correction
+    if settings.is_production:
+        # Debug mode is auto-disabled in production via get_effective_debug()
+        if settings.APP_DEBUG and not settings.get_effective_debug():
+            corrections_applied.append("Debug mode auto-disabled in production (get_effective_debug() returns False)")
+        
+        # CORS wildcard auto-filtered in production via get_effective_cors_origins()
+        if "*" in settings.CORS_ORIGINS and "*" not in settings.get_effective_cors_origins():
+            corrections_applied.append("Wildcard CORS origins auto-filtered in production")
+        
+        if not settings.APP_SECRET_KEY or len(settings.APP_SECRET_KEY) < 32:
+            warnings.append("Weak or missing APP_SECRET_KEY in production - please set a secure key (min 32 chars)")
+        
+        if settings.DATABASE_URL and "sqlite" in settings.DATABASE_URL.lower():
+            warnings.append("SQLite database in production - consider PostgreSQL for better performance")
+        
+        if not settings.CORS_ORIGINS or all(o == "*" for o in settings.CORS_ORIGINS):
+            warnings.append("No valid CORS origins configured for production - API calls from browsers may fail")
+    
+    # Development environment informational warnings (less critical)
     if settings.is_development:
         if "*" in settings.CORS_ORIGINS:
-            warnings.append("CORS is set to '*' - consider restricting origins in production")
+            warnings.append("CORS is set to '*' - this is acceptable for development but restrict in production")
         if len(settings.APP_SECRET_KEY) < 32:
-            warnings.append("Consider using a longer APP_SECRET_KEY (min 32 chars) for production")
-        if settings.APP_DEBUG:
-            warnings.append("Debug mode is enabled - disable in production")
+            warnings.append("Consider using a longer APP_SECRET_KEY (min 32 chars) for better security")
     
-    # Production environment checks
-    if settings.is_production:
-        if settings.APP_DEBUG:
-            warnings.append("Debug mode should be disabled in production")
-        if not settings.APP_SECRET_KEY or len(settings.APP_SECRET_KEY) < 32:
-            warnings.append("Weak or missing APP_SECRET_KEY in production")
-        if settings.DATABASE_URL and "sqlite" in settings.DATABASE_URL.lower():
-            warnings.append("SQLite database in production - consider PostgreSQL")
-    
-    # Feature-specific warnings
+    # Feature-specific warnings (all environments)
     if settings.AI_ENABLED and not settings.OLLAMA_BASE_URL:
         warnings.append("AI enabled but OLLAMA_BASE_URL not configured")
     
     if settings.RAG_ENABLED and not settings.VECTOR_STORE_ENABLED:
         warnings.append("RAG enabled but vector store not configured")
+    
+    # Log corrections that were auto-applied
+    for correction in corrections_applied:
+        logger.info(f"✅ Auto-correction: {correction}")
     
     # Log warnings
     for warning in warnings:
@@ -423,20 +460,22 @@ def get_system_info() -> Dict[str, Any]:
     """Get system information for logging - Aus alter Datei"""
     import platform
     try:
-        import psutil
+        import psutil as _psutil  # type: ignore[import-not-found]
         psutil_available = True
     except ImportError:
+        _psutil = None  # type: ignore[assignment]
         psutil_available = False
     
     try:
         if psutil_available:
+            assert _psutil is not None
             return {
                 "platform": platform.system(),
                 "platform_version": platform.version(),
                 "python_version": platform.python_version(),
-                "cpu_cores": psutil.cpu_count(),
-                "memory_total": f"{psutil.virtual_memory().total / 1024 / 1024 / 1024:.1f} GB",
-                "disk_usage": f"{psutil.disk_usage('.').percent:.1f}%",
+                "cpu_cores": _psutil.cpu_count(),
+                "memory_total": f"{_psutil.virtual_memory().total / 1024 / 1024 / 1024:.1f} GB",
+                "disk_usage": f"{_psutil.disk_usage('.').percent:.1f}%",
                 "process_id": os.getpid()
             }
         else:

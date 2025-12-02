@@ -21,7 +21,7 @@ class SQLiteAdapter(BaseDatabaseAdapter):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
         self.db_path = config.get('sqlite_path', 'chat_system.db')
-        self._db: Optional[aiosqlite.Connection] = None
+        self._db: aiosqlite.Connection | None = None
         self._version = sqlite3.sqlite_version
     
     @property

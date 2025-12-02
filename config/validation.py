@@ -1,5 +1,5 @@
-from pydantic import Field, field_validator, model_validator, ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Optional, Dict, Any, Union
 import os
 import secrets
@@ -54,24 +54,24 @@ class EnvironmentSettings(BaseSettings):
     
     # AI Behavior
     AI_AUTO_RESPOND: bool = True
-    AI_CONTEXT_MESSAGES: int = Field(10, ge=1, le=100)
-    AI_MAX_RESPONSE_LENGTH: int = Field(1000, ge=50, le=5000)
-    AI_TEMPERATURE: float = Field(0.7, ge=0.0, le=2.0)
-    AI_TOP_P: float = Field(0.9, ge=0.0, le=1.0)
-    AI_FREQUENCY_PENALTY: float = Field(0.0, ge=0.0, le=2.0)
-    AI_PRESENCE_PENALTY: float = Field(0.0, ge=0.0, le=2.0)
+    AI_CONTEXT_MESSAGES: int = Field(default=10, ge=1, le=100)
+    AI_MAX_RESPONSE_LENGTH: int = Field(default=1000, ge=50, le=5000)
+    AI_TEMPERATURE: float = Field(default=0.7, ge=0.0, le=2.0)
+    AI_TOP_P: float = Field(default=0.9, ge=0.0, le=1.0)
+    AI_FREQUENCY_PENALTY: float = Field(default=0.0, ge=0.0, le=2.0)
+    AI_PRESENCE_PENALTY: float = Field(default=0.0, ge=0.0, le=2.0)
     
     # RAG Configuration
     RAG_ENABLED: bool = False
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     VECTOR_DB_PATH: str = "./data/vector_db"
     VECTOR_DB_TYPE: str = "chroma"  # chroma, faiss, qdrant
-    SIMILARITY_THRESHOLD: float = Field(0.7, ge=0.0, le=1.0)
+    SIMILARITY_THRESHOLD: float = Field(default=0.7, ge=0.0, le=1.0)
     
     # Security & Rate Limiting
     RATE_LIMIT_ENABLED: bool = True
-    RATE_LIMIT_REQUESTS: int = Field(100, ge=1, le=10000)
-    RATE_LIMIT_WINDOW: int = Field(3600, ge=1, le=86400)
+    RATE_LIMIT_REQUESTS: int = Field(default=100, ge=1, le=10000)
+    RATE_LIMIT_WINDOW: int = Field(default=3600, ge=1, le=86400)
     RATE_LIMIT_STRATEGY: str = "fixed-window"  # fixed-window, sliding-window, token-bucket
     
     # JWT Authentication
@@ -92,7 +92,7 @@ class EnvironmentSettings(BaseSettings):
     
     # File Upload Configuration
     UPLOAD_FOLDER: str = "./uploads"
-    MAX_FILE_SIZE: int = Field(16 * 1024 * 1024, ge=1024, le=100 * 1024 * 1024)  # 16MB default
+    MAX_FILE_SIZE: int = Field(default=16 * 1024 * 1024, ge=1024, le=100 * 1024 * 1024)  # 16MB default
     ALLOWED_EXTENSIONS: List[str] = Field(default=[
         'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 
         'xls', 'xlsx', 'csv', 'json', 'xml'
@@ -136,7 +136,7 @@ class EnvironmentSettings(BaseSettings):
     TASK_RETRY_ATTEMPTS: int = 3
     
     # Model Config
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
