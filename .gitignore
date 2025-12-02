@@ -4,6 +4,9 @@ __pycache__/
 chat.db
 chat_system.db
 *.db
+*.db-shm
+*.db-wal
+*.db-journal
 logs/
 *.log
 chroma_data/
