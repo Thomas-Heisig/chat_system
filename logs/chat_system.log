@@ -9470,3 +9470,47 @@
 2025-12-02 17:53:05 | INFO     | config.settings      | settings        | info                 | MessageService initialized
 2025-12-02 17:53:05 | INFO     | config.settings      | wiki_service    | __init__             | 📚 Wiki Service initialized (placeholder)
 2025-12-02 17:53:05 | INFO     | config.settings      | wiki_service    | __init__             | 📚 Wiki Service initialized (placeholder)
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | setup_logging        | 🚀 Logging initialized - Level: INFO, Format: console
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | setup_logging        | 📁 Log file: logs/chat_system.log
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | ⚙️ Application: Chat System v2.0.0
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 🌍 Environment: testing
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 🔧 Debug Mode: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 🚀 Server: 0.0.0.0:8000
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 🔐 CORS Origins: 3 configured
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 🛡️ Rate Limiting: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 🤖 AI Enabled: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary |    📍 Ollama URL: http://localhost:11434
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary |    🧠 Default Model: llama2
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary |    📚 RAG Enabled: False
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary |    🗃️ Vector Store: False
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 💾 Database: sqlite
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 📁 Upload Folder: uploads
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 📄 Allowed Extensions: 8 file types
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 📝 Log Level: INFO
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | log_configuration_summary | 📊 Log Format: console
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             | 💻 System Info: {'platform': 'Linux', 'platform_version': '#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025', 'python_version': '3.12.3', 'cpu_cores': 4, 'memory_total': '15.6 GB', 'disk_usage': '91.5%', 'process_id': 5143}
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             | ✅ Environment configuration validated successfully
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             | 🔧 Available features:
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             |    • File Upload: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             |    • Project Management: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             |    • Ticket System: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             |    • Real-time Chat: True
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | <module>             | 🎉 Application configuration completed successfully!
+2025-12-02 18:03:27 | INFO     | config.settings      | dictionary_service | __init__             | 📖 Dictionary Service initialized (placeholder)
+2025-12-02 18:03:27 | INFO     | config.settings      | dictionary_service | __init__             | 📖 Dictionary Service initialized (placeholder)
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService initialized
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService initialized
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService matched pattern
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService initialized
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService using default response
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService initialized
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | ElyzaService using default response
+2025-12-02 18:03:27 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-12-02 18:03:27 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-12-02 18:03:27 | ERROR    | config.settings      | settings        | error                | Error with Ollama generation
+2025-12-02 18:03:27 | WARNING  | config.settings      | settings        | warning              | Ollama not available
+2025-12-02 18:03:27 | INFO     | config.settings      | settings        | info                 | MessageService initialized
+2025-12-02 18:03:27 | INFO     | config.settings      | wiki_service    | __init__             | 📚 Wiki Service initialized (placeholder)
+2025-12-02 18:03:27 | INFO     | config.settings      | wiki_service    | __init__             | 📚 Wiki Service initialized (placeholder)
