@@ -16,6 +16,10 @@ from routes.settings import router as settings_router
 from routes.rag import router as rag_router
 from routes.database import router as database_router
 from routes.admin import router as admin_router
+from routes.dictionary import router as dictionary_router
+from routes.plugins import router as plugins_router
+from routes.virtual_rooms import router as virtual_rooms_router
+from routes.wiki import router as wiki_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -299,7 +303,11 @@ routes_config = [
     (settings_router, "", "Settings API routes"),
     (rag_router, "", "RAG API routes"),
     (database_router, "", "Database Admin API routes"),
-    (admin_router, "", "Admin Dashboard API routes")
+    (admin_router, "", "Admin Dashboard API routes"),
+    (dictionary_router, "", "Dictionary Management routes"),
+    (plugins_router, "", "Plugin Management routes"),
+    (virtual_rooms_router, "", "Virtual Rooms routes"),
+    (wiki_router, "", "Wiki Management routes")
 ]
 
 for router, prefix, description in routes_config:
