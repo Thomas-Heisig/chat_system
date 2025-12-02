@@ -55,12 +55,16 @@ class AgentOrchestrator:
         
         Args:
             task: Task description with type and parameters
-            timeout: Task timeout in seconds
+            timeout: Task timeout in seconds (must be positive)
             retry_count: Number of retries on failure
             
         Returns:
             Task result
         """
+        # Validate timeout
+        if timeout is not None and timeout <= 0:
+            raise ValueError("Timeout must be a positive number")
+        
         task_id = task.get("task_id", f"task_{datetime.now().timestamp()}")
         task["task_id"] = task_id
         

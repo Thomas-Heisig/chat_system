@@ -23,12 +23,16 @@ class SlackAdapter(BaseAdapter):
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         config = config or {
-            "token": os.getenv("SLACK_BOT_TOKEN", ""),
-            "signing_secret": os.getenv("SLACK_SIGNING_SECRET", ""),
-            "app_id": os.getenv("SLACK_APP_ID", "")
+            "token": os.getenv("SLACK_BOT_TOKEN"),
+            "signing_secret": os.getenv("SLACK_SIGNING_SECRET"),
+            "app_id": os.getenv("SLACK_APP_ID")
         }
         super().__init__(config)
         self.authenticated = False
+        
+        # Validate required credentials
+        if not config.get("token"):
+            logger.warning("⚠️ SLACK_BOT_TOKEN not configured")
     
     async def send(
         self,

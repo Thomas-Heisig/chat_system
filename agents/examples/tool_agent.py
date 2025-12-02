@@ -5,9 +5,11 @@ Specialized agent for tool usage and external API integration.
 """
 
 from typing import Dict, Any, List, Callable
+import asyncio
+import json
+
 from ..core.base_agent import BaseAgent, AgentCapability
 from config.settings import logger
-import json
 
 
 class ToolAgent(BaseAgent):
@@ -197,6 +199,3 @@ class ToolAgent(BaseAgent):
             "humidity": 65,
             "note": "This is placeholder data"
         }
-
-
-import asyncio

@@ -136,9 +136,16 @@ class MemoryStore:
         
         for session_id, entries in self.session_memory.items():
             if entries:
-                last_timestamp = datetime.fromisoformat(entries[-1]["timestamp"])
-                if last_timestamp < cutoff:
-                    expired.append(session_id)
+                try:
+                    # Safely get timestamp with fallback
+                    last_entry = entries[-1]
+                    if "timestamp" in last_entry:
+                        last_timestamp = datetime.fromisoformat(last_entry["timestamp"])
+                        if last_timestamp < cutoff:
+                            expired.append(session_id)
+                except (ValueError, KeyError) as e:
+                    logger.warning(f"Invalid timestamp in session {session_id}: {e}")
+                    expired.append(session_id)  # Remove sessions with invalid timestamps
         
         for session_id in expired:
             del self.session_memory[session_id]

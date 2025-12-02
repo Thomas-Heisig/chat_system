@@ -106,11 +106,16 @@ class ABTestingFramework:
         if sticky and assignment_key in self.assignments:
             return self.assignments[assignment_key]["variant"]
         
-        # Assign based on traffic allocation
+        # Assign based on traffic allocation (deterministic based on user_id)
         variants = experiment["variants"]
         allocation = experiment["traffic_allocation"]
         
-        rand = random.random()
+        # Use hash for deterministic assignment
+        import hashlib
+        hash_input = f"{experiment_id}:{user_id}".encode()
+        hash_value = int(hashlib.md5(hash_input).hexdigest(), 16)
+        rand = (hash_value % 10000) / 10000.0  # Normalize to 0-1
+        
         cumulative = 0.0
         assigned_variant = variants[0]  # fallback
         
