@@ -10,3 +10,29 @@ backups/
 settings.json
 .vscode/
 .idea/
+
+# Test coverage
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+.DS_Store
+
+# Node modules (if any adapters use Node)
+node_modules/
+
+# Python virtual environments
+venv/
+env/
+ENV/
