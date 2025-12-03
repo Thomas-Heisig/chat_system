@@ -8,7 +8,8 @@ from fastapi import APIRouter, HTTPException, Query, Body
 from typing import Dict, Any, Optional
 from datetime import datetime
 
-from database.adapters import get_available_adapters, get_adapter
+# Note: database.adapters module is not yet implemented
+# from database.adapters import get_available_adapters, get_adapter
 from database.connection import (
     get_database_stats, 
     check_database_health, 
@@ -68,7 +69,8 @@ async def get_database_statistics():
 async def list_available_adapters():
     """List available database adapters"""
     try:
-        adapters = get_available_adapters()
+        # TODO: Implement get_available_adapters() in database.adapters module
+        adapters = ["sqlite"]  # Currently only SQLite is directly supported
         
         return {
             "adapters": adapters,
@@ -86,18 +88,16 @@ async def test_database_connection(
     """Test database connection with optional configuration"""
     try:
         if config:
-            # Test with provided config
-            db_type = config.get('type', 'sqlite')
-            adapter_class = get_adapter(db_type)
-            adapter = adapter_class(config)
-            result = await adapter.test_connection()
-        else:
-            # Test current connection
-            health = check_database_health()
-            result = {
-                "status": "connected" if health.get('status') == 'healthy' else "error",
-                "health": health
-            }
+            # TODO: Implement adapter-based connection testing
+            # For now, just test current connection
+            enhanced_logger.warning("Custom config testing not yet implemented, testing current connection")
+        
+        # Test current connection
+        health = check_database_health()
+        result = {
+            "status": "connected" if health.get('status') == 'healthy' else "error",
+            "health": health
+        }
         
         enhanced_logger.info("Database connection test", result=result.get('status'))
         return result
