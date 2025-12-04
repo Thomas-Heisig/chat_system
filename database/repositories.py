@@ -10,7 +10,7 @@ from database.models import (
     Ticket, TicketStatus, TicketPriority, TicketType, File, FileType,
     ChatRoom, RoomMember, RoomRole, MessageReaction, AIConversation, AIModel,
     MessageFilter, ProjectFilter, TicketFilter, PaginatedResponse, SearchResults,
-    create_message, create_user, create_project, create_ticket, create_file
+    create_message, create_file
 )
 from config.settings import logger, enhanced_logger
 

@@ -129,8 +129,8 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(f"❌ WebSocket error for client {client_info}: {e}")
         try:
             await websocket.close()
-        except:
-            pass
+        except Exception as close_error:
+            logger.debug(f"Error closing websocket: {close_error}")
 
 # ============================================================================
 # System & Health Endpoints
