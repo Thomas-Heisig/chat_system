@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import UploadFile
 
-from config.settings import enhanced_logger, logger, settings  # Korrigierter Import
+from config.settings import enhanced_logger, logger, settings
 from database.models import File, FileType, create_file
 from database.repositories import FileRepository, ProjectRepository, UserRepository
 
