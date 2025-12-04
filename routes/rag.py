@@ -100,8 +100,9 @@ async def add_document(
         # Parse metadata
         try:
             meta = json.loads(metadata)
-        except (json.JSONDecodeError, TypeError):
+        except (json.JSONDecodeError, TypeError) as e:
             # Invalid JSON or None, use empty dict
+            logger.warning(f'Failed to parse metadata: {e}')
             meta = {}
         
         meta['title'] = title
@@ -150,8 +151,9 @@ async def upload_document(
         # Parse metadata
         try:
             meta = json.loads(metadata)
-        except (json.JSONDecodeError, TypeError):
+        except (json.JSONDecodeError, TypeError) as e:
             # Invalid JSON or None, use empty dict
+            logger.warning(f'Failed to parse metadata: {e}')
             meta = {}
         
         # Save uploaded file temporarily
