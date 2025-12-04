@@ -1,27 +1,32 @@
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime, timedelta
 import json
-import uuid
-from pathlib import Path
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from database.connection import get_db_connection, transaction
+from config.settings import enhanced_logger, logger
+from database.connection import get_db_connection
 from database.models import (
-    Message, MessageType, User, UserRole, Project, ProjectStatus, 
-    Ticket, TicketStatus, TicketPriority, TicketType, File, FileType,
-    ChatRoom, RoomMember, RoomRole, MessageReaction, AIConversation, AIModel,
-    MessageFilter, ProjectFilter, TicketFilter, PaginatedResponse, SearchResults,
-    create_message, create_file
+    File,
+    Message,
+    MessageFilter,
+    MessageReaction,
+    PaginatedResponse,
+    Project,
+    ProjectFilter,
+    SearchResults,
+    Ticket,
+    TicketFilter,
+    User,
 )
-from config.settings import logger, enhanced_logger
+
 
 class MessageRepository:
     """Enhanced message repository with AI, project, and room support"""
-    
+
     @staticmethod
     def save_message(message: Message) -> int:
         """Save message to database with comprehensive support"""
         start_time = datetime.now()
-        
+
         try:
             with get_db_connection() as conn:
                 cursor = conn.execute(
@@ -35,7 +40,11 @@ class MessageRepository:
                         message.username,
                         message.message,
                         message.message_compressed,
-                        message.timestamp.isoformat() if message.timestamp else datetime.now().isoformat(),
+                        (
+                            message.timestamp.isoformat()
+                            if message.timestamp
+                            else datetime.now().isoformat()
+                        ),
                         message.message_type,
                         message.parent_id,
                         message.room_id,
@@ -50,14 +59,14 @@ class MessageRepository:
                         json.dumps(message.edit_history),
                         message.reaction_count,
                         message.flags,
-                        json.dumps(message.metadata)
-                    )
+                        json.dumps(message.metadata),
+                    ),
                 )
                 message_id_raw = cursor.lastrowid
                 if message_id_raw is None:
                     raise RuntimeError("Failed to retrieve message ID after insert")
                 message_id: int = int(message_id_raw)
-                
+
                 duration = (datetime.now() - start_time).total_seconds()
                 enhanced_logger.info(
                     "Message saved successfully",
@@ -67,17 +76,14 @@ class MessageRepository:
                     is_ai_response=message.is_ai_response,
                     room_id=message.room_id,
                     project_id=message.project_id,
-                    duration=duration
+                    duration=duration,
                 )
                 return message_id
-                
+
         except Exception as e:
             duration = (datetime.now() - start_time).total_seconds()
             enhanced_logger.error(
-                "Failed to save message",
-                error=str(e),
-                username=message.username,
-                duration=duration
+                "Failed to save message", error=str(e), username=message.username, duration=duration
             )
             raise
 
@@ -92,20 +98,22 @@ class MessageRepository:
                               context_message_ids, rag_sources, sentiment, is_edited, edit_history,
                               reaction_count, flags, metadata
                        FROM messages WHERE id = ?""",
-                    (message_id,)
+                    (message_id,),
                 )
                 row = cursor.fetchone()
-                
+
                 if row:
                     return MessageRepository._row_to_message(row)
                 return None
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to retrieve message {message_id}: {e}")
             return None
 
     @staticmethod
-    def get_recent_messages(limit: int = 50, room_id: Optional[str] = None, project_id: Optional[str] = None) -> List[Message]:
+    def get_recent_messages(
+        limit: int = 50, room_id: Optional[str] = None, project_id: Optional[str] = None
+    ) -> List[Message]:
         """Retrieve recent messages with room and project filtering"""
         try:
             query = """SELECT id, username, message, message_compressed, timestamp, message_type,
@@ -114,28 +122,30 @@ class MessageRepository:
                               reaction_count, flags, metadata
                        FROM messages WHERE 1=1"""
             params = []
-            
+
             if room_id:
                 query += " AND room_id = ?"
                 params.append(room_id)
-                
+
             if project_id:
                 query += " AND project_id = ?"
                 params.append(project_id)
-            
+
             query += " ORDER BY timestamp DESC LIMIT ?"
             params.append(limit)
-            
+
             with get_db_connection() as conn:
                 cursor = conn.execute(query, params)
                 rows = cursor.fetchall()
                 messages = [MessageRepository._row_to_message(row) for row in rows]
-                
-                logger.debug(f"📨 Retrieved {len(messages)} recent messages "
-                           f"(room: {room_id}, project: {project_id})")
-                
+
+                logger.debug(
+                    f"📨 Retrieved {len(messages)} recent messages "
+                    f"(room: {room_id}, project: {project_id})"
+                )
+
                 return messages[::-1]  # Reverse to chronological order
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to retrieve recent messages: {e}")
             return []
@@ -144,7 +154,7 @@ class MessageRepository:
     def get_messages_by_filter(filters: MessageFilter) -> PaginatedResponse:
         """Retrieve messages using comprehensive filter criteria"""
         start_time = datetime.now()
-        
+
         try:
             query = """SELECT id, username, message, message_compressed, timestamp, message_type,
                               parent_id, room_id, project_id, ticket_id, is_ai_response, ai_model_used,
@@ -153,92 +163,92 @@ class MessageRepository:
                        FROM messages WHERE 1=1"""
             count_query = "SELECT COUNT(*) FROM messages WHERE 1=1"
             params = []
-            
+
             # Build query based on filters
             if filters.username:
                 query += " AND username = ?"
                 count_query += " AND username = ?"
                 params.append(filters.username)
-                
+
             if filters.message_type:
                 query += " AND message_type = ?"
                 count_query += " AND message_type = ?"
                 params.append(filters.message_type)
-                
+
             if filters.room_id:
                 query += " AND room_id = ?"
                 count_query += " AND room_id = ?"
                 params.append(filters.room_id)
-                
+
             if filters.project_id:
                 query += " AND project_id = ?"
                 count_query += " AND project_id = ?"
                 params.append(filters.project_id)
-                
+
             if filters.ticket_id:
                 query += " AND ticket_id = ?"
                 count_query += " AND ticket_id = ?"
                 params.append(filters.ticket_id)
-                
+
             if filters.start_date:
                 query += " AND timestamp >= ?"
                 count_query += " AND timestamp >= ?"
                 params.append(filters.start_date.isoformat())
-                
+
             if filters.end_date:
                 query += " AND timestamp <= ?"
                 count_query += " AND timestamp <= ?"
                 params.append(filters.end_date.isoformat())
-                
+
             if filters.contains_text:
                 query += " AND message LIKE ?"
                 count_query += " AND message LIKE ?"
                 params.append(f"%{filters.contains_text}%")
-                
+
             if filters.is_ai_response is not None:
                 query += " AND is_ai_response = ?"
                 count_query += " AND is_ai_response = ?"
                 params.append(filters.is_ai_response)
-            
+
             # Get total count
             with get_db_connection() as conn:
                 total_count = conn.execute(count_query, params).fetchone()[0]
-                
+
                 # Add pagination to main query
                 query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
                 params.extend([filters.limit, filters.offset])
-                
+
                 cursor = conn.execute(query, params)
                 rows = cursor.fetchall()
                 messages = [MessageRepository._row_to_message(row) for row in rows]
-                
+
                 duration = (datetime.now() - start_time).total_seconds()
                 enhanced_logger.debug(
                     "Filtered messages retrieved",
                     total_count=total_count,
                     returned_count=len(messages),
-                    duration=duration
+                    duration=duration,
                 )
-                
+
                 total_pages = (total_count + filters.limit - 1) // filters.limit
                 current_page = (filters.offset // filters.limit) + 1
-                
+
                 return PaginatedResponse(
                     items=messages,
                     total=total_count,
                     page=current_page,
                     page_size=filters.limit,
-                    total_pages=total_pages
+                    total_pages=total_pages,
                 )
-                
+
         except Exception as e:
             duration = (datetime.now() - start_time).total_seconds()
             enhanced_logger.error(
-                "Failed to retrieve filtered messages",
-                error=str(e),
-                duration=duration
+                "Failed to retrieve filtered messages", error=str(e), duration=duration
             )
-            return PaginatedResponse(items=[], total=0, page=1, page_size=filters.limit, total_pages=0)
+            return PaginatedResponse(
+                items=[], total=0, page=1, page_size=filters.limit, total_pages=0
+            )
 
     @staticmethod
     def add_message_reaction(message_id: int, user_id: str, reaction: str) -> bool:
@@ -249,18 +259,20 @@ class MessageRepository:
                 conn.execute(
                     """INSERT INTO message_reactions (message_id, user_id, reaction, created_at)
                        VALUES (?, ?, ?, ?)""",
-                    (message_id, user_id, reaction, datetime.now().isoformat())
+                    (message_id, user_id, reaction, datetime.now().isoformat()),
                 )
-                
+
                 # Update message reaction count
                 conn.execute(
                     "UPDATE messages SET reaction_count = reaction_count + 1 WHERE id = ?",
-                    (message_id,)
+                    (message_id,),
                 )
-                
-                logger.debug(f"👍 Reaction '{reaction}' added to message {message_id} by user {user_id}")
+
+                logger.debug(
+                    f"👍 Reaction '{reaction}' added to message {message_id} by user {user_id}"
+                )
                 return True
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to add reaction: {e}")
             return False
@@ -273,21 +285,23 @@ class MessageRepository:
                 cursor = conn.execute(
                     """SELECT id, message_id, user_id, reaction, created_at 
                        FROM message_reactions WHERE message_id = ?""",
-                    (message_id,)
+                    (message_id,),
                 )
-                
+
                 reactions = []
                 for row in cursor.fetchall():
-                    reactions.append(MessageReaction(
-                        id=row['id'],
-                        message_id=row['message_id'],
-                        user_id=row['user_id'],
-                        reaction=row['reaction'],
-                        created_at=datetime.fromisoformat(row['created_at'])
-                    ))
-                
+                    reactions.append(
+                        MessageReaction(
+                            id=row["id"],
+                            message_id=row["message_id"],
+                            user_id=row["user_id"],
+                            reaction=row["reaction"],
+                            created_at=datetime.fromisoformat(row["created_at"]),
+                        )
+                    )
+
                 return reactions
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to get message reactions: {e}")
             return []
@@ -314,34 +328,37 @@ class MessageRepository:
         """Convert database row to Message object"""
         try:
             return Message(
-                id=row['id'],
-                username=row['username'],
-                message=row['message'],
-                message_compressed=row['message_compressed'],
-                timestamp=datetime.fromisoformat(row['timestamp']) if row['timestamp'] else None,
-                message_type=row['message_type'],
-                parent_id=row['parent_id'],
-                room_id=row['room_id'],
-                project_id=row['project_id'],
-                ticket_id=row['ticket_id'],
-                is_ai_response=bool(row['is_ai_response']),
-                ai_model_used=row['ai_model_used'],
-                context_message_ids=json.loads(row['context_message_ids']) if row['context_message_ids'] else [],
-                rag_sources=json.loads(row['rag_sources']) if row['rag_sources'] else [],
-                sentiment=json.loads(row['sentiment']) if row['sentiment'] else None,
-                is_edited=bool(row['is_edited']),
-                edit_history=json.loads(row['edit_history']) if row['edit_history'] else [],
-                reaction_count=row['reaction_count'],
-                flags=row['flags'],
-                metadata=json.loads(row['metadata']) if row['metadata'] else {}
+                id=row["id"],
+                username=row["username"],
+                message=row["message"],
+                message_compressed=row["message_compressed"],
+                timestamp=datetime.fromisoformat(row["timestamp"]) if row["timestamp"] else None,
+                message_type=row["message_type"],
+                parent_id=row["parent_id"],
+                room_id=row["room_id"],
+                project_id=row["project_id"],
+                ticket_id=row["ticket_id"],
+                is_ai_response=bool(row["is_ai_response"]),
+                ai_model_used=row["ai_model_used"],
+                context_message_ids=(
+                    json.loads(row["context_message_ids"]) if row["context_message_ids"] else []
+                ),
+                rag_sources=json.loads(row["rag_sources"]) if row["rag_sources"] else [],
+                sentiment=json.loads(row["sentiment"]) if row["sentiment"] else None,
+                is_edited=bool(row["is_edited"]),
+                edit_history=json.loads(row["edit_history"]) if row["edit_history"] else [],
+                reaction_count=row["reaction_count"],
+                flags=row["flags"],
+                metadata=json.loads(row["metadata"]) if row["metadata"] else {},
             )
         except Exception as e:
             logger.error(f"❌ Error converting row to message: {e}")
             raise
 
+
 class UserRepository:
     """Repository for user management operations"""
-    
+
     @staticmethod
     def create_user(user: User) -> str:
         """Create new user"""
@@ -350,8 +367,8 @@ class UserRepository:
                 conn.execute(
                     """INSERT INTO users 
                        (id, username, email, password_hash, display_name, avatar_url, role, 
-                        is_active, is_verified, last_login, created_at, updated_at, preferences, metadata)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        is_active, is_verified, force_password_change, last_login, created_at, updated_at, preferences, metadata)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         user.id,
                         user.username,
@@ -362,28 +379,25 @@ class UserRepository:
                         user.role,
                         user.is_active,
                         user.is_verified,
+                        user.force_password_change,
                         user.last_login.isoformat() if user.last_login else None,
                         (user.created_at or datetime.now()).isoformat(),
                         (user.updated_at or datetime.now()).isoformat(),
                         json.dumps(user.preferences),
-                        json.dumps(user.metadata)
-                    )
+                        json.dumps(user.metadata),
+                    ),
                 )
-                
+
                 enhanced_logger.info(
                     "User created successfully",
                     user_id=user.id,
                     username=user.username,
-                    role=user.role
+                    role=user.role,
                 )
                 return user.id
-                
+
         except Exception as e:
-            enhanced_logger.error(
-                "Failed to create user",
-                error=str(e),
-                username=user.username
-            )
+            enhanced_logger.error("Failed to create user", error=str(e), username=user.username)
             raise
 
     @staticmethod
@@ -417,7 +431,7 @@ class UserRepository:
             with get_db_connection() as conn:
                 conn.execute(
                     "UPDATE users SET last_login = ?, updated_at = ? WHERE id = ?",
-                    (datetime.now().isoformat(), datetime.now().isoformat(), user_id)
+                    (datetime.now().isoformat(), datetime.now().isoformat(), user_id),
                 )
                 logger.debug(f"🕐 Updated last login for user {user_id}")
         except Exception as e:
@@ -427,25 +441,27 @@ class UserRepository:
     def _row_to_user(row) -> User:
         """Convert database row to User object"""
         return User(
-            id=row['id'],
-            username=row['username'],
-            email=row['email'],
-            password_hash=row['password_hash'],
-            display_name=row['display_name'],
-            avatar_url=row['avatar_url'],
-            role=row['role'],
-            is_active=bool(row['is_active']),
-            is_verified=bool(row['is_verified']),
-            last_login=datetime.fromisoformat(row['last_login']) if row['last_login'] else None,
-            created_at=datetime.fromisoformat(row['created_at']),
-            updated_at=datetime.fromisoformat(row['updated_at']),
-            preferences=json.loads(row['preferences']) if row['preferences'] else {},
-            metadata=json.loads(row['metadata']) if row['metadata'] else {}
+            id=row["id"],
+            username=row["username"],
+            email=row["email"],
+            password_hash=row["password_hash"],
+            display_name=row["display_name"],
+            avatar_url=row["avatar_url"],
+            role=row["role"],
+            is_active=bool(row["is_active"]),
+            is_verified=bool(row["is_verified"]),
+            force_password_change=bool(row.get("force_password_change", False)),
+            last_login=datetime.fromisoformat(row["last_login"]) if row["last_login"] else None,
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            preferences=json.loads(row["preferences"]) if row["preferences"] else {},
+            metadata=json.loads(row["metadata"]) if row["metadata"] else {},
         )
+
 
 class ProjectRepository:
     """Repository for project management operations"""
-    
+
     @staticmethod
     def create_project(project: Project) -> str:
         """Create new project"""
@@ -472,23 +488,21 @@ class ProjectRepository:
                         json.dumps(project.metadata),
                         project.ticket_count,
                         project.completed_ticket_count,
-                        project.progress_percentage
-                    )
+                        project.progress_percentage,
+                    ),
                 )
-                
+
                 enhanced_logger.info(
                     "Project created successfully",
                     project_id=project.id,
                     project_name=project.name,
-                    created_by=project.created_by
+                    created_by=project.created_by,
                 )
                 return project.id
-                
+
         except Exception as e:
             enhanced_logger.error(
-                "Failed to create project",
-                error=str(e),
-                project_name=project.name
+                "Failed to create project", error=str(e), project_name=project.name
             )
             raise
 
@@ -499,70 +513,73 @@ class ProjectRepository:
             query = "SELECT * FROM projects WHERE 1=1"
             count_query = "SELECT COUNT(*) FROM projects WHERE 1=1"
             params = []
-            
+
             if filters.status:
                 query += " AND status = ?"
                 count_query += " AND status = ?"
                 params.append(filters.status)
-                
+
             if filters.created_by:
                 query += " AND created_by = ?"
                 count_query += " AND created_by = ?"
                 params.append(filters.created_by)
-                
+
             if filters.member_id:
                 query += " AND json_extract(members, '$') LIKE ?"
                 count_query += " AND json_extract(members, '$') LIKE ?"
                 params.append(f'%"{filters.member_id}"%')
-            
+
             query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
             params.extend([filters.limit, filters.offset])
-            
+
             with get_db_connection() as conn:
                 total_count = conn.execute(count_query, params[:-2]).fetchone()[0]
                 cursor = conn.execute(query, params)
                 rows = cursor.fetchall()
-                
+
                 projects = [ProjectRepository._row_to_project(row) for row in rows]
                 total_pages = (total_count + filters.limit - 1) // filters.limit
                 current_page = (filters.offset // filters.limit) + 1
-                
+
                 return PaginatedResponse(
                     items=projects,
                     total=total_count,
                     page=current_page,
                     page_size=filters.limit,
-                    total_pages=total_pages
+                    total_pages=total_pages,
                 )
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to get projects: {e}")
-            return PaginatedResponse(items=[], total=0, page=1, page_size=filters.limit, total_pages=0)
+            return PaginatedResponse(
+                items=[], total=0, page=1, page_size=filters.limit, total_pages=0
+            )
 
     @staticmethod
     def _row_to_project(row) -> Project:
         """Convert database row to Project object"""
         return Project(
-            id=row['id'],
-            name=row['name'],
-            description=row['description'],
-            status=row['status'],
-            created_by=row['created_by'],
-            created_at=datetime.fromisoformat(row['created_at']),
-            updated_at=datetime.fromisoformat(row['updated_at']),
-            due_date=datetime.fromisoformat(row['due_date']) if row['due_date'] else None,
-            tags=json.loads(row['tags']) if row['tags'] else [],
-            members=json.loads(row['members']) if row['members'] else [],
-            settings=json.loads(row['settings']) if row['settings'] else {},
-            metadata=json.loads(row['metadata']) if row['metadata'] else {},
-            ticket_count=row['ticket_count'],
-            completed_ticket_count=row['completed_ticket_count'],
-            progress_percentage=row['progress_percentage']
+            id=row["id"],
+            name=row["name"],
+            description=row["description"],
+            status=row["status"],
+            created_by=row["created_by"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            due_date=datetime.fromisoformat(row["due_date"]) if row["due_date"] else None,
+            tags=json.loads(row["tags"]) if row["tags"] else [],
+            members=json.loads(row["members"]) if row["members"] else [],
+            settings=json.loads(row["settings"]) if row["settings"] else {},
+            metadata=json.loads(row["metadata"]) if row["metadata"] else {},
+            ticket_count=row["ticket_count"],
+            completed_ticket_count=row["completed_ticket_count"],
+            progress_percentage=row["progress_percentage"],
         )
+
 
 class TicketRepository:
     """Repository for ticket management operations"""
-    
+
     @staticmethod
     def create_ticket(ticket: Ticket) -> str:
         """Create new ticket"""
@@ -595,31 +612,27 @@ class TicketRepository:
                         json.dumps(ticket.tags),
                         json.dumps(ticket.metadata),
                         ticket.comment_count,
-                        ticket.attachment_count
-                    )
+                        ticket.attachment_count,
+                    ),
                 )
-                
+
                 # Update project ticket count
                 conn.execute(
                     "UPDATE projects SET ticket_count = ticket_count + 1 WHERE id = ?",
-                    (ticket.project_id,)
+                    (ticket.project_id,),
                 )
-                
+
                 enhanced_logger.info(
                     "Ticket created successfully",
                     ticket_id=ticket.id,
                     title=ticket.title,
                     project_id=ticket.project_id,
-                    status=ticket.status
+                    status=ticket.status,
                 )
                 return ticket.id
-                
+
         except Exception as e:
-            enhanced_logger.error(
-                "Failed to create ticket",
-                error=str(e),
-                title=ticket.title
-            )
+            enhanced_logger.error("Failed to create ticket", error=str(e), title=ticket.title)
             raise
 
     @staticmethod
@@ -629,90 +642,93 @@ class TicketRepository:
             query = "SELECT * FROM tickets WHERE 1=1"
             count_query = "SELECT COUNT(*) FROM tickets WHERE 1=1"
             params = []
-            
+
             if filters.project_id:
                 query += " AND project_id = ?"
                 count_query += " AND project_id = ?"
                 params.append(filters.project_id)
-                
+
             if filters.status:
                 query += " AND status = ?"
                 count_query += " AND status = ?"
                 params.append(filters.status)
-                
+
             if filters.priority:
                 query += " AND priority = ?"
                 count_query += " AND priority = ?"
                 params.append(filters.priority)
-                
+
             if filters.type:
                 query += " AND type = ?"
                 count_query += " AND type = ?"
                 params.append(filters.type)
-                
+
             if filters.assigned_to:
                 query += " AND assigned_to = ?"
                 count_query += " AND assigned_to = ?"
                 params.append(filters.assigned_to)
-                
+
             if filters.created_by:
                 query += " AND created_by = ?"
                 count_query += " AND created_by = ?"
                 params.append(filters.created_by)
-            
+
             query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
             params.extend([filters.limit, filters.offset])
-            
+
             with get_db_connection() as conn:
                 total_count = conn.execute(count_query, params[:-2]).fetchone()[0]
                 cursor = conn.execute(query, params)
                 rows = cursor.fetchall()
-                
+
                 tickets = [TicketRepository._row_to_ticket(row) for row in rows]
                 total_pages = (total_count + filters.limit - 1) // filters.limit
                 current_page = (filters.offset // filters.limit) + 1
-                
+
                 return PaginatedResponse(
                     items=tickets,
                     total=total_count,
                     page=current_page,
                     page_size=filters.limit,
-                    total_pages=total_pages
+                    total_pages=total_pages,
                 )
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to get tickets: {e}")
-            return PaginatedResponse(items=[], total=0, page=1, page_size=filters.limit, total_pages=0)
+            return PaginatedResponse(
+                items=[], total=0, page=1, page_size=filters.limit, total_pages=0
+            )
 
     @staticmethod
     def _row_to_ticket(row) -> Ticket:
         """Convert database row to Ticket object"""
         return Ticket(
-            id=row['id'],
-            title=row['title'],
-            description=row['description'],
-            project_id=row['project_id'],
-            created_by=row['created_by'],
-            assigned_to=row['assigned_to'],
-            status=row['status'],
-            priority=row['priority'],
-            type=row['type'],
-            due_date=datetime.fromisoformat(row['due_date']) if row['due_date'] else None,
-            created_at=datetime.fromisoformat(row['created_at']),
-            updated_at=datetime.fromisoformat(row['updated_at']),
-            resolved_at=datetime.fromisoformat(row['resolved_at']) if row['resolved_at'] else None,
-            estimated_hours=row['estimated_hours'],
-            actual_hours=row['actual_hours'],
-            related_tickets=json.loads(row['related_tickets']) if row['related_tickets'] else [],
-            tags=json.loads(row['tags']) if row['tags'] else [],
-            metadata=json.loads(row['metadata']) if row['metadata'] else {},
-            comment_count=row['comment_count'],
-            attachment_count=row['attachment_count']
+            id=row["id"],
+            title=row["title"],
+            description=row["description"],
+            project_id=row["project_id"],
+            created_by=row["created_by"],
+            assigned_to=row["assigned_to"],
+            status=row["status"],
+            priority=row["priority"],
+            type=row["type"],
+            due_date=datetime.fromisoformat(row["due_date"]) if row["due_date"] else None,
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+            resolved_at=datetime.fromisoformat(row["resolved_at"]) if row["resolved_at"] else None,
+            estimated_hours=row["estimated_hours"],
+            actual_hours=row["actual_hours"],
+            related_tickets=json.loads(row["related_tickets"]) if row["related_tickets"] else [],
+            tags=json.loads(row["tags"]) if row["tags"] else [],
+            metadata=json.loads(row["metadata"]) if row["metadata"] else {},
+            comment_count=row["comment_count"],
+            attachment_count=row["attachment_count"],
         )
+
 
 class FileRepository:
     """Repository for file management operations"""
-    
+
     @staticmethod
     def save_file(file: File) -> str:
         """Save file metadata to database"""
@@ -743,24 +759,22 @@ class FileRepository:
                         file.download_count,
                         file.is_public,
                         json.dumps(file.metadata),
-                        json.dumps(file.tags)
-                    )
+                        json.dumps(file.tags),
+                    ),
                 )
-                
+
                 enhanced_logger.info(
                     "File saved successfully",
                     file_id=file.id,
                     filename=file.original_filename,
                     file_size=file.file_size,
-                    uploaded_by=file.uploaded_by
+                    uploaded_by=file.uploaded_by,
                 )
                 return file.id
-                
+
         except Exception as e:
             enhanced_logger.error(
-                "Failed to save file",
-                error=str(e),
-                filename=file.original_filename
+                "Failed to save file", error=str(e), filename=file.original_filename
             )
             raise
 
@@ -782,8 +796,7 @@ class FileRepository:
         try:
             with get_db_connection() as conn:
                 conn.execute(
-                    "UPDATE files SET download_count = download_count + 1 WHERE id = ?",
-                    (file_id,)
+                    "UPDATE files SET download_count = download_count + 1 WHERE id = ?", (file_id,)
                 )
                 logger.debug(f"📥 Incremented download count for file {file_id}")
         except Exception as e:
@@ -793,144 +806,162 @@ class FileRepository:
     def _row_to_file(row) -> File:
         """Convert database row to File object"""
         return File(
-            id=row['id'],
-            original_filename=row['original_filename'],
-            stored_filename=row['stored_filename'],
-            file_path=row['file_path'],
-            file_size=row['file_size'],
-            file_hash=row['file_hash'],
-            mime_type=row['mime_type'],
-            file_type=row['file_type'],
-            uploaded_by=row['uploaded_by'],
-            project_id=row['project_id'],
-            ticket_id=row['ticket_id'],
-            message_id=row['message_id'],
-            upload_date=datetime.fromisoformat(row['upload_date']),
-            description=row['description'],
-            download_count=row['download_count'],
-            is_public=bool(row['is_public']),
-            metadata=json.loads(row['metadata']) if row['metadata'] else {},
-            tags=json.loads(row['tags']) if row['tags'] else []
+            id=row["id"],
+            original_filename=row["original_filename"],
+            stored_filename=row["stored_filename"],
+            file_path=row["file_path"],
+            file_size=row["file_size"],
+            file_hash=row["file_hash"],
+            mime_type=row["mime_type"],
+            file_type=row["file_type"],
+            uploaded_by=row["uploaded_by"],
+            project_id=row["project_id"],
+            ticket_id=row["ticket_id"],
+            message_id=row["message_id"],
+            upload_date=datetime.fromisoformat(row["upload_date"]),
+            description=row["description"],
+            download_count=row["download_count"],
+            is_public=bool(row["is_public"]),
+            metadata=json.loads(row["metadata"]) if row["metadata"] else {},
+            tags=json.loads(row["tags"]) if row["tags"] else [],
         )
+
 
 # Search Repository
 class SearchRepository:
     """Repository for cross-model search operations"""
-    
+
     @staticmethod
     def global_search(query: str, limit: int = 20) -> SearchResults:
         """Search across messages, projects, tickets, and files"""
         try:
             results = SearchResults()
-            
+
             # Search messages
-            message_filters = MessageFilter(contains_text=query, limit=limit//4)
+            message_filters = MessageFilter(contains_text=query, limit=limit // 4)
             message_repo = MessageRepository()
             message_results = message_repo.get_messages_by_filter(message_filters)
-            results.messages = message_results.items[:limit//4]
-            
+            results.messages = message_results.items[: limit // 4]
+
             # Search projects
             with get_db_connection() as conn:
                 # Project search
                 cursor = conn.execute(
                     "SELECT * FROM projects WHERE name LIKE ? OR description LIKE ? LIMIT ?",
-                    (f"%{query}%", f"%{query}%", limit//4)
+                    (f"%{query}%", f"%{query}%", limit // 4),
                 )
-                results.projects = [ProjectRepository._row_to_project(row) for row in cursor.fetchall()]
-                
+                results.projects = [
+                    ProjectRepository._row_to_project(row) for row in cursor.fetchall()
+                ]
+
                 # Ticket search
                 cursor = conn.execute(
                     "SELECT * FROM tickets WHERE title LIKE ? OR description LIKE ? LIMIT ?",
-                    (f"%{query}%", f"%{query}%", limit//4)
+                    (f"%{query}%", f"%{query}%", limit // 4),
                 )
-                results.tickets = [TicketRepository._row_to_ticket(row) for row in cursor.fetchall()]
-                
+                results.tickets = [
+                    TicketRepository._row_to_ticket(row) for row in cursor.fetchall()
+                ]
+
                 # File search
                 cursor = conn.execute(
                     "SELECT * FROM files WHERE original_filename LIKE ? OR description LIKE ? LIMIT ?",
-                    (f"%{query}%", f"%{query}%", limit//4)
+                    (f"%{query}%", f"%{query}%", limit // 4),
                 )
                 results.files = [FileRepository._row_to_file(row) for row in cursor.fetchall()]
-            
+
             results.total_results = (
-                len(results.messages) + len(results.projects) + 
-                len(results.tickets) + len(results.files)
+                len(results.messages)
+                + len(results.projects)
+                + len(results.tickets)
+                + len(results.files)
             )
-            
+
             logger.info(f"🔍 Global search for '{query}' found {results.total_results} results")
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ Global search failed: {e}")
             return SearchResults()
 
+
 # Statistics Repository
 class StatisticsRepository:
     """Repository for system statistics and analytics"""
-    
+
     @staticmethod
     def get_system_statistics() -> Dict[str, Any]:
         """Get comprehensive system statistics"""
         try:
             stats = {}
-            
+
             with get_db_connection() as conn:
                 # Basic counts
                 tables = {
-                    'users': 'users',
-                    'projects': 'projects', 
-                    'tickets': 'tickets',
-                    'files': 'files',
-                    'messages': 'messages',
-                    'chat_rooms': 'chat_rooms'
+                    "users": "users",
+                    "projects": "projects",
+                    "tickets": "tickets",
+                    "files": "files",
+                    "messages": "messages",
+                    "chat_rooms": "chat_rooms",
                 }
-                
+
                 for key, table in tables.items():
                     cursor = conn.execute(f"SELECT COUNT(*) FROM {table}")
                     stats[f"total_{key}"] = cursor.fetchone()[0]
-                
+
                 # Message statistics
-                cursor = conn.execute("""
+                cursor = conn.execute(
+                    """
                     SELECT 
                         COUNT(*) as total,
                         SUM(CASE WHEN is_ai_response = 1 THEN 1 ELSE 0 END) as ai_messages,
                         COUNT(DISTINCT username) as unique_users
                     FROM messages
-                """)
+                """
+                )
                 row = cursor.fetchone()
-                stats.update({
-                    'total_messages': row['total'],
-                    'ai_messages': row['ai_messages'],
-                    'unique_users': row['unique_users']
-                })
-                
+                stats.update(
+                    {
+                        "total_messages": row["total"],
+                        "ai_messages": row["ai_messages"],
+                        "unique_users": row["unique_users"],
+                    }
+                )
+
                 # Project statistics
-                cursor = conn.execute("""
+                cursor = conn.execute(
+                    """
                     SELECT status, COUNT(*) as count 
                     FROM projects 
                     GROUP BY status
-                """)
-                stats['projects_by_status'] = dict(cursor.fetchall())
-                
+                """
+                )
+                stats["projects_by_status"] = dict(cursor.fetchall())
+
                 # Ticket statistics
-                cursor = conn.execute("""
+                cursor = conn.execute(
+                    """
                     SELECT status, COUNT(*) as count 
                     FROM tickets 
                     GROUP BY status
-                """)
-                stats['tickets_by_status'] = dict(cursor.fetchall())
-                
+                """
+                )
+                stats["tickets_by_status"] = dict(cursor.fetchall())
+
                 # Recent activity
-                cursor = conn.execute("""
+                cursor = conn.execute(
+                    """
                     SELECT COUNT(*) as count 
                     FROM messages 
                     WHERE timestamp > datetime('now', '-1 day')
-                """)
-                stats['messages_last_24h'] = cursor.fetchone()[0]
-            
+                """
+                )
+                stats["messages_last_24h"] = cursor.fetchone()[0]
+
             enhanced_logger.debug("System statistics collected", stats=stats)
             return stats
-            
+
         except Exception as e:
             enhanced_logger.error("Failed to collect system statistics", error=str(e))
             return {}

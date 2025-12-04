@@ -4,9 +4,10 @@ Modular RAG (Retrieval Augmented Generation) System
 Supports multiple vector database backends
 """
 
-from typing import Type, Dict
+from typing import Dict, Type
+
 from .base_rag import BaseRAGProvider
-from .document_processor import DocumentProcessor, ChunkConfig
+from .document_processor import ChunkConfig, DocumentProcessor
 
 # Registry of available RAG providers
 RAG_PROVIDER_REGISTRY: Dict[str, Type[BaseRAGProvider]] = {}
@@ -14,6 +15,7 @@ RAG_PROVIDER_REGISTRY: Dict[str, Type[BaseRAGProvider]] = {}
 # Try to import ChromaDB provider
 try:
     from .chroma_rag import ChromaRAGProvider
+
     RAG_PROVIDER_REGISTRY["chromadb"] = ChromaRAGProvider
 except ImportError:
     pass
@@ -21,6 +23,7 @@ except ImportError:
 # Try to import Qdrant provider
 try:
     from .qdrant_rag import QdrantRAGProvider
+
     RAG_PROVIDER_REGISTRY["qdrant"] = QdrantRAGProvider
 except ImportError:
     pass
@@ -42,15 +45,15 @@ def get_available_providers() -> Dict[str, bool]:
         "qdrant": "qdrant" in RAG_PROVIDER_REGISTRY,
         "pinecone": "pinecone" in RAG_PROVIDER_REGISTRY,
         "weaviate": "weaviate" in RAG_PROVIDER_REGISTRY,
-        "milvus": "milvus" in RAG_PROVIDER_REGISTRY
+        "milvus": "milvus" in RAG_PROVIDER_REGISTRY,
     }
 
 
 __all__ = [
-    'BaseRAGProvider',
-    'DocumentProcessor',
-    'ChunkConfig',
-    'get_rag_provider',
-    'get_available_providers',
-    'RAG_PROVIDER_REGISTRY'
+    "BaseRAGProvider",
+    "DocumentProcessor",
+    "ChunkConfig",
+    "get_rag_provider",
+    "get_available_providers",
+    "RAG_PROVIDER_REGISTRY",
 ]

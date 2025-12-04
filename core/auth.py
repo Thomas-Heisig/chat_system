@@ -15,17 +15,16 @@ TODO:
 
 import os
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from fastapi import Depends, HTTPException, status, Header
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from config.settings import logger, settings
-
 
 # Security configuration
 SECRET_KEY = settings.SECRET_KEY
@@ -41,6 +40,7 @@ security = HTTPBearer()
 
 class Role(str, Enum):
     """User roles with hierarchical permissions"""
+
     ADMIN = "admin"
     MODERATOR = "moderator"
     USER = "user"
@@ -49,6 +49,7 @@ class Role(str, Enum):
 
 class Permission(str, Enum):
     """Granular permissions"""
+
     READ = "read"
     WRITE = "write"
     DELETE = "delete"
@@ -81,6 +82,7 @@ ROLE_PERMISSIONS: Dict[Role, List[Permission]] = {
 
 class User(BaseModel):
     """User model for authentication"""
+
     id: str
     username: str
     email: str
@@ -91,6 +93,7 @@ class User(BaseModel):
 
 class TokenData(BaseModel):
     """JWT token payload data"""
+
     sub: str  # Subject (user_id)
     role: str
     exp: datetime
@@ -99,12 +102,14 @@ class TokenData(BaseModel):
 
 class LoginRequest(BaseModel):
     """Login request model"""
+
     username: str
     password: str
 
 
 class TokenResponse(BaseModel):
     """Token response model"""
+
     access_token: str
     token_type: str = "bearer"
     expires_in: int
@@ -113,13 +118,14 @@ class TokenResponse(BaseModel):
 
 # ==================== Password Hashing ====================
 
+
 def hash_password(password: str) -> str:
     """
     Hash a password using bcrypt
-    
+
     Args:
         password: Plain text password
-        
+
     Returns:
         Hashed password
     """
@@ -129,11 +135,11 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify a password against its hash
-    
+
     Args:
         plain_password: Plain text password to verify
         hashed_password: Hashed password to compare against
-        
+
     Returns:
         True if password matches, False otherwise
     """
@@ -142,15 +148,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 # ==================== JWT Token Management ====================
 
+
 def create_access_token(user_id: str, role: str, expires_delta: Optional[timedelta] = None) -> str:
     """
     Create a JWT access token
-    
+
     Args:
         user_id: User identifier
         role: User role
         expires_delta: Optional expiration time delta
-        
+
     Returns:
         Encoded JWT token
     """
@@ -158,16 +165,16 @@ def create_access_token(user_id: str, role: str, expires_delta: Optional[timedel
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     payload = {
         "sub": user_id,
         "role": role,
         "exp": expire,
         "iat": datetime.utcnow(),
     }
-    
+
     encoded_jwt = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    
+
     logger.info(f"Access token created for user {user_id}")
     return encoded_jwt
 
@@ -175,13 +182,13 @@ def create_access_token(user_id: str, role: str, expires_delta: Optional[timedel
 def decode_token(token: str) -> TokenData:
     """
     Decode and validate a JWT token
-    
+
     Args:
         token: JWT token string
-        
+
     Returns:
         TokenData object with decoded payload
-        
+
     Raises:
         HTTPException: If token is invalid or expired
     """
@@ -191,16 +198,16 @@ def decode_token(token: str) -> TokenData:
         role: str = payload.get("role")
         exp: datetime = datetime.fromtimestamp(payload.get("exp"))
         iat: datetime = datetime.fromtimestamp(payload.get("iat"))
-        
+
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         return TokenData(sub=user_id, role=role, exp=exp, iat=iat)
-        
+
     except JWTError as e:
         logger.warning(f"JWT decode error: {str(e)}")
         raise HTTPException(
@@ -212,21 +219,20 @@ def decode_token(token: str) -> TokenData:
 
 # ==================== Dependency Injection ====================
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> User:
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> User:
     """
     Dependency to get the current authenticated user
-    
+
     Args:
         credentials: HTTP Bearer token credentials
-        
+
     Returns:
         User object
-        
+
     Raises:
         HTTPException: If authentication fails
-        
+
     TODO:
     - [ ] Fetch user from database instead of creating stub
     - [ ] Check user is_active status
@@ -234,7 +240,7 @@ async def get_current_user(
     """
     token = credentials.credentials
     token_data = decode_token(token)
-    
+
     # TODO: Fetch user from database
     # For now, create a stub user from token data
     user = User(
@@ -244,44 +250,40 @@ async def get_current_user(
         role=Role(token_data.role),
         is_active=True,
     )
-    
+
     logger.debug(f"Authenticated user: {user.username} (role: {user.role})")
     return user
 
 
-async def get_current_active_user(
-    current_user: User = Depends(get_current_user)
-) -> User:
+async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     """
     Dependency to get current active user
-    
+
     Args:
         current_user: Current authenticated user
-        
+
     Returns:
         User object if active
-        
+
     Raises:
         HTTPException: If user is not active
     """
     if not current_user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return current_user
 
 
 # ==================== Authorization / RBAC ====================
 
+
 def has_permission(user: User, permission: Permission) -> bool:
     """
     Check if user has a specific permission
-    
+
     Args:
         user: User object
         permission: Permission to check
-        
+
     Returns:
         True if user has permission, False otherwise
     """
@@ -292,18 +294,19 @@ def has_permission(user: User, permission: Permission) -> bool:
 def require_permission(permission: Permission):
     """
     Dependency factory to require a specific permission
-    
+
     Args:
         permission: Required permission
-        
+
     Returns:
         Dependency function
-        
+
     Example:
         @app.get("/admin")
         async def admin_endpoint(user: User = Depends(require_permission(Permission.ADMIN_ACCESS))):
             return {"message": "Admin access granted"}
     """
+
     async def permission_checker(user: User = Depends(get_current_active_user)) -> User:
         if not has_permission(user, permission):
             logger.warning(
@@ -312,23 +315,23 @@ def require_permission(permission: Permission):
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient permissions. Required: {permission}"
+                detail=f"Insufficient permissions. Required: {permission}",
             )
         return user
-    
+
     return permission_checker
 
 
 def require_role(required_role: Role):
     """
     Dependency factory to require a specific role or higher
-    
+
     Args:
         required_role: Minimum required role
-        
+
     Returns:
         Dependency function
-        
+
     Example:
         @app.get("/moderator")
         async def moderator_endpoint(user: User = Depends(require_role(Role.MODERATOR))):
@@ -340,11 +343,11 @@ def require_role(required_role: Role):
         Role.MODERATOR: 2,
         Role.ADMIN: 3,
     }
-    
+
     async def role_checker(user: User = Depends(get_current_active_user)) -> User:
         user_level = role_hierarchy.get(user.role, 0)
         required_level = role_hierarchy.get(required_role, 0)
-        
+
         if user_level < required_level:
             logger.warning(
                 f"Role requirement not met for user {user.username}: "
@@ -352,39 +355,40 @@ def require_role(required_role: Role):
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Insufficient role. Required: {required_role} or higher"
+                detail=f"Insufficient role. Required: {required_role} or higher",
             )
         return user
-    
+
     return role_checker
 
 
 # ==================== Authentication Endpoints (Stubs) ====================
 
+
 async def authenticate_user(username: str, password: str) -> Optional[User]:
     """
     Authenticate a user with username and password
-    
+
     Args:
         username: Username
         password: Plain text password
-        
+
     Returns:
         User object if authentication successful, None otherwise
-        
+
     TODO:
     - [ ] Implement actual database lookup
     - [ ] Add rate limiting for failed attempts
     - [ ] Log authentication attempts
     - [ ] Implement account lockout after N failed attempts
-    
+
     SECURITY WARNING: This is a STUB implementation for development only!
     DO NOT USE IN PRODUCTION without implementing proper database authentication.
     """
     # TODO: Fetch user from database and verify password
     # This is a stub implementation
     logger.warning("authenticate_user is a stub - implement database lookup")
-    
+
     # DEVELOPMENT ONLY: Return None to disable authentication in stub mode
     # Remove this check and implement proper authentication for production
     if os.getenv("APP_ENVIRONMENT") == "production":
@@ -392,11 +396,11 @@ async def authenticate_user(username: str, password: str) -> Optional[User]:
             "Authentication stub cannot be used in production. "
             "Implement proper database-backed authentication."
         )
-    
+
     # Development stub: Only allow authentication if explicitly enabled
     if os.getenv("ENABLE_STUB_AUTH", "false").lower() != "true":
         return None
-    
+
     # Stub: Accept specific test user for development
     if username == "test_user" and password == "test_password":
         return User(
@@ -405,25 +409,25 @@ async def authenticate_user(username: str, password: str) -> Optional[User]:
             email=f"{username}@example.com",
             role=Role.USER,
         )
-    
+
     return None
 
 
 async def login(login_request: LoginRequest) -> TokenResponse:
     """
     Login endpoint handler
-    
+
     Args:
         login_request: Login request with username and password
-        
+
     Returns:
         TokenResponse with access token
-        
+
     Raises:
         HTTPException: If authentication fails
     """
     user = await authenticate_user(login_request.username, login_request.password)
-    
+
     if not user:
         logger.warning(f"Failed login attempt for username: {login_request.username}")
         raise HTTPException(
@@ -431,14 +435,14 @@ async def login(login_request: LoginRequest) -> TokenResponse:
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token = create_access_token(
         user_id=user.id,
         role=user.role.value,
     )
-    
+
     logger.info(f"Successful login for user: {user.username}")
-    
+
     return TokenResponse(
         access_token=access_token,
         expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -447,30 +451,31 @@ async def login(login_request: LoginRequest) -> TokenResponse:
             "username": user.username,
             "email": user.email,
             "role": user.role.value,
-        }
+        },
     )
 
 
 # ==================== Optional Token from Header ====================
 
+
 async def get_optional_user(authorization: Optional[str] = Header(None)) -> Optional[User]:
     """
     Get user from optional authorization header
     Useful for endpoints that work both authenticated and unauthenticated
-    
+
     Args:
         authorization: Optional Authorization header
-        
+
     Returns:
         User object if authenticated, None otherwise
     """
     if not authorization or not authorization.startswith("Bearer "):
         return None
-    
+
     try:
         token = authorization.replace("Bearer ", "")
         token_data = decode_token(token)
-        
+
         # TODO: Fetch from database
         user = User(
             id=token_data.sub,
@@ -486,6 +491,7 @@ async def get_optional_user(authorization: Optional[str] = Header(None)) -> Opti
 
 # ==================== Utility Functions ====================
 
+
 def get_user_permissions(user: User) -> List[Permission]:
     """Get all permissions for a user based on their role"""
     return ROLE_PERMISSIONS.get(user.role, [])
@@ -495,11 +501,11 @@ def check_resource_access(user: User, resource_owner_id: str) -> bool:
     """
     Check if user can access a resource
     Users can access their own resources, admins can access all
-    
+
     Args:
         user: User requesting access
         resource_owner_id: ID of the resource owner
-        
+
     Returns:
         True if access allowed
     """

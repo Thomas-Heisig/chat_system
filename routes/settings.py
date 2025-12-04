@@ -4,12 +4,13 @@ Settings API Routes
 CRUD endpoints for application settings management
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Body
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict
 
+from fastapi import APIRouter, Body, HTTPException
+
+from config.settings import enhanced_logger, logger
 from services.settings_service import settings_service
-from config.settings import logger, enhanced_logger
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -20,10 +21,7 @@ async def get_all_settings():
     try:
         settings = settings_service.get_all()
         enhanced_logger.info("All settings retrieved")
-        return {
-            "settings": settings,
-            "timestamp": datetime.now().isoformat()
-        }
+        return {"settings": settings, "timestamp": datetime.now().isoformat()}
     except Exception as e:
         logger.error(f"Failed to get settings: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve settings")
@@ -32,9 +30,7 @@ async def get_all_settings():
 @router.get("/categories")
 async def get_available_categories():
     """Get list of available settings categories"""
-    return {
-        "categories": settings_service.get_available_categories()
-    }
+    return {"categories": settings_service.get_available_categories()}
 
 
 # General Settings
@@ -205,7 +201,7 @@ async def export_settings():
     try:
         return {
             "settings_json": settings_service.export_settings(),
-            "exported_at": datetime.now().isoformat()
+            "exported_at": datetime.now().isoformat(),
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

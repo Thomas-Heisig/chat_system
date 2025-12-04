@@ -4,8 +4,9 @@ Chrome DevTools Support Routes
 Provides endpoints to prevent 404 errors from Chrome DevTools.
 """
 
+from typing import Any, Dict
+
 from fastapi import APIRouter
-from typing import Dict, Any
 
 router = APIRouter(tags=["devtools"])
 

@@ -6,10 +6,11 @@ API endpoints for plugin management.
 This is a placeholder for the planned plugin routes.
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, Optional
 
-from config.settings import settings, logger
+from fastapi import APIRouter, HTTPException
+
+from config.settings import settings
 from services.plugin_manager import get_plugin_manager
 
 router = APIRouter(prefix="/api/plugins", tags=["plugins"])
@@ -22,10 +23,10 @@ async def plugins_status() -> Dict[str, Any]:
     return {
         "service": "plugins",
         "status": "placeholder",
-        "feature_enabled": getattr(settings, 'FEATURE_PLUGINS', True),
+        "feature_enabled": getattr(settings, "FEATURE_PLUGINS", True),
         "registered_plugins": len(plugin_manager.plugins),
         "registered_hooks": len(plugin_manager.hooks),
-        "message": "Plugin functionality is available in basic placeholder form"
+        "message": "Plugin functionality is available in basic placeholder form",
     }
 
 
@@ -34,10 +35,7 @@ async def list_plugins() -> Dict[str, Any]:
     """List all registered plugins"""
     plugin_manager = get_plugin_manager()
     plugins = plugin_manager.get_available_plugins()
-    return {
-        "items": plugins,
-        "total": len(plugins)
-    }
+    return {"items": plugins, "total": len(plugins)}
 
 
 @router.get("/{plugin_name}")
@@ -55,10 +53,7 @@ async def enable_plugin(plugin_name: str) -> Dict[str, Any]:
     """Enable a plugin"""
     plugin_manager = get_plugin_manager()
     success = await plugin_manager.enable_plugin(plugin_name)
-    return {
-        "plugin_name": plugin_name,
-        "enabled": success
-    }
+    return {"plugin_name": plugin_name, "enabled": success}
 
 
 @router.post("/{plugin_name}/disable")
@@ -66,10 +61,7 @@ async def disable_plugin(plugin_name: str) -> Dict[str, Any]:
     """Disable a plugin"""
     plugin_manager = get_plugin_manager()
     success = await plugin_manager.disable_plugin(plugin_name)
-    return {
-        "plugin_name": plugin_name,
-        "disabled": success
-    }
+    return {"plugin_name": plugin_name, "disabled": success}
 
 
 @router.post("/{plugin_name}/reload")
@@ -84,10 +76,7 @@ async def unregister_plugin(plugin_name: str) -> Dict[str, Any]:
     """Unregister a plugin"""
     plugin_manager = get_plugin_manager()
     success = await plugin_manager.unregister_plugin(plugin_name)
-    return {
-        "plugin_name": plugin_name,
-        "unregistered": success
-    }
+    return {"plugin_name": plugin_name, "unregistered": success}
 
 
 @router.get("/hooks")
@@ -95,22 +84,12 @@ async def list_hooks() -> Dict[str, Any]:
     """List all registered hooks"""
     plugin_manager = get_plugin_manager()
     hooks = plugin_manager.get_registered_hooks()
-    return {
-        "hooks": hooks,
-        "total": len(hooks)
-    }
+    return {"hooks": hooks, "total": len(hooks)}
 
 
 @router.post("/hooks/{hook_name}/execute")
-async def execute_hook(
-    hook_name: str,
-    data: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+async def execute_hook(hook_name: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Execute a hook"""
     plugin_manager = get_plugin_manager()
     results = await plugin_manager.execute_hook(hook_name, data or {})
-    return {
-        "hook_name": hook_name,
-        "results": results,
-        "callbacks_executed": len(results)
-    }
+    return {"hook_name": hook_name, "results": results, "callbacks_executed": len(results)}
