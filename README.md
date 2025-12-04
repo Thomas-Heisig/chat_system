@@ -198,7 +198,10 @@ python main.py
 
 6. **Access the Application**
 - Open browser: http://localhost:8000
-- Default credentials: `admin` / `admin123` (you will be prompted to change this)
+- **⚠️ Default credentials**: `admin` / `admin123` 
+  - **WICHTIG**: Das System erzwingt eine Passwort-Änderung beim ersten Login (`force_password_change=True`)
+  - **NIEMALS** das Default-Passwort in Produktion verwenden!
+  - Siehe `SECURITY.md` für wichtige Sicherheitshinweise
 - API Documentation: http://localhost:8000/docs
 
 ### Docker Installation

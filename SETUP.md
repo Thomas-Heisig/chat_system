@@ -240,22 +240,51 @@ Make sure all dependencies are installed:
 pip install -r requirements.txt
 ```
 
-## Security Notes
+## 🔒 Security Notes
 
-⚠️ **Important Security Steps:**
+### ⚠️ CRITICAL - Default Admin Credentials
 
-1. **Change the default admin password** immediately after first login
-   - Default credentials: `admin` / `admin123`
+**Das System erstellt beim ersten Start einen Default-Admin-User:**
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Status**: Passwort-Änderung beim ersten Login ERZWUNGEN
+
+**WICHTIGE Sicherheitsschritte:**
+
+1. **🚨 SOFORT nach der Installation:**
+   ```bash
+   # Das Default-Passwort MUSS geändert werden!
+   # Das System blockiert den Zugriff bis das Passwort geändert wurde
+   # (force_password_change=True ist gesetzt)
+   ```
+   
+   - ❌ **NIEMALS** das Default-Passwort `admin123` verwenden!
+   - ✅ Verwenden Sie ein **sicheres Passwort** (min. 12 Zeichen)
+   - ✅ Verwenden Sie einen **Password Manager**
+   - ✅ Generieren Sie ein **zufälliges Passwort**:
+     ```bash
+     python -c "import secrets; import string; chars = string.ascii_letters + string.digits + string.punctuation; print(''.join(secrets.choice(chars) for _ in range(20)))"
+     ```
 
 2. **Set a strong APP_SECRET_KEY** in `.env`
    - Generate one: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+   - Dieser Key wird für JWT-Token-Signierung verwendet
+   - **NIEMALS** den Default-Key in Produktion verwenden!
 
 3. **Use HTTPS in production**
    - Configure SSL/TLS certificates
    - Update CORS settings for your domain
+   - Enforce HTTPS-only connections
 
 4. **Keep dependencies updated**
    - Regularly run: `pip install --upgrade -r requirements.txt`
+   - Monitor security advisories: `pip install safety && safety check`
+
+5. **Additional Security Measures**
+   - Review `SECURITY.md` für detaillierte Security Guidelines
+   - Enable rate limiting (standardmäßig aktiviert)
+   - Configure monitoring and alerting
+   - Implement backup strategy
 
 ## Support
 

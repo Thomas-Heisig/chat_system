@@ -69,6 +69,9 @@ class EnvironmentSettings(BaseSettings):
     AI_CONTEXT_MESSAGES: int = Field(default=10)
 
     # RAG Configuration
+    # NOTE: RAG (Retrieval Augmented Generation) ist vollständig implementiert,
+    # aber standardmäßig deaktiviert, da es externe Vector Stores (ChromaDB/Qdrant) benötigt.
+    # Set RAG_ENABLED=True in .env nach Vector Store Setup.
     RAG_ENABLED: bool = Field(default=False)
     VECTOR_STORE_ENABLED: bool = Field(default=False)
 
@@ -76,6 +79,12 @@ class EnvironmentSettings(BaseSettings):
     FEATURE_PROJECT_MANAGEMENT: bool = Field(default=True)
     FEATURE_TICKET_SYSTEM: bool = Field(default=True)
     FEATURE_FILE_UPLOAD: bool = Field(default=True)
+    
+    # NOTE: User Authentication ist vollständig implementiert (JWT, bcrypt, Sessions),
+    # aber standardmäßig deaktiviert für einfachere Entwicklung/Testing.
+    # In PRODUCTION sollte dies auf True gesetzt werden!
+    # Die Auth-Infrastruktur (services/auth_service.py) ist vollständig funktional.
+    # Set FEATURE_USER_AUTHENTICATION=True in .env für Production.
     FEATURE_USER_AUTHENTICATION: bool = Field(default=False)
 
     # File Upload (alte Variablen)

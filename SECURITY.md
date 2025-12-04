@@ -18,6 +18,47 @@ Wir bieten Sicherheitsupdates für folgende Versionen:
 
 ### 1. Authentifizierung
 
+#### ⚠️ Default Admin Credentials (KRITISCH)
+
+**Beim ersten Start wird ein Default-Admin-User erstellt:**
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Status**: `force_password_change=True`
+
+**WICHTIG - Sicherheitsmaßnahmen:**
+
+1. **Automatische Passwort-Änderung erzwungen**:
+   - Der Admin-User hat `force_password_change=True` gesetzt
+   - System erfordert Passwort-Änderung beim ersten Login
+   - Zugriff wird blockiert bis Passwort geändert wurde
+
+2. **Best Practices für Admin-Setup**:
+   ```bash
+   # Nach dem ersten Start SOFORT das Passwort ändern!
+   # Verwenden Sie ein sicheres Passwort:
+   # - Mindestens 12 Zeichen
+   # - Mix aus Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen
+   # - Keine Wörter aus Wörterbüchern
+   # - Verwenden Sie einen Password Manager
+   
+   # Beispiel für starkes Passwort generieren:
+   python -c "import secrets; import string; chars = string.ascii_letters + string.digits + string.punctuation; print(''.join(secrets.choice(chars) for _ in range(20)))"
+   ```
+
+3. **Produktions-Deployment**:
+   - ❌ **NIEMALS** das Default-Passwort in Produktion verwenden
+   - ✅ Passwort sofort nach Deployment ändern
+   - ✅ Admin-Account umbenennen (von "admin" zu etwas Eindeutigem)
+   - ✅ 2FA aktivieren (wenn implementiert)
+   - ✅ Monitoring für fehlgeschlagene Login-Versuche aktivieren
+
+4. **Automatisierte Überprüfung**:
+   ```python
+   # Das System loggt Warnungen beim Start:
+   # ⚠️ Default admin user created - PASSWORD CHANGE REQUIRED ON FIRST LOGIN
+   # 🔐 Default credentials: admin / admin123 (You will be prompted to change this)
+   ```
+
 #### JWT (JSON Web Tokens)
 - **Implementierung**: python-jose mit RS256-Algorithmus
 - **Token-Lebensdauer**: 
