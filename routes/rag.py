@@ -100,7 +100,8 @@ async def add_document(
         # Parse metadata
         try:
             meta = json.loads(metadata)
-        except:
+        except (json.JSONDecodeError, TypeError):
+            # Invalid JSON or None, use empty dict
             meta = {}
         
         meta['title'] = title
@@ -149,7 +150,8 @@ async def upload_document(
         # Parse metadata
         try:
             meta = json.loads(metadata)
-        except:
+        except (json.JSONDecodeError, TypeError):
+            # Invalid JSON or None, use empty dict
             meta = {}
         
         # Save uploaded file temporarily

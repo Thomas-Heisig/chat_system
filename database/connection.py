@@ -840,7 +840,8 @@ def get_database_version() -> str:
                 "SELECT value FROM pragma_user_version"
             )
             return str(cursor.fetchone()[0])
-    except:
+    except Exception as e:
+        enhanced_logger.warning(f"Failed to get database version: {e}")
         return "unknown"
 
 def set_database_version(version: str):

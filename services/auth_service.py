@@ -138,15 +138,19 @@ class AuthService:
         
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
     
+    def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
+        """Verify and decode a JWT token"""
+        if not JOSE_AVAILABLE or jwt is None:
+            # Fallback to simple token verification
+            return self._verify_simple_token(token)
+        
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return payload
-        except Exception as e:
+        except AuthJWTError as e:
             enhanced_logger.warning("Token verification failed", error=str(e))
             return None
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            return payload
-        except JWTError as e:
+        except Exception as e:
             enhanced_logger.warning("Token verification failed", error=str(e))
             return None
     

@@ -18,18 +18,17 @@ if TYPE_CHECKING:
     from qdrant_client.http import models as qdrant_models
 
 # Optional import - Qdrant support
-# Hint to type checkers: this will be assigned to the real module when available
-qdrant_models: Any = None
 _QdrantClient: Any = None
+qdrant_models_module: Any = None  # Renamed to avoid redefinition
+
 try:
     from qdrant_client import QdrantClient as _ImportedQdrantClient
-    from qdrant_client.http import models as qdrant_models
+    from qdrant_client.http import models as qdrant_models_module
     _QdrantClient = _ImportedQdrantClient
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
-    # Keep as None at runtime but typed as Any to avoid "attribute of None" diagnostics
-    qdrant_models = None
+    # qdrant_models_module remains None when import fails
 
 logger = logging.getLogger(__name__)
 
@@ -111,18 +110,18 @@ class QdrantRAGProvider(BaseRAGProvider):
                 # Create collection with optimized configuration
                 self._client.create_collection(
                     collection_name=self.collection_name,
-                    vectors_config=qdrant_models.VectorParams(
+                    vectors_config=qdrant_models_module.VectorParams(
                         size=self._embedding_dimension,
-                        distance=qdrant_models.Distance.COSINE
+                        distance=qdrant_models_module.Distance.COSINE
                     ),
                     # Add optimization settings for production
-                    optimizers_config=qdrant_models.OptimizersConfigDiff(
+                    optimizers_config=qdrant_models_module.OptimizersConfigDiff(
                         default_segment_number=2,
                         max_segment_size=50000,
                         memmap_threshold=20000
                     ),
                     # Enable persistence
-                    hnsw_config=qdrant_models.HnswConfigDiff(
+                    hnsw_config=qdrant_models_module.HnswConfigDiff(
                         m=16,
                         ef_construct=100
                     )
@@ -161,7 +160,7 @@ class QdrantRAGProvider(BaseRAGProvider):
                 payload['original_doc_id'] = doc.id  # Keep original ID
                 payload['created_at'] = doc.created_at.isoformat() if doc.created_at else datetime.now().isoformat()
                 
-                points.append(qdrant_models.PointStruct(
+                points.append(qdrant_models_module.PointStruct(
                     id=point_id,
                     vector=doc.embedding,
                     payload=payload
@@ -197,12 +196,12 @@ class QdrantRAGProvider(BaseRAGProvider):
                 conditions = []
                 for key, value in filters.items():
                     conditions.append(
-                        qdrant_models.FieldCondition(
+                        qdrant_models_module.FieldCondition(
                             key=key,
-                            match=qdrant_models.MatchValue(value=value)
+                            match=qdrant_models_module.MatchValue(value=value)
                         )
                     )
-                qdrant_filter = qdrant_models.Filter(must=conditions)
+                qdrant_filter = qdrant_models_module.Filter(must=conditions)
             
             # Execute search
             results = self._client.search(
@@ -251,7 +250,7 @@ class QdrantRAGProvider(BaseRAGProvider):
             
             self._client.delete(
                 collection_name=self.collection_name,
-                points_selector=qdrant_models.PointIdsList(points=point_ids),
+                points_selector=qdrant_models_module.PointIdsList(points=point_ids),
                 wait=True
             )
             
@@ -283,7 +282,7 @@ class QdrantRAGProvider(BaseRAGProvider):
             
             self._client.upsert(
                 collection_name=self.collection_name,
-                points=[qdrant_models.PointStruct(
+                points=[qdrant_models_module.PointStruct(
                     id=point_id,
                     vector=document.embedding,
                     payload=payload
@@ -374,9 +373,9 @@ class QdrantRAGProvider(BaseRAGProvider):
             # Recreate collection
             self._client.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=qdrant_models.VectorParams(
+                vectors_config=qdrant_models_module.VectorParams(
                     size=self._embedding_dimension,
-                    distance=qdrant_models.Distance.COSINE
+                    distance=qdrant_models_module.Distance.COSINE
                 )
             )
             

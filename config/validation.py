@@ -203,7 +203,8 @@ class EnvironmentSettings(BaseSettings):
                 import ast
                 try:
                     return ast.literal_eval(v)
-                except:
+                except (ValueError, SyntaxError):
+                    # Invalid literal syntax, fall back to comma-separated
                     pass
             return [origin.strip() for origin in v.split(',')]
         return v
