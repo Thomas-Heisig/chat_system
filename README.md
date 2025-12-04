@@ -1,473 +1,659 @@
-🚀 Universal Chat System
-Ein hochmodernes, modulares Chat-System mit KI-Integration, RAG-Funktionalität und Enterprise-Features.
+# Universal Chat System
 
-✨ Features
-🔥 Kernfunktionen
-Echtzeit-Chat mit WebSocket-Verbindungen
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-009688.svg)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-KI-Integration mit Ollama/OpenAI Support
+A modern, modular enterprise chat system with AI integration, RAG (Retrieval-Augmented Generation) capabilities, real-time WebSocket communication, and comprehensive project management features.
 
-Modulares RAG-System mit mehreren Vector-Datenbanken
+## 🎯 Overview
 
-Pluggable Database Adapters (SQLite, PostgreSQL, MongoDB)
+The Universal Chat System is a full-featured enterprise communication platform that combines real-time chat with advanced AI capabilities, document intelligence through RAG systems, and robust project management tools. Built with FastAPI and designed for scalability, it offers a complete solution for teams requiring intelligent, context-aware communication.
 
-RESTful API für erweiterte Funktionalitäten
+### Key Highlights
 
-Admin Dashboard mit Tab-basierter Konfiguration
+- 🚀 **Real-time Communication** - WebSocket-based chat with low-latency message delivery
+- 🤖 **AI Integration** - Support for Ollama, OpenAI, and custom AI models
+- 📚 **RAG System** - Semantic search with ChromaDB, Qdrant, and Pinecone
+- 🔐 **Enterprise Security** - JWT authentication, bcrypt password hashing, rate limiting
+- 🗄️ **Flexible Storage** - Support for SQLite, PostgreSQL, and MongoDB
+- 📊 **Project Management** - Integrated ticketing system with file attachments
+- 🎨 **Modern UI** - Tab-based admin dashboard with dark/light themes
+- 🐳 **Production Ready** - Docker support, comprehensive monitoring, and logging
 
-🛡️ Enterprise Features
-JWT Authentifizierung mit bcrypt Passwort-Hashing
+## 📋 Table of Contents
 
-Umfassendes Logging mit verschiedenen Levels
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Configuration](#️-configuration)
+- [Usage](#-usage)
+- [API Documentation](#-api-documentation)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Security](#-security)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Support](#-support)
 
-Rate Limiting für API-Endpoints
+## ✨ Features
 
-CORS-Konfiguration für Cross-Origin Requests
+### Core Communication
+- **Real-time Chat**: WebSocket-based messaging with connection state management
+- **Message Types**: Support for user, AI, system, command, and notification messages
+- **Message Compression**: Automatic compression for large messages
+- **File Attachments**: Upload and share documents, images, and other files
+- **User Presence**: Real-time online/offline status tracking
 
-Health Monitoring mit System-Metriken
+### AI & Intelligence
+- **Multiple AI Providers**: Seamless integration with Ollama, OpenAI, and custom models
+- **RAG (Retrieval-Augmented Generation)**: 
+  - Multiple vector databases (ChromaDB, Qdrant, Pinecone)
+  - Document processing with configurable chunking
+  - Semantic search with cosine similarity
+  - Support for PDF, DOCX, TXT, and Markdown files
+- **Context-Aware Responses**: AI leverages conversation history and uploaded documents
+- **Model Selection**: Dynamic switching between different AI models
 
-Docker Support mit Multi-Service Setup
+### Project & Ticket Management
+- **Project Organization**: Create and manage multiple projects
+- **Ticket System**: 
+  - Multiple ticket types (Task, Bug, Feature, Question, Incident)
+  - Priority levels (Low, Medium, High, Critical)
+  - Status tracking (Open, In Progress, Resolved, Closed)
+  - Assignment and due dates
+- **File Management**: Attach files to tickets and projects
+- **Activity Tracking**: Audit trail for all project changes
 
-📊 RAG System
-Multiple Vector Databases: ChromaDB, Qdrant, Pinecone
+### Security & Authentication
+- **JWT Authentication**: Secure token-based authentication
+- **Password Security**: bcrypt hashing with configurable rounds
+- **Forced Password Change**: Admins must change default passwords on first login
+- **Role-Based Access Control**: User, Moderator, Manager, and Admin roles
+- **Rate Limiting**: Configurable API rate limiting to prevent abuse
+- **CORS Support**: Flexible cross-origin resource sharing configuration
 
-Dokumenten-Verarbeitung mit konfigurierbarem Chunking
+### Admin Dashboard
+- **Tabbed Interface**: 
+  - Chat - Main communication interface
+  - Settings - System configuration
+  - RAG System - Document and vector database management
+  - Database - Administration and optimization
+  - Projects - Project and ticket management
+  - Files - File browser and management
+  - Users - User administration
+  - Monitoring - System health and logs
+  - Integrations - External service connections
+- **Dark/Light Themes**: User preference-based theming
+- **Real-time Updates**: Live system metrics and notifications
 
-Embedding-Modell Auswahl
+### Storage & Database
+- **Multi-Database Support**: 
+  - SQLite (development, small deployments)
+  - PostgreSQL (production, high-performance)
+  - MongoDB (document-oriented workloads)
+- **Connection Pooling**: Efficient database connection management
+- **Migration Support**: Alembic-based schema migrations
+- **Backup & Restore**: Built-in database backup utilities
 
-Semantische Suche mit Cosine Similarity
+### Integration & Extensibility
+- **Plugin System**: Docker-based plugin isolation and management
+- **Messaging Bridge**: Unified interface for external platforms (Slack, Discord, Teams)
+- **Agent Framework**: Modular agent system for automation
+- **Workflow Automation**: Configurable automation pipelines
+- **Voice Processing**: Framework for TTS and transcription (extensible)
 
-Dokumenten-Management mit Upload und Indexierung
+### Monitoring & Observability
+- **Structured Logging**: JSON-based logs with multiple severity levels
+- **Health Checks**: Comprehensive system health endpoints
+- **Metrics Export**: Ready for Prometheus integration
+- **Error Tracking**: Sentry support for production monitoring
+- **Performance Monitoring**: Request timing and performance metrics
 
-🎨 Admin Dashboard
-Chat Interface mit Echtzeit-Nachrichten
+## 🏗️ Architecture
 
-System Einstellungen Konfiguration
+The system follows a modular, layered architecture:
 
-RAG System Management
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Frontend Layer                          │
+│  Templates (Jinja2) + Static Assets (HTML/CSS/JS)          │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│                      API Layer (FastAPI)                     │
+│  Routes: Chat, Messages, RAG, Settings, Admin, Projects    │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+┌────────────────────┴────────────────────────────────────────┐
+│                    Service Layer                             │
+│  AI Service, Auth, RAG, Message, File, Project Services    │
+└────────┬────────────────────────────────┬───────────────────┘
+         │                                │
+┌────────┴─────────────┐    ┌────────────┴────────────────────┐
+│  WebSocket Manager   │    │    Database Layer               │
+│  Connection Handling │    │  Repositories + Models          │
+└──────────────────────┘    └─────────────┬───────────────────┘
+                                          │
+                            ┌─────────────┴───────────────┐
+                            │   Storage Adapters          │
+                            │  SQLite, PostgreSQL, MongoDB│
+                            └─────────────────────────────┘
+```
 
-Datenbank Administration
+For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-Benutzer & Auth Verwaltung
+## 🔧 Prerequisites
 
-Monitoring & Logs Dashboard
+### Required
+- **Python**: 3.9 or higher
+- **pip**: Latest version
+- **Git**: For version control
 
-🏗️ Projektstruktur
-text
-universal-chat-system/
-├── 🐍 main.py                          # Hauptanwendung
-├── 📋 requirements.txt                 # Python-Abhängigkeiten
-├── 🔧 .env.example                     # Umgebungsvariablen Template
-├── 🐳 docker-compose.yml              # Multi-Service Docker Setup
-├── 🐳 Dockerfile                      # Multi-Stage Container Build
-├── 📊 docs/
-│   └── 📖 API.md                      # API-Dokumentation
-├── ⚙️ config/
-│   ├── __init__.py
-│   ├️ settings.py                     # Zentrale Konfiguration
-│   ├️ validation.py                   # Einstellungsvalidierung
-│   └️ database_config.py              # Modulare DB-Konfiguration
-├── 🗄️ database/
-│   ├── __init__.py
-│   ├── 🔗 connection.py               # Datenbankverbindung
-│   ├── 📐 models.py                   # SQLAlchemy Modelle
-│   ├── 📂 repositories.py             # Datenbank-Operationen
-│   └── 🔌 adapters/                   # Modulare DB-Adapter
-│       ├── __init__.py
-│       ├── base_adapter.py            # Abstract Base Adapter
-│       ├── sqlite_adapter.py          # SQLite Implementation
-│       ├── postgres_adapter.py        # PostgreSQL Implementation
-│       └── mongodb_adapter.py         # MongoDB Implementation
-├── 🔌 websocket/
-│   ├── __init__.py
-│   ├── 👥 manager.py                  # Connection-Management
-│   └── 🎯 handlers.py                 # WebSocket-Nachrichten
-├── 🛣️ routes/
-│   ├── __init__.py
-│   ├── 💬 chat.py                     # Chat-UI Routes
-│   ├── 📨 messages.py                 # API Message Routes
-│   ├── ⚙️ settings.py                # Settings Management API
-│   ├── 📚 rag.py                      # RAG System API
-│   ├── 🗄️ database.py                # Database Admin API
-│   └── 👨‍💼 admin.py                  # Admin Dashboard API
-├── 🛠️ services/
-│   ├── __init__.py
-│   ├── 🤖 ai_service.py               # Ollama/OpenAI Integration
-│   ├── 🔐 auth_service.py             # JWT & Password Hashing
-│   ├── ⚙️ settings_service.py         # Runtime Configuration
-│   ├── 📨 message_service.py          # Nachrichten Business-Logik
-│   ├── 📁 file_service.py             # File Upload & Management
-│   ├── 📋 project_service.py          # Projekt & Ticket Management
-│   └── 📚 rag/                        # Modulares RAG-System
-│       ├── __init__.py
-│       ├── base_rag.py                # Base RAG Provider Interface
-│       ├── chroma_rag.py              # ChromaDB Implementation
-│       ├── qdrant_rag.py              # Qdrant Implementation
-│       └── document_processor.py      # Dokumenten-Verarbeitung
-├── 🎨 templates/
-│   ├── 🏠 base.html                   # Base Template
-│   ├── 🏠 index.html                  # Haupt-App mit Tabs
-│   └── 🔧 components/                 # UI Components
-│       ├── 💬 chat.html               # Chat Interface
-│       ├── ⚙️ settings.html           # Settings Panel
-│       ├── 📚 rag.html                # RAG Configuration
-│       ├── 🗄️ database.html           # Database Management
-│       ├── 📋 projects.html           # Project Management
-│       ├── 📁 files.html              # File Manager
-│       ├── 👥 users.html              # User Management
-│       ├── 📊 monitoring.html         # Monitoring Dashboard
-│       └── 🔗 integrations.html       # Integration Settings
-├── ⚡ static/
-│   ├── 🎨 css/
-│   │   ├── 🎨 main.css                # Haupt-Stylesheet
-│   │   ├── 🎨 tabs.css                # Tab Navigation
-│   │   ├── 🎨 components.css          # UI Components
-│   │   └── 🎨 themes.css              # Dark/Light Themes
-│   ├── ⚡ js/
-│   │   ├── ⚡ app.js                   # Haupt-App Logik
-│   │   ├── 🔌 websocket.js            # WebSocket Client
-│   │   ├── ⚙️ settings.js             # Settings Management
-│   │   ├── 📚 rag.js                  # RAG System Interface
-│   │   ├── 🗄️ database.js             # Database Admin
-│   │   └── 🔧 api.js                  # API Client
-│   └── 🖼️ images/
-├── 📁 uploads/                        # File Upload Directory
-├── 🧪 tests/                          # Test Suite
-│   ├── __init__.py
-│   ├── test_api.py
-│   ├── test_services.py
-│   └── test_rag.py
-└── 📝 logs/                           # Application Logs
-🚀 Installation & Setup
-Voraussetzungen
-Python 3.9+
+### Optional (for enhanced features)
+- **Docker & Docker Compose**: For containerized deployment
+- **PostgreSQL**: For production database
+- **Redis**: For caching and session management
+- **Ollama**: For local AI model hosting
 
-pip (Python Package Manager)
+## 📦 Installation
 
-Docker & Docker Compose (optional)
+### Quick Start (Local Development)
 
-1. Lokale Installation
-bash
-# Repository klonen
-git clone <repository-url>
-cd universal-chat-system
+1. **Clone the Repository**
+```bash
+git clone https://github.com/Thomas-Heisig/chat_system.git
+cd chat_system
+```
 
-# Virtuelle Umgebung erstellen und aktivieren
-python -m venv chat_env
-source chat_env/bin/activate  # Linux/MacOS
-# oder
-chat_env\Scripts\activate     # Windows
+2. **Create Virtual Environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# Abhängigkeiten installieren
+3. **Install Dependencies**
+```bash
+# Core dependencies
 pip install -r requirements.txt
-2. Konfiguration anpassen
-bash
-# Umgebungsvariablen konfigurieren
+
+# Or install with optional features
+pip install -e ".[all]"  # Installs all optional dependencies
+```
+
+4. **Configure Environment**
+```bash
 cp .env.example .env
-# .env Datei mit Editor anpassen
-3. Mit Docker (Empfohlen)
-bash
-# Alle Services starten (App, PostgreSQL, Redis, Ollama, ChromaDB)
+# Edit .env with your configuration (see Configuration section)
+```
+
+5. **Initialize Database**
+```bash
+python main.py
+# Database will be automatically initialized on first run
+```
+
+6. **Access the Application**
+- Open browser: http://localhost:8000
+- Default credentials: `admin` / `admin123` (you will be prompted to change this)
+- API Documentation: http://localhost:8000/docs
+
+### Docker Installation
+
+For production deployments, Docker is recommended:
+
+```bash
+# Start all services (app, database, redis, ollama, vector db)
 docker-compose up -d
 
-# Nur bestimmte Services
-docker-compose up app db redis -d
-⚙️ Konfiguration
-Umgebungsvariablen (.env)
-env
-# APP KONFIGURATION
-APP_NAME=Universal Chat System
-APP_ENVIRONMENT=development
-APP_DEBUG=true
-APP_SECRET_KEY=your-super-secret-key-change-in-production
+# View logs
+docker-compose logs -f app
 
-# SERVER KONFIGURATION
+# Stop services
+docker-compose down
+```
+
+For detailed setup instructions, see [SETUP.md](SETUP.md).
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root (use `.env.example` as template):
+
+```bash
+# Application Settings
+APP_NAME="Universal Chat System"
+APP_ENVIRONMENT=development  # development, staging, production
+APP_DEBUG=true
+APP_SECRET_KEY=your-secret-key-change-in-production
+
+# Server Configuration
 HOST=0.0.0.0
 PORT=8000
-RELOAD=true
+RELOAD=true  # Set to false in production
 
-# DATENBANK
+# Database Configuration
 DATABASE_TYPE=sqlite  # sqlite, postgresql, mongodb
 DATABASE_URL=sqlite:///./chat.db
-POSTGRES_URL=postgresql://user:pass@localhost:5432/chatdb
-MONGODB_URL=mongodb://localhost:27017/chatdb
+# For PostgreSQL: postgresql://user:password@localhost:5432/chatdb
+# For MongoDB: mongodb://localhost:27017/chatdb
 
-# VECTOR DATABASE (RAG)
+# Vector Database (RAG System)
+RAG_ENABLED=true
 VECTOR_DB_TYPE=chroma  # chroma, qdrant, pinecone
 CHROMA_DB_PATH=./chroma_db
 QDRANT_URL=http://localhost:6333
+PINECONE_API_KEY=your-pinecone-key
 
-# AI KONFIGURATION
+# AI Configuration
 AI_ENABLED=true
 OLLAMA_URL=http://localhost:11434
 OLLAMA_MODEL=llama2
-OPENAI_API_KEY=your-openai-key
+OPENAI_API_KEY=your-openai-key-if-using-openai
 
-# SICHERHEIT
-JWT_SECRET_KEY=your-jwt-secret-key
+# Security Settings
+JWT_SECRET_KEY=your-jwt-secret-key-minimum-32-chars
 JWT_ALGORITHM=HS256
-CORS_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"]
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+CORS_ORIGINS=["http://localhost:3000"]
+
+# Performance & Limits
 RATE_LIMIT_ENABLED=true
+MAX_MESSAGE_LENGTH=10000
+MAX_FILE_SIZE_MB=50
 
-# LOGGING
-LOG_LEVEL=INFO
+# Logging
+LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_FILE=logs/chat_system.log
-Verfügbare Log-Levels
-DEBUG - Detaillierte Debug-Informationen
+```
 
-INFO - Allgemeine Betriebsinformationen
+### Configuration Files
 
-WARNING - Warnungen und Fehler
+- **`.flake8`**: Python code style configuration
+- **`pyproject.toml`**: Project metadata and tool configuration
+- **`docker-compose.yml`**: Multi-service Docker orchestration
 
-ERROR - Kritische Fehler
+For advanced configuration options, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-🎯 Start der Anwendung
-Entwicklungsumgebung
-bash
+## 🚀 Usage
+
+### Starting the Application
+
+**Development Mode** (with auto-reload):
+```bash
 python main.py
-Produktionsumgebung
-bash
-# .env anpassen für Production
-APP_ENVIRONMENT=production
-APP_DEBUG=false
-RELOAD=false
+```
 
-# Server starten
-python main.py
-Docker Production
-bash
-docker-compose -f docker-compose.prod.yml up -d
-🌐 Zugriff
-Nach dem Start sind folgende Endpoints verfügbar:
+**Production Mode** (using uvicorn directly):
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+```
 
-Endpoint	Beschreibung	Typ
-http://localhost:8000/	Admin Dashboard	Web UI
-http://localhost:8000/health	Health-Check	JSON API
-http://localhost:8000/status	Detaillierter Systemstatus	JSON API
-http://localhost:8000/docs	API Dokumentation (Swagger)	Web UI
-ws://localhost:8000/ws	WebSocket Endpoint	WebSocket
-📡 API Endpoints
-Health & Monitoring
-http
-GET /health
-GET /status
-GET /info
-Chat & Messages
-http
-GET /api/messages
-GET /api/messages/recent
-GET /api/messages/user/{username}
-GET /api/messages/stats
-POST /api/messages
-RAG System
-http
-GET /api/rag/status
-POST /api/rag/documents
-GET /api/rag/documents
-DELETE /api/rag/documents/{doc_id}
-POST /api/rag/query
-Settings Management
-http
-GET /api/settings/general
-PUT /api/settings/general
-GET /api/settings/ai  
-PUT /api/settings/ai
-GET /api/settings/rag
-PUT /api/settings/rag
-Database Administration
-http
-GET /api/database/status
-POST /api/database/backup
-POST /api/database/optimize
-GET /api/database/stats
-🎨 Admin Dashboard
-Tab Übersicht
-💬 Chat - Echtzeit-Chat Interface mit KI-Integration
+**With Makefile** (if available):
+```bash
+make run       # Development mode
+make serve     # Production mode
+make test      # Run tests
+make lint      # Check code style
+```
 
-⚙️ Settings - Systemkonfiguration und Einstellungen
+### Using the Web Interface
 
-📚 RAG System - Vector Database Management
+1. **Login**: Navigate to http://localhost:8000 and login with your credentials
+2. **Chat**: Use the Chat tab to send messages and interact with AI
+3. **Upload Documents**: Use RAG System tab to upload documents for semantic search
+4. **Manage Projects**: Create projects and tickets in the Projects tab
+5. **Configure**: Adjust settings in the Settings tab
 
-🗄️ Database - Datenbank Administration
+### Using the API
 
-📋 Projects - Projekt und Ticket Management
-
-📁 Files - Dateimanager und Uploads
-
-👥 Users - Benutzerverwaltung und Authentifizierung
-
-📊 Monitoring - System-Monitoring und Logs
-
-🔗 Integrations - Externe Integrationen
-
-🔌 RAG System Provider
-Unterstützte Vector Databases
-ChromaDB (Lokal) - Einfache Einrichtung, gut für Entwicklung
-
-Qdrant (Cloud/self-hosted) - Production-grade mit erweiterten Features
-
-Pinecone (Cloud) - Vollständig managed Service
-
-Dokumenten-Verarbeitung
-Automatisches Chunking mit konfigurierbarer Größe
-
-Overlap für bessere Kontexterhaltung
-
-Multiple Dateiformate: PDF, DOCX, TXT, MD
-
-Embedding Generation mit Sentence Transformers
-
-🗄️ Datenbank Adapter
-Unterstützte Datenbanken
-SQLite (Standard) - Einfache Entwicklung
-
-PostgreSQL - Production-ready mit erweiterten Features
-
-MongoDB - Document-based für flexible Schemata
-
-Migration zwischen Datenbanken
-bash
-# Export von SQLite zu PostgreSQL
-curl -X POST http://localhost:8000/api/database/migrate \
+**Authentication**:
+```bash
+# Login to get JWT token
+curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"source": "sqlite", "target": "postgresql"}'
-🐳 Docker Setup
-Services im Docker Compose
-app - Hauptanwendung
+  -d '{"username":"admin","password":"your-new-password"}'
 
-db - PostgreSQL Datenbank
+# Use token in subsequent requests
+TOKEN="your-jwt-token"
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8000/api/messages
+```
 
-redis - Caching und Sessions
+**Send a Message**:
+```bash
+curl -X POST http://localhost:8000/api/messages \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","message":"Hello from API"}'
+```
 
-ollama - Lokale LLM Integration
+**Query RAG System**:
+```bash
+curl -X POST http://localhost:8000/api/rag/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"What is the system architecture?","top_k":5}'
+```
 
-chromadb - Vector Database
+For comprehensive API documentation, visit http://localhost:8000/docs (Swagger UI) or http://localhost:8000/redoc (ReDoc).
 
-qdrant - Alternative Vector Database
+## 📚 API Documentation
 
-Starten bestimmter Services
-bash
-# Nur App und PostgreSQL
-docker-compose up app db -d
+### Main Endpoints
 
-# Vollständiges Setup mit AI
-docker-compose up app db redis ollama chromadb -d
+| Endpoint | Method | Description | Auth Required |
+|----------|--------|-------------|---------------|
+| `/` | GET | Admin dashboard | No |
+| `/health` | GET | Health check | No |
+| `/status` | GET | Detailed system status | No |
+| `/docs` | GET | OpenAPI documentation | No |
+| `/api/auth/login` | POST | User authentication | No |
+| `/api/messages` | GET, POST | Message operations | Yes |
+| `/api/rag/documents` | GET, POST, DELETE | Document management | Yes |
+| `/api/rag/query` | POST | Semantic search | Yes |
+| `/api/projects` | GET, POST | Project management | Yes |
+| `/api/settings/*` | GET, PUT | Configuration management | Yes (Admin) |
+| `/ws` | WebSocket | Real-time chat connection | Yes |
 
-# Production Setup
+### Response Format
+
+All API responses follow a consistent format:
+
+**Success Response**:
+```json
+{
+  "success": true,
+  "data": {...},
+  "message": "Operation completed successfully"
+}
+```
+
+**Error Response**:
+```json
+{
+  "success": false,
+  "error": "Error description",
+  "details": {...}
+}
+```
+
+For detailed API reference, see [docs/API.md](docs/API.md).
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+chat_system/
+├── agents/               # Agent framework and examples
+├── analytics/            # Event tracking and A/B testing
+├── config/              # Configuration management
+├── core/                # Core utilities
+├── database/            # Database models, repositories, adapters
+├── docs/                # Documentation
+├── elyza/               # ELYZA model integration
+├── frontend/            # Frontend source (if separate)
+├── integration/         # External service integrations
+├── k8s/                 # Kubernetes manifests
+├── logs/                # Application logs
+├── memory/              # Memory and personalization
+├── routes/              # API route handlers
+├── services/            # Business logic services
+│   └── rag/            # RAG system implementations
+├── static/              # Static assets (CSS, JS, images)
+├── templates/           # Jinja2 HTML templates
+├── tests/               # Test suite
+│   ├── unit/           # Unit tests
+│   ├── integration/    # Integration tests
+│   └── e2e/            # End-to-end tests
+├── utils/               # Utility functions
+├── voice/               # Voice processing framework
+├── websocket/           # WebSocket handlers
+├── workflow/            # Workflow automation
+├── workspace/           # Workspace management
+├── main.py              # Application entry point
+├── requirements.txt     # Python dependencies
+├── pyproject.toml       # Project metadata
+├── docker-compose.yml   # Docker orchestration
+└── Dockerfile           # Container image definition
+```
+
+### Code Style
+
+This project follows PEP 8 style guidelines with the following tools:
+
+- **Black**: Code formatting (line length: 100)
+- **isort**: Import sorting
+- **flake8**: Style guide enforcement
+- **mypy**: Static type checking
+
+```bash
+# Format code
+black --line-length 100 .
+
+# Sort imports
+isort --profile black .
+
+# Check style
+flake8 .
+
+# Type check
+mypy .
+```
+
+### Pre-commit Hooks
+
+Install pre-commit hooks to ensure code quality:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+### Adding Features
+
+1. Create feature branch: `git checkout -b feature/your-feature`
+2. Implement changes following project structure
+3. Add tests for new functionality
+4. Update documentation
+5. Run linters and tests
+6. Submit pull request
+
+For contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=. --cov-report=html
+
+# Run specific test file
+pytest tests/unit/test_message_service.py
+
+# Run specific test
+pytest tests/unit/test_message_service.py::test_create_message
+
+# Run in verbose mode
+pytest -v
+
+# Run with output
+pytest -s
+```
+
+### Test Structure
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **End-to-End Tests**: Test complete user workflows
+
+### Writing Tests
+
+```python
+import pytest
+from services.message_service import MessageService
+
+@pytest.fixture
+def message_service():
+    return MessageService()
+
+def test_create_message(message_service):
+    message = message_service.create_message(
+        username="testuser",
+        content="Test message"
+    )
+    assert message.username == "testuser"
+    assert message.message == "Test message"
+```
+
+## 🚢 Deployment
+
+### Production Checklist
+
+Before deploying to production:
+
+- [ ] Change all default passwords
+- [ ] Set strong `APP_SECRET_KEY` and `JWT_SECRET_KEY`
+- [ ] Set `APP_DEBUG=false` and `APP_ENVIRONMENT=production`
+- [ ] Use PostgreSQL or MongoDB instead of SQLite
+- [ ] Enable HTTPS/TLS
+- [ ] Configure proper CORS origins
+- [ ] Set up monitoring and logging
+- [ ] Configure automated backups
+- [ ] Review and configure rate limits
+- [ ] Set up reverse proxy (nginx, Caddy)
+- [ ] Configure firewall rules
+
+### Docker Production Deployment
+
+```bash
+# Use production compose file
 docker-compose -f docker-compose.prod.yml up -d
-🔧 Entwicklung
-Projektstruktur erweitern
-bash
-# Neuen RAG Provider hinzufügen
-touch services/rag/pinecone_rag.py
 
-# Neue Route erstellen
-touch routes/analytics.py
+# Scale workers
+docker-compose -f docker-compose.prod.yml up -d --scale app=4
 
-# Neues Service erstellen
-touch services/analytics_service.py
-Tests ausführen
-bash
-# Unit Tests
-python -m pytest tests/
+# View production logs
+docker-compose -f docker-compose.prod.yml logs -f
+```
 
-# Mit Coverage
-python -m pytest --cov=app tests/
+### Kubernetes Deployment
 
-# Spezifische Tests
-python -m pytest tests/test_rag.py -v
-Logs einsehen
-bash
-# Log-Datei anzeigen
-tail -f logs/chat_system.log
+Kubernetes manifests are available in the `k8s/` directory:
 
-# Docker Logs
-docker-compose logs -f app
+```bash
+# Apply configurations
+kubectl apply -f k8s/
 
-# System Status im Browser
-curl http://localhost:8000/status | jq
-🐛 Problembehandlung
-Häufige Probleme
-WebSocket-Verbindung fehlgeschlagen
+# Check deployment status
+kubectl get pods
+kubectl get services
 
-Firewall-Einstellungen prüfen
+# View logs
+kubectl logs -f deployment/chat-system
+```
 
-Port 8000 freigeben
+For comprehensive deployment guide, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-WebSocket Support im Browser prüfen
+## 🔒 Security
 
-Datenbank-Fehler
+### Security Features
 
-Berechtigungen für Datenbank-Datei prüfen
+- **JWT Authentication**: Secure token-based authentication with expiration
+- **Password Security**: bcrypt hashing with configurable cost factor
+- **Forced Password Change**: Default admin password must be changed on first login
+- **Rate Limiting**: Prevent brute-force and DoS attacks
+- **CORS Configuration**: Control cross-origin access
+- **Input Validation**: Pydantic-based request validation
+- **SQL Injection Prevention**: Parameterized queries
+- **XSS Protection**: Template auto-escaping
 
-Connection String validieren
+### Security Best Practices
 
-Datenbank-Service läuft (bei PostgreSQL/MongoDB)
+1. **Never commit secrets**: Use environment variables
+2. **Rotate keys regularly**: Especially JWT and API keys
+3. **Monitor logs**: Watch for suspicious activity
+4. **Keep dependencies updated**: Regularly update packages
+5. **Use HTTPS**: Always in production
+6. **Implement backup strategy**: Regular database backups
+7. **Review access logs**: Monitor authentication attempts
 
-RAG System initialisiert nicht
+### Reporting Security Issues
 
-Vector Database Service läuft
+For security vulnerabilities, please email security@example.com instead of using the issue tracker. See [SECURITY.md](SECURITY.md) for details.
 
-Embedding-Modell verfügbar
+## 🤝 Contributing
 
-Ausreichend Speicherplatz
+We welcome contributions! Here's how you can help:
 
-Debug-Modus aktivieren
-env
-APP_DEBUG=true
-LOG_LEVEL=DEBUG
-📈 Monitoring & Metriken
-System-Health
-bash
-curl http://localhost:8000/status
-Antwort beinhaltet:
+### Ways to Contribute
 
-Speichernutzung und CPU-Auslastung
+- 🐛 Report bugs
+- 💡 Suggest new features
+- 📝 Improve documentation
+- 🔧 Submit pull requests
+- ⭐ Star the repository
 
-Aktive WebSocket-Verbindungen
+### Contribution Process
 
-Datenbank-Statistiken
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass (`pytest`)
+6. Format code (`black .` and `isort .`)
+7. Commit changes (`git commit -m 'Add AmazingFeature'`)
+8. Push to branch (`git push origin feature/AmazingFeature`)
+9. Open a Pull Request
 
-RAG System Status
+### Code Review Process
 
-Service Health Checks
+- All submissions require review
+- CI/CD checks must pass
+- Code coverage should not decrease
+- Follow existing code style
+- Update documentation as needed
 
-Log-Analyse
-bash
-# Fehler anzeigen
-grep "ERROR" logs/chat_system.log
+For detailed guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-# WebSocket-Aktivität
-grep "WebSocket" logs/chat_system.log
+## 📄 License
 
-# Performance-Metriken
-grep "Time:" logs/chat_system.log
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-# RAG System Aktivität
-grep "RAG" logs/chat_system.log
-🤝 Beitragen
-Repository forken
+## 📞 Support
 
-Feature-Branch erstellen: git checkout -b feature/NeuesFeature
+### Getting Help
 
-Änderungen committen: git commit -am 'Neues Feature hinzufügen'
+- 📖 **Documentation**: Check the docs/ directory
+- 💬 **Discussions**: Use GitHub Discussions for questions
+- 🐛 **Bug Reports**: Open an issue with details and logs
+- 📧 **Email**: support@example.com
 
-Branch pushen: git push origin feature/NeuesFeature
+### Useful Links
 
-Pull Request erstellen
+- [GitHub Repository](https://github.com/Thomas-Heisig/chat_system)
+- [Issue Tracker](https://github.com/Thomas-Heisig/chat_system/issues)
+- [Changelog](CHANGES.md)
+- [Roadmap](ROADMAP.md)
 
-📄 Lizenz
-Dieses Projekt ist unter der MIT-Lizenz lizenziert.
+## 🙏 Acknowledgments
 
-🆘 Support
-Bei Problemen oder Fragen:
+- FastAPI for the excellent web framework
+- Ollama for local AI model hosting
+- ChromaDB for vector database capabilities
+- All contributors and users of this project
 
-Issues im Repository öffnen
+---
 
-Logs zur Problembeschreibung beifügen
+**Made with ❤️ by Thomas Heisig**
 
-Konfiguration und Umgebungsdetails angeben
-
-Erwartetes vs. tatsächliches Verhalten beschreiben
-
-🚀 Viel Spaß mit dem Universal Chat System!
+For more information, visit the [documentation](docs/) or check out the [ARCHITECTURE.md](ARCHITECTURE.md) for system design details.

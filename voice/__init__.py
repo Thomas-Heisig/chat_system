@@ -8,8 +8,8 @@ Provides voice processing capabilities including:
 - Real-time audio streaming via WebSocket
 """
 
-from .transcription import TranscriptionService
-from .text_to_speech import TextToSpeechService
 from .audio_processor import AudioProcessor
+from .text_to_speech import TextToSpeechService
+from .transcription import TranscriptionService
 
-__all__ = ['TranscriptionService', 'TextToSpeechService', 'AudioProcessor']
+__all__ = ["TranscriptionService", "TextToSpeechService", "AudioProcessor"]

@@ -6,10 +6,11 @@ API endpoints for wiki and documentation management.
 This is a placeholder for the planned wiki routes.
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
-from config.settings import settings, logger
+from fastapi import APIRouter, HTTPException
+
+from config.settings import settings
 from services.wiki_service import get_wiki_service
 
 router = APIRouter(prefix="/api/wiki", tags=["wiki"])
@@ -21,8 +22,8 @@ async def wiki_status() -> Dict[str, Any]:
     return {
         "service": "wiki",
         "status": "placeholder",
-        "feature_enabled": getattr(settings, 'FEATURE_WIKI', True),
-        "message": "Wiki functionality is available in basic placeholder form"
+        "feature_enabled": getattr(settings, "FEATURE_WIKI", True),
+        "message": "Wiki functionality is available in basic placeholder form",
     }
 
 
@@ -32,7 +33,7 @@ async def create_page(
     content: str,
     author: str,
     category: Optional[str] = None,
-    tags: Optional[List[str]] = None
+    tags: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """Create a new wiki page"""
     wiki_service = get_wiki_service()
@@ -42,17 +43,11 @@ async def create_page(
 
 
 @router.get("/pages")
-async def list_pages(
-    limit: int = 20,
-    category: Optional[str] = None
-) -> Dict[str, Any]:
+async def list_pages(limit: int = 20, category: Optional[str] = None) -> Dict[str, Any]:
     """List wiki pages"""
     wiki_service = get_wiki_service()
     pages = await wiki_service.get_recent_pages(limit)
-    return {
-        "items": pages,
-        "total": len(pages)
-    }
+    return {"items": pages, "total": len(pages)}
 
 
 @router.get("/pages/{page_id}")
@@ -67,10 +62,7 @@ async def get_page(page_id: str) -> Dict[str, Any]:
 
 @router.put("/pages/{page_id}")
 async def update_page(
-    page_id: str,
-    content: str,
-    editor: str,
-    comment: Optional[str] = None
+    page_id: str, content: str, editor: str, comment: Optional[str] = None
 ) -> Dict[str, Any]:
     """Update a wiki page"""
     wiki_service = get_wiki_service()
@@ -94,11 +86,7 @@ async def get_page_history(page_id: str) -> List[Dict[str, Any]]:
 
 
 @router.post("/pages/{page_id}/restore")
-async def restore_page_version(
-    page_id: str,
-    version: int,
-    editor: str
-) -> Dict[str, Any]:
+async def restore_page_version(page_id: str, version: int, editor: str) -> Dict[str, Any]:
     """Restore a previous version of a wiki page"""
     wiki_service = get_wiki_service()
     return await wiki_service.restore_version(page_id, version, editor)
@@ -106,21 +94,14 @@ async def restore_page_version(
 
 @router.get("/search")
 async def search_wiki(
-    query: str,
-    category: Optional[str] = None,
-    tags: Optional[List[str]] = None,
-    limit: int = 20
+    query: str, category: Optional[str] = None, tags: Optional[List[str]] = None, limit: int = 20
 ) -> Dict[str, Any]:
     """Search wiki pages"""
     wiki_service = get_wiki_service()
     safe_category = category if category is not None else ""
     safe_tags = tags if tags is not None else []
     results = await wiki_service.search(query, safe_category, safe_tags, limit)
-    return {
-        "query": query,
-        "results": results,
-        "total": len(results)
-    }
+    return {"query": query, "results": results, "total": len(results)}
 
 
 @router.get("/categories")

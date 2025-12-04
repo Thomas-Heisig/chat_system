@@ -4,7 +4,7 @@
 Provides analytics and data processing capabilities.
 """
 
-from .event_collector import EventCollector
 from .ab_testing import ABTestingFramework
+from .event_collector import EventCollector
 
-__all__ = ['EventCollector', 'ABTestingFramework']
+__all__ = ["EventCollector", "ABTestingFramework"]
