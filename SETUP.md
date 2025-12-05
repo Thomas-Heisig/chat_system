@@ -281,10 +281,19 @@ pip install -r requirements.txt
    - Monitor security advisories: `pip install safety && safety check`
 
 5. **Additional Security Measures**
-   - Review `SECURITY.md` für detaillierte Security Guidelines
-   - Enable rate limiting (standardmäßig aktiviert)
-   - Configure monitoring and alerting
+   - Review `SECURITY.md` for detailed security guidelines
+   - See `docs/SECURITY_ENHANCEMENTS.md` for virus scanning and advanced security
+   - Enable rate limiting (enabled by default)
+   - Configure monitoring and alerting (see `docs/MONITORING.md`)
    - Implement backup strategy
+
+## Further Reading
+
+- **[Monitoring & Observability](docs/MONITORING.md)** - Setup Prometheus metrics and distributed tracing
+- **[Security Enhancements](docs/SECURITY_ENHANCEMENTS.md)** - Implement virus scanning and performance monitoring
+- **[Integrations](docs/INTEGRATIONS.md)** - Setup Slack, GraphQL, and mobile optimization
+- **[Architecture Decision Records](docs/adr/README.md)** - Understand key architectural decisions
+- **[Planned Features](docs/PLANNED_FEATURES.md)** - Learn about upcoming features
 
 ## Support
 

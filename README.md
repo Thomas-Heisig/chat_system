@@ -35,6 +35,7 @@ The Universal Chat System is a full-featured enterprise communication platform t
 - [Testing](#-testing)
 - [Deployment](#-deployment)
 - [Security](#-security)
+- [Documentation](#documentation)
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Support](#-support)
@@ -640,6 +641,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 💬 **Discussions**: Use GitHub Discussions for questions
 - 🐛 **Bug Reports**: Open an issue with details and logs
 - 📧 **Email**: support@example.com
+
+### Documentation
+
+**Core Documentation:**
+- [Setup Guide](SETUP.md) - Installation and configuration
+- [Architecture](ARCHITECTURE.md) - System architecture overview
+- [Deployment Guide](DEPLOYMENT.md) - Production deployment
+- [Contributing Guidelines](CONTRIBUTING.md) - How to contribute
+
+**Advanced Documentation:**
+- [Architecture Decision Records (ADRs)](docs/adr/README.md) - Key architectural decisions
+- [Monitoring & Observability](docs/MONITORING.md) - Prometheus, Jaeger, logging
+- [Security Enhancements](docs/SECURITY_ENHANCEMENTS.md) - Virus scanning, performance monitoring
+- [Integrations](docs/INTEGRATIONS.md) - Slack, GraphQL, mobile optimization
+- [Planned Features](docs/PLANNED_FEATURES.md) - Voice processing, ELYZA, workflows
+
+**Component Documentation:**
+- [WebSocket Handlers](docs/README_websocket-handlers.md)
+- [Config Validation](docs/README_config-validation.md)
 
 ### Useful Links
 
