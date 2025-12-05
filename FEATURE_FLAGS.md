@@ -22,10 +22,10 @@ Das Chat System verwendet Feature Flags, um Funktionen gezielt zu aktivieren ode
 - Role-based Access Control (RBAC)
 
 **Evaluierung (2025-12-05)**: ✅ **System ist produktionsreif**
-- Service vollständig implementiert und getestet
+- Service vollständig implementiert
 - Keine bekannten Blocker
 - **Empfehlung**: Kann aktiviert werden, wenn Authentifizierung benötigt wird
-- **Test Coverage**: 0% (Keine Tests vorhanden - siehe TEST_COVERAGE.md)
+- **Test Coverage**: 0% (Keine Tests vorhanden - Tests sollten vor Production geschrieben werden)
 
 **Warum standardmäßig deaktiviert?**
 - Einfachere lokale Entwicklung ohne Login-Requirement
