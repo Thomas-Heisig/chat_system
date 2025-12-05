@@ -2,7 +2,7 @@
 
 ## Status
 
-**Last Updated**: 2025-12-05  
+**Last Updated**: 2024-12-05  
 **Version**: 2.0.0  
 **Coverage Tool**: pytest-cov
 
@@ -10,7 +10,7 @@
 
 **Overall Coverage**: **11%** (7,788 statements, 6,910 missed)  
 **Tests Run**: 25 passed, 2 failed, 27 total  
-**Last Measurement**: 2025-12-05
+**Last Measurement**: 2024-12-05
 
 #### Top Coverage by Module:
 - `services/elyza_service.py`: **82%** (56 statements, 10 missed)
