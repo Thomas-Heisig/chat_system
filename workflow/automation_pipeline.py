@@ -329,11 +329,12 @@ class AutomationPipeline:
             # Remove extra whitespace
             condition = condition.strip()
             
-            # Check for operators in order of specificity
-            for op in ['==', '!=', '>=', '<=', '>', '<', ' in ', ' not in ']:
+            # Check for operators in order of specificity (longer operators first)
+            for op in ['>=', '<=', '==', '!=', ' not in ', ' in ', '>', '<']:
                 if op in condition:
                     parts = condition.split(op, 1)
-                    if len(parts) == 2:
+                    if len(parts) != 2:
+                        continue  # Try next operator
                         left = parts[0].strip()
                         right = parts[1].strip()
                         
@@ -404,14 +405,23 @@ class AutomationPipeline:
         # Try to parse as list (for 'in' operations)
         if value_str.startswith('[') and value_str.endswith(']'):
             try:
-                # Simple list parsing - extracts comma-separated quoted values
-                content = value_str[1:-1].strip()
-                if not content:
-                    return []
-                items = [item.strip().strip("'\"") for item in content.split(',')]
-                return items
-            except Exception:
-                pass
+                import json
+                # Use JSON parser for proper list handling
+                return json.loads(value_str)
+            except (json.JSONDecodeError, ValueError):
+                # Fallback to simple parsing if JSON fails
+                try:
+                    content = value_str[1:-1].strip()
+                    if not content:
+                        return []
+                    # Simple split - won't handle commas in strings correctly
+                    items = [item.strip().strip("'\"") for item in content.split(',')]
+                    logger.warning(
+                        f"List parsed with simple method, may not handle complex values: {value_str}"
+                    )
+                    return items
+                except Exception:
+                    pass
         
         # Remove quotes for scalar values
         value_str = value_str.strip("'\"")

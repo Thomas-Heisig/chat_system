@@ -187,11 +187,14 @@ class PluginSandbox:
             except Exception as e:
                 logger.error(f"❌ Failed to cleanup sandbox container {container_id}: {e}")
             
-            # Only clear container_id if cleanup was successful or container not found
+            # Clear container_id if cleanup was successful or container not found
             if cleanup_successful:
                 self.container_id = None
             else:
-                logger.error(f"Container {container_id} may still be running, manual cleanup may be required")
+                logger.error(
+                    f"Container {container_id} may still be running, "
+                    f"manual cleanup may be required. Container ID preserved for debugging."
+                )
 
 
 class PluginService:

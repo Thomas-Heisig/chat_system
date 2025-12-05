@@ -273,17 +273,28 @@ async def upload_file(file: UploadFile):
     # Check file size
     file_size = 0
     chunk_size = 1024 * 1024  # 1MB chunks
+    temp_path = None
     
-    with open(temp_path, 'wb') as f:
-        while chunk := await file.read(chunk_size):
-            file_size += len(chunk)
-            
-            if file_size > MAX_FILE_SIZE:
-                f.close()
-                os.remove(temp_path)
-                raise HTTPException(413, "File too large")
-            
-            f.write(chunk)
+    try:
+        temp_path = get_temp_path()  # Get temp file path
+        
+        with open(temp_path, 'wb') as f:
+            while chunk := await file.read(chunk_size):
+                file_size += len(chunk)
+                
+                if file_size > MAX_FILE_SIZE:
+                    raise HTTPException(413, "File too large")
+                
+                f.write(chunk)
+        
+        # Continue processing if within size limit
+        return await process_file(temp_path)
+        
+    except HTTPException:
+        # Clean up temp file on error
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise
 ```
 
 ## Database Query Performance Monitoring
