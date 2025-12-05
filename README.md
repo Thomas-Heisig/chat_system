@@ -101,11 +101,12 @@ The Universal Chat System is a full-featured enterprise communication platform t
 - **Backup & Restore**: Built-in database backup utilities
 
 ### Integration & Extensibility
-- **Plugin System**: Docker-based plugin isolation and management
-- **Messaging Bridge**: Unified interface for external platforms (Slack, Discord, Teams)
+- **Plugin System**: Docker-based plugin isolation and management ([Documentation](docs/PLUGIN_SYSTEM.md))
+- **Messaging Bridge**: Unified interface for external platforms (Slack, Discord, Teams) ([Documentation](docs/INTEGRATIONS_GUIDE.md))
 - **Agent Framework**: Modular agent system for automation
-- **Workflow Automation**: Configurable automation pipelines
-- **Voice Processing**: Framework for TTS and transcription (extensible)
+- **Workflow Automation**: Configurable automation pipelines ([Documentation](docs/WORKFLOW_AUTOMATION.md))
+- **Voice Processing**: TTS, Transcription, and Audio Processing ([Documentation](docs/VOICE_PROCESSING.md))
+- **ELYZA Model**: Local AI model for offline operation ([Documentation](docs/ELYZA_MODEL.md))
 
 ### Monitoring & Observability
 - **Structured Logging**: JSON-based logs with multiple severity levels
@@ -644,22 +645,33 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Documentation
 
+**📚 [Complete Documentation Index](docs/README.md)** - Full documentation directory
+
 **Core Documentation:**
 - [Setup Guide](SETUP.md) - Installation and configuration
 - [Architecture](ARCHITECTURE.md) - System architecture overview
 - [Deployment Guide](DEPLOYMENT.md) - Production deployment
 - [Contributing Guidelines](CONTRIBUTING.md) - How to contribute
+- [Testing Guide](docs/TESTING_GUIDE.md) - Testing strategies and coverage (New!)
+
+**Feature Documentation (New!):**
+- 🔊 [Voice Processing Guide](docs/VOICE_PROCESSING.md) - TTS, Transcription, Audio Processing
+- 🤖 [ELYZA Model Documentation](docs/ELYZA_MODEL.md) - Local AI model and fallback
+- ⚙️ [Workflow Automation](docs/WORKFLOW_AUTOMATION.md) - Multi-step workflow orchestration
+- 🔌 [Integration Guide](docs/INTEGRATIONS_GUIDE.md) - Slack, Teams, Discord integration
+- 🧩 [Plugin System](docs/PLUGIN_SYSTEM.md) - Extensibility and plugin development
 
 **Advanced Documentation:**
 - [Architecture Decision Records (ADRs)](docs/adr/README.md) - Key architectural decisions
 - [Monitoring & Observability](docs/MONITORING.md) - Prometheus, Jaeger, logging
 - [Security Enhancements](docs/SECURITY_ENHANCEMENTS.md) - Virus scanning, performance monitoring
-- [Integrations](docs/INTEGRATIONS.md) - Slack, GraphQL, mobile optimization
-- [Planned Features](docs/PLANNED_FEATURES.md) - Voice processing, ELYZA, workflows
+- [API Documentation](docs/API.md) - REST API reference
 
 **Component Documentation:**
 - [WebSocket Handlers](docs/README_websocket-handlers.md)
 - [Config Validation](docs/README_config-validation.md)
+- [Database Models](docs/README_database-models.md)
+- [Services](docs/README_services-message_service.md)
 
 ### Useful Links
 
