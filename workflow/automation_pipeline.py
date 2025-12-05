@@ -295,11 +295,97 @@ class AutomationPipeline:
     async def _handle_condition_step(
         self, input_data: Dict[str, Any], config: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Handle conditional branching step"""
+        """
+        Handle conditional branching step
+        
+        Note: This uses a simple comparison-based evaluation instead of eval()
+        for security. Supports basic comparisons like 'field == value',
+        'field > value', etc.
+        """
         condition = config.get("condition", "true")
-        # Simple condition evaluation (can be enhanced)
-        result = eval(condition, {"__builtins__": {}}, input_data)
+        
+        # Simple safe evaluation without eval()
+        # For more complex conditions, consider using simpleeval library
+        if condition == "true":
+            result = True
+        elif condition == "false":
+            result = False
+        else:
+            # Parse simple conditions like "field == value" or "field > 10"
+            result = self._evaluate_simple_condition(condition, input_data)
+        
         return {"condition_met": bool(result), "branch": "true" if result else "false"}
+    
+    def _evaluate_simple_condition(self, condition: str, data: Dict[str, Any]) -> bool:
+        """
+        Safely evaluate simple conditions without using eval()
+        
+        Supports: ==, !=, >, <, >=, <=, in, not in
+        Example: "status == 'active'", "count > 10", "type in ['A', 'B']"
+        """
+        try:
+            # Remove extra whitespace
+            condition = condition.strip()
+            
+            # Check for operators in order of specificity
+            for op in ['==', '!=', '>=', '<=', '>', '<', ' in ', ' not in ']:
+                if op in condition:
+                    parts = condition.split(op, 1)
+                    if len(parts) == 2:
+                        left = parts[0].strip()
+                        right = parts[1].strip()
+                        
+                        # Get left value from data
+                        left_val = data.get(left, left)
+                        
+                        # Parse right value (string, number, or boolean)
+                        right_val = self._parse_value(right)
+                        
+                        # Perform comparison
+                        if op == '==':
+                            return left_val == right_val
+                        elif op == '!=':
+                            return left_val != right_val
+                        elif op == '>':
+                            return float(left_val) > float(right_val)
+                        elif op == '<':
+                            return float(left_val) < float(right_val)
+                        elif op == '>=':
+                            return float(left_val) >= float(right_val)
+                        elif op == '<=':
+                            return float(left_val) <= float(right_val)
+                        elif op == ' in ':
+                            return left_val in right_val
+                        elif op == ' not in ':
+                            return left_val not in right_val
+            
+            # If no operator found, treat as boolean
+            return bool(data.get(condition, False))
+            
+        except (ValueError, TypeError, KeyError) as e:
+            logger.warning(f"Condition evaluation error: {e}, condition: {condition}")
+            return False
+    
+    def _parse_value(self, value_str: str) -> Any:
+        """Parse string value to appropriate type"""
+        value_str = value_str.strip().strip("'\"")
+        
+        # Try to parse as number
+        try:
+            if '.' in value_str:
+                return float(value_str)
+            return int(value_str)
+        except ValueError:
+            pass
+        
+        # Try to parse as boolean
+        if value_str.lower() == 'true':
+            return True
+        elif value_str.lower() == 'false':
+            return False
+        
+        # Return as string
+        return value_str
 
     async def _handle_generic_step(
         self, input_data: Dict[str, Any], config: Dict[str, Any]
