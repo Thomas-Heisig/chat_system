@@ -142,8 +142,12 @@ class MessagingBridge:
         elif platform == "telegram":
             return self._transform_to_telegram(message)
         else:
-            # Return message as-is for unknown platforms
-            logger.warning(f"No transformation defined for platform: {platform}")
+            # Return message as-is for unknown platforms with warning
+            logger.warning(
+                f"No transformation defined for platform: {platform}. "
+                f"Returning message in unified format. "
+                f"Configure platform-specific transformation for proper delivery."
+            )
             return message
 
     def _transform_to_slack(self, message: Dict[str, Any]) -> Dict[str, Any]:

@@ -81,14 +81,18 @@ class SlackAdapter(BaseAdapter):
 
             except ImportError:
                 # Fallback to placeholder if slack_sdk not installed
-                logger.warning("⚠️ slack_sdk not installed, using placeholder response")
+                logger.warning(
+                    "⚠️ slack_sdk not installed, message not sent. "
+                    "Install slack_sdk for actual Slack integration: pip install slack-sdk"
+                )
                 return {
-                    "status": "success",
+                    "status": "placeholder",
                     "platform": "slack",
                     "target": channel,
                     "message_id": "placeholder_message_id",
                     "timestamp": "1234567890.123456",
-                    "note": "Slack integration pending - install slack_sdk",
+                    "warning": "Message not sent - slack_sdk not installed",
+                    "note": "Install slack-sdk to enable actual Slack integration",
                     "implementation": "placeholder",
                 }
 
