@@ -163,26 +163,35 @@ class PluginSandbox:
     def cleanup(self):
         """Clean up sandbox resources"""
         if self.container_id:
-            logger.info(f"Cleaning up sandbox container {self.container_id}")
+            container_id = self.container_id  # Keep reference for logging
+            logger.info(f"Cleaning up sandbox container {container_id}")
+            cleanup_successful = False
+            
             try:
                 import docker
 
                 client = docker.from_env()
                 try:
-                    container = client.containers.get(self.container_id)
+                    container = client.containers.get(container_id)
                     container.stop(timeout=10)
                     container.remove()
-                    logger.info(f"✅ Sandbox container {self.container_id} stopped and removed")
+                    logger.info(f"✅ Sandbox container {container_id} stopped and removed")
+                    cleanup_successful = True
                 except docker.errors.NotFound:
-                    logger.warning(f"⚠️ Container {self.container_id} not found, may already be removed")
+                    logger.warning(f"⚠️ Container {container_id} not found, may already be removed")
+                    cleanup_successful = True  # Container already gone
                 except docker.errors.APIError as e:
-                    logger.error(f"❌ Docker API error cleaning up container: {e}")
+                    logger.error(f"❌ Docker API error cleaning up container {container_id}: {e}")
             except ImportError:
-                logger.warning("⚠️ Docker SDK not installed, cannot cleanup containers")
+                logger.warning(f"⚠️ Docker SDK not installed, cannot cleanup container {container_id}")
             except Exception as e:
-                logger.error(f"❌ Failed to cleanup sandbox container: {e}")
-            finally:
+                logger.error(f"❌ Failed to cleanup sandbox container {container_id}: {e}")
+            
+            # Only clear container_id if cleanup was successful or container not found
+            if cleanup_successful:
                 self.container_id = None
+            else:
+                logger.error(f"Container {container_id} may still be running, manual cleanup may be required")
 
 
 class PluginService:

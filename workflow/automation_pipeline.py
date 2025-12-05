@@ -370,9 +370,17 @@ class AutomationPipeline:
                                 )
                                 return False
                         elif op == ' in ':
-                            return left_val in right_val
+                            try:
+                                return left_val in right_val
+                            except TypeError:
+                                logger.warning(f"Cannot check membership: {left_val} in {right_val}")
+                                return False
                         elif op == ' not in ':
-                            return left_val not in right_val
+                            try:
+                                return left_val not in right_val
+                            except TypeError:
+                                logger.warning(f"Cannot check membership: {left_val} not in {right_val}")
+                                return False
             
             # If no operator found, treat as boolean
             return bool(data.get(condition, False))
@@ -382,8 +390,31 @@ class AutomationPipeline:
             return False
     
     def _parse_value(self, value_str: str) -> Any:
-        """Parse string value to appropriate type"""
-        value_str = value_str.strip().strip("'\"")
+        """
+        Parse string value to appropriate type
+        
+        Supports:
+        - Numbers: 42, 3.14
+        - Booleans: true, false
+        - Strings: 'text', "text"
+        - Lists: ['a', 'b', 'c'] (for 'in' operations)
+        """
+        value_str = value_str.strip()
+        
+        # Try to parse as list (for 'in' operations)
+        if value_str.startswith('[') and value_str.endswith(']'):
+            try:
+                # Simple list parsing - extracts comma-separated quoted values
+                content = value_str[1:-1].strip()
+                if not content:
+                    return []
+                items = [item.strip().strip("'\"") for item in content.split(',')]
+                return items
+            except Exception:
+                pass
+        
+        # Remove quotes for scalar values
+        value_str = value_str.strip("'\"")
         
         # Try to parse as number
         try:
