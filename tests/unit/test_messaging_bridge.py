@@ -135,3 +135,79 @@ class TestMessagingBridge:
         bridge1 = get_messaging_bridge()
         bridge2 = get_messaging_bridge()
         assert bridge1 is bridge2
+
+    def test_transform_to_slack(self, bridge):
+        """Test Slack message transformation"""
+        unified_message = {
+            "text": "Hello @user1",
+            "channel": "C123456",
+            "thread_id": "1234567890.123456",
+            "mentions": ["user1"],
+            "attachments": [
+                {"title": "Test", "text": "Attachment text", "image_url": "http://example.com/image.png"}
+            ],
+        }
+
+        result = bridge._transform_to_slack(unified_message)
+
+        assert result["text"] == "Hello <@user1>"
+        assert result["channel"] == "C123456"
+        assert result["thread_ts"] == "1234567890.123456"
+        assert len(result["attachments"]) == 1
+        assert result["attachments"][0]["title"] == "Test"
+
+    def test_transform_to_discord(self, bridge):
+        """Test Discord message transformation"""
+        unified_message = {
+            "text": "Hello @user1",
+            "mentions": ["user1"],
+            "attachments": [{"title": "Test", "text": "Description", "image_url": "http://example.com/image.png"}],
+        }
+
+        result = bridge._transform_to_discord(unified_message)
+
+        assert result["content"] == "Hello <@user1>"
+        assert "embeds" in result
+        assert len(result["embeds"]) == 1
+        assert result["embeds"][0]["title"] == "Test"
+
+    def test_transform_to_teams(self, bridge):
+        """Test Microsoft Teams message transformation"""
+        unified_message = {
+            "text": "Hello world",
+            "mentions": ["user1", "user2"],
+            "attachments": [{"text": "Card content"}],
+        }
+
+        result = bridge._transform_to_teams(unified_message)
+
+        assert result["body"]["content"] == "Hello world"
+        assert result["body"]["contentType"] == "html"
+        assert "attachments" in result
+        assert "mentions" in result
+        assert len(result["mentions"]) == 2
+
+    def test_transform_to_telegram(self, bridge):
+        """Test Telegram message transformation"""
+        unified_message = {
+            "text": "Hello world",
+            "channel": "123456789",
+            "format": "Markdown",
+            "thread_id": "999",
+        }
+
+        result = bridge._transform_to_telegram(unified_message)
+
+        assert result["text"] == "Hello world"
+        assert result["chat_id"] == "123456789"
+        assert result["parse_mode"] == "Markdown"
+        assert result["reply_to_message_id"] == "999"
+
+    def test_transform_unknown_platform(self, bridge):
+        """Test transformation for unknown platform"""
+        unified_message = {"text": "Hello world"}
+
+        result = bridge._transform_message(unified_message, "unknown_platform")
+
+        # Should return message as-is
+        assert result == unified_message

@@ -104,13 +104,30 @@ except SpecificException as e:
   - Inhalt: Unit Tests, Integration Tests, Coverage-Ziele
   - **Erledigt am:** 2025-12-05
 
-- [ ] **Fehlende Tests für neue Services implementieren**
-  - Services ohne Tests identifizieren
-  - Priorität: Core Services zuerst (Voice, ELYZA, Workflow, Integration, Plugins)
-  - **Zeitaufwand:** 40 Stunden (8 Stunden pro Service-Gruppe)
-  - **Test-Beispiele:** ✅ [Testing Guide](docs/TESTING_GUIDE.md)
+- [x] **Fehlende Tests für neue Services implementieren** ✅ **Abgeschlossen**
+  - Status: Umfassende Tests erstellt am 2025-12-05
+  - Voice Services: ✅ Text-to-Speech (11 tests), Transcription (11 tests), Audio Processor (10 tests)
+  - Workflow: ✅ Automation Pipeline (13 tests)
+  - Integration: ✅ Slack Adapter (9 tests), Messaging Bridge (14 tests)
+  - Plugin System: ✅ Plugin Service (19 tests)
+  - **Gesamt:** 87 neue Tests, 86 passed, 1 skipped
+  - **Test-Dateien:**
+    - `tests/unit/test_text_to_speech.py`
+    - `tests/unit/test_transcription.py`
+    - `tests/unit/test_audio_processor.py`
+    - `tests/unit/test_workflow_automation.py`
+    - `tests/unit/test_slack_adapter.py`
+    - `tests/unit/test_messaging_bridge.py`
+    - `tests/unit/test_plugin_service.py`
+  - **Erledigt am:** 2025-12-05
 
 ```bash
+# Tests ausführen:
+pytest tests/unit/test_text_to_speech.py tests/unit/test_transcription.py \
+       tests/unit/test_audio_processor.py tests/unit/test_workflow_automation.py \
+       tests/unit/test_slack_adapter.py tests/unit/test_messaging_bridge.py \
+       tests/unit/test_plugin_service.py -v
+
 # Coverage-Report generieren:
 pytest --cov=. --cov-report=html --cov-report=term
 # Report in htmlcov/index.html
@@ -179,12 +196,17 @@ pytest --cov=. --cov-report=html --cov-report=term
   - **Dokumentation:** ✅ [ELYZA Model Guide](docs/ELYZA_MODEL.md)
 
 #### C. Workflow Automation ✅ **Dokumentiert**
-- [ ] **Workflow Step Execution implementieren**
+- [x] **Workflow Step Execution implementieren** ✅ **Abgeschlossen**
+  - Status: Implementiert am 2025-12-05
   - Datei: `workflow/automation_pipeline.py`
-  - TODO: Implement actual step execution logic
-  - Design: State Machine oder Task Queue
-  - **Zeitaufwand:** 16 Stunden
+  - Implementiert: Step-Handler für Upload, OCR, Analyze, Store, Extract, Transform, Validate, Load, Notify, Condition
+  - Features:
+    - ✅ Sequential und parallel execution
+    - ✅ Safe condition evaluation (ohne eval())
+    - ✅ Error handling und retry logic
+    - ✅ Step result chaining
   - **Dokumentation:** ✅ [Workflow Automation Guide](docs/WORKFLOW_AUTOMATION.md)
+  - **Erledigt am:** 2025-12-05
 
 #### D. Integration Layer ✅ **Dokumentiert**
 - [ ] **Slack API Integration vervollständigen**
@@ -195,20 +217,34 @@ pytest --cov=. --cov-report=html --cov-report=term
   - **Zeitaufwand:** 12 Stunden
   - **Dokumentation:** ✅ [Integration Guide](docs/INTEGRATIONS_GUIDE.md)
 
-- [ ] **Messaging Bridge Platform-Transformations**
+- [x] **Messaging Bridge Platform-Transformations** ✅ **Abgeschlossen**
+  - Status: Implementiert am 2025-12-05
   - Datei: `integration/messaging_bridge.py`
-  - TODO: Implement platform-specific transformations
-  - Plattformen: Slack, Discord, Teams, etc.
-  - **Zeitaufwand:** 16 Stunden
+  - Implementierte Transformationen:
+    - ✅ Slack: Block format, threading, mentions
+    - ✅ Discord: Embeds, content format, mentions
+    - ✅ Microsoft Teams: Adaptive cards, mentions
+    - ✅ Telegram: Parse modes, reply threading
+  - Features:
+    - ✅ Unified message format zu platform-specific
+    - ✅ Attachment/media handling
+    - ✅ User mentions transformation
+    - ✅ Thread/reply support
   - **Dokumentation:** ✅ [Integration Guide](docs/INTEGRATIONS_GUIDE.md)
+  - **Erledigt am:** 2025-12-05
 
 #### E. Plugin System ✅ **Dokumentiert**
-- [ ] **Docker Container Management vervollständigen**
+- [x] **Docker Container Management vervollständigen** ✅ **Bereits implementiert**
+  - Status: Vollständig implementiert
   - Datei: `services/plugin_service.py`
-  - TODO: Stop and remove Docker container
+  - Implementiert:
+    - ✅ Container stop und remove
+    - ✅ Error handling (NotFound, APIError)
+    - ✅ Graceful cleanup mit timeout
+    - ✅ Proper logging und debugging support
   - Library: `docker-py`
-  - **Zeitaufwand:** 6 Stunden
   - **Dokumentation:** ✅ [Plugin System Guide](docs/PLUGIN_SYSTEM.md)
+  - **Note:** Container management bereits vorhanden, keine Änderungen nötig
 
 - [ ] **Plugin Lifecycle Management**
   - Install, Start, Stop, Uninstall

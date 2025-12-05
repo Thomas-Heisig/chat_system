@@ -123,9 +123,130 @@ class MessagingBridge:
             return {"error": str(e), "platform": platform}
 
     def _transform_message(self, message: Dict[str, Any], platform: str) -> Dict[str, Any]:
-        """Transform unified message to platform format"""
-        # TODO: Implement platform-specific transformations
-        return message
+        """
+        Transform unified message to platform-specific format.
+
+        Args:
+            message: Unified message format with fields like 'text', 'user', 'attachments'
+            platform: Target platform (slack, discord, teams, etc.)
+
+        Returns:
+            Platform-specific message format
+        """
+        if platform == "slack":
+            return self._transform_to_slack(message)
+        elif platform == "discord":
+            return self._transform_to_discord(message)
+        elif platform == "teams":
+            return self._transform_to_teams(message)
+        elif platform == "telegram":
+            return self._transform_to_telegram(message)
+        else:
+            # Return message as-is for unknown platforms
+            logger.warning(f"No transformation defined for platform: {platform}")
+            return message
+
+    def _transform_to_slack(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform message to Slack format"""
+        slack_message = {"text": message.get("text", "")}
+
+        # Add channel if specified
+        if "channel" in message:
+            slack_message["channel"] = message["channel"]
+
+        # Add thread_ts for threading
+        if "thread_id" in message:
+            slack_message["thread_ts"] = message["thread_id"]
+
+        # Transform attachments to Slack blocks format
+        if "attachments" in message:
+            slack_message["attachments"] = [
+                {
+                    "text": att.get("text", ""),
+                    "title": att.get("title", ""),
+                    "image_url": att.get("image_url", ""),
+                }
+                for att in message["attachments"]
+            ]
+
+        # Add mentions
+        if "mentions" in message:
+            for user_id in message["mentions"]:
+                slack_message["text"] = slack_message["text"].replace(
+                    f"@{user_id}", f"<@{user_id}>"
+                )
+
+        return slack_message
+
+    def _transform_to_discord(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform message to Discord format"""
+        discord_message = {"content": message.get("text", "")}
+
+        # Add embed for rich content
+        if "attachments" in message and message["attachments"]:
+            discord_message["embeds"] = [
+                {
+                    "title": att.get("title", ""),
+                    "description": att.get("text", ""),
+                    "image": {"url": att.get("image_url", "")},
+                }
+                for att in message["attachments"]
+            ]
+
+        # Add mentions (Discord uses <@user_id> format)
+        if "mentions" in message:
+            for user_id in message["mentions"]:
+                discord_message["content"] = discord_message["content"].replace(
+                    f"@{user_id}", f"<@{user_id}>"
+                )
+
+        return discord_message
+
+    def _transform_to_teams(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform message to Microsoft Teams format"""
+        teams_message = {
+            "body": {"contentType": "html", "content": message.get("text", "")}
+        }
+
+        # Add attachments
+        if "attachments" in message:
+            teams_message["attachments"] = [
+                {
+                    "contentType": "application/vnd.microsoft.card.adaptive",
+                    "content": {
+                        "type": "AdaptiveCard",
+                        "body": [{"type": "TextBlock", "text": att.get("text", "")}],
+                    },
+                }
+                for att in message["attachments"]
+            ]
+
+        # Add mentions (Teams uses <at>name</at> format)
+        if "mentions" in message:
+            teams_message["mentions"] = [
+                {"id": idx, "mentionText": f"@{user_id}", "mentioned": {"user": {"id": user_id}}}
+                for idx, user_id in enumerate(message["mentions"])
+            ]
+
+        return teams_message
+
+    def _transform_to_telegram(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform message to Telegram format"""
+        telegram_message = {"text": message.get("text", "")}
+
+        # Add chat_id if specified
+        if "channel" in message:
+            telegram_message["chat_id"] = message["channel"]
+
+        # Telegram uses parse_mode for formatting
+        if "format" in message:
+            telegram_message["parse_mode"] = message["format"]  # HTML or Markdown
+
+        # Add reply_to for threading
+        if "thread_id" in message:
+            telegram_message["reply_to_message_id"] = message["thread_id"]
+
+        return telegram_message
 
     def _check_rate_limit(self, platform: str) -> bool:
         """Check if platform rate limit allows sending"""
