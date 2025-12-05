@@ -1,8 +1,11 @@
 # Gelöste Issues - Status Report
 
-**Datum:** 2024-12-04  
+**Erstellt:** 2024-12-04  
+**Letzte Aktualisierung:** 2025-12-05  
 **Version:** 2.0.0  
 **Bearbeitet durch:** GitHub Copilot Agent
+
+**Siehe auch:** [ISSUES.md](ISSUES.md) für vollständige Issue-Liste mit Status aller offenen und geschlossenen Issues.
 
 ## Zusammenfassung
 
@@ -280,6 +283,22 @@ Diese Issues sind **Feature-Enhancements** oder **TODOs** und erfordern signifik
 
 ---
 
+---
+
+## 📝 Änderungsprotokoll
+
+### 2025-12-05
+- Dokument aktualisiert mit Verweisen auf [ISSUES.md](ISSUES.md)
+- Dokumentation synchronisiert zwischen beiden Dateien
+
+### 2024-12-04
+- Initiale Erstellung des Status-Reports
+- Dokumentation der gelösten Issues #1-8
+
+---
+
 **Bearbeitet von:** GitHub Copilot Agent  
-**Datum:** 2024-12-04  
+**Datum:** 2024-12-04 (Erstellt), 2025-12-05 (Aktualisiert)  
 **PR:** copilot/fix-issues-from-issues-md
+
+**Zurück zur:** [Issue-Liste (ISSUES.md)](ISSUES.md)
