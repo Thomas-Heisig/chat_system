@@ -268,7 +268,9 @@ class AutomationPipeline:
     ) -> Dict[str, Any]:
         """Handle data transformation step"""
         await asyncio.sleep(0.1)
-        transformed = {k: v for k, v in input_data.items()}
+        # Create shallow copy - actual transformation logic should be implemented
+        # based on config (e.g., field mapping, filtering, formatting)
+        transformed = input_data.copy()
         return {"data": transformed, "transformed": True}
 
     async def _handle_validate_step(
@@ -335,8 +337,11 @@ class AutomationPipeline:
                         left = parts[0].strip()
                         right = parts[1].strip()
                         
-                        # Get left value from data
-                        left_val = data.get(left, left)
+                        # Get left value from data (must exist in data for valid comparison)
+                        if left not in data:
+                            logger.warning(f"Condition field '{left}' not found in data")
+                            return False
+                        left_val = data[left]
                         
                         # Parse right value (string, number, or boolean)
                         right_val = self._parse_value(right)
@@ -346,14 +351,24 @@ class AutomationPipeline:
                             return left_val == right_val
                         elif op == '!=':
                             return left_val != right_val
-                        elif op == '>':
-                            return float(left_val) > float(right_val)
-                        elif op == '<':
-                            return float(left_val) < float(right_val)
-                        elif op == '>=':
-                            return float(left_val) >= float(right_val)
-                        elif op == '<=':
-                            return float(left_val) <= float(right_val)
+                        elif op in ['>', '<', '>=', '<=']:
+                            # Numeric comparisons require both values to be numeric
+                            try:
+                                left_num = float(left_val)
+                                right_num = float(right_val)
+                                if op == '>':
+                                    return left_num > right_num
+                                elif op == '<':
+                                    return left_num < right_num
+                                elif op == '>=':
+                                    return left_num >= right_num
+                                elif op == '<=':
+                                    return left_num <= right_num
+                            except (ValueError, TypeError) as e:
+                                logger.warning(
+                                    f"Cannot perform numeric comparison: {left_val} {op} {right_val} - {e}"
+                                )
+                                return False
                         elif op == ' in ':
                             return left_val in right_val
                         elif op == ' not in ':
