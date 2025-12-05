@@ -164,7 +164,25 @@ class PluginSandbox:
         """Clean up sandbox resources"""
         if self.container_id:
             logger.info(f"Cleaning up sandbox container {self.container_id}")
-            # TODO: Stop and remove Docker container
+            try:
+                import docker
+
+                client = docker.from_env()
+                try:
+                    container = client.containers.get(self.container_id)
+                    container.stop(timeout=10)
+                    container.remove()
+                    logger.info(f"✅ Sandbox container {self.container_id} stopped and removed")
+                except docker.errors.NotFound:
+                    logger.warning(f"⚠️ Container {self.container_id} not found, may already be removed")
+                except docker.errors.APIError as e:
+                    logger.error(f"❌ Docker API error cleaning up container: {e}")
+            except ImportError:
+                logger.warning("⚠️ Docker SDK not installed, cannot cleanup containers")
+            except Exception as e:
+                logger.error(f"❌ Failed to cleanup sandbox container: {e}")
+            finally:
+                self.container_id = None
 
 
 class PluginService:
