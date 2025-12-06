@@ -1,8 +1,8 @@
 # Issue Tracking - Chat System
 
 **Erstellt:** 2025-12-04  
-**Letzte Aktualisierung:** 2025-12-05  
-**Version:** 2.1.0  
+**Letzte Aktualisierung:** 2025-12-06  
+**Version:** 2.2.0  
 **Status:** Aktiv
 
 Diese Datei enthält alle identifizierten Issues, die als GitHub Issues erstellt werden sollten.
@@ -10,8 +10,12 @@ Diese Datei enthält alle identifizierten Issues, die als GitHub Issues erstellt
 ## 📋 Status-Übersicht
 
 - **Gesamt:** 24 Issues
-- **✅ Erledigt:** 16 Issues (67%)
-- **⏳ Offen:** 8 Issues (33%)
+- **✅ Erledigt:** 20 Issues (83%)
+- **⏳ Offen:** 4 Issues (17%)
+
+**Siehe auch:** 
+- [ISSUES_RESOLVED.md](ISSUES_RESOLVED.md) für detaillierte Informationen zu gelösten Issues
+- [IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) für Implementierungsstatus der nächsten 10 Aufgaben
 
 **Siehe auch:** [ISSUES_RESOLVED.md](ISSUES_RESOLVED.md) für detaillierte Informationen zu gelösten Issues.
 
