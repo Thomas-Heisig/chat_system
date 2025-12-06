@@ -643,21 +643,34 @@ instrumentator.instrument(app).expose(app)
 
 ## 🔵 Niedrige Priorität (Nächster Sprint / 1 Monat)
 
-### Code-Organisation
-- [ ] **Dependency Injection formalisieren**
-  - Framework: `dependency-injector` oder FastAPI's native DI
-  - Service-Factory Pattern
-  - **Zeitaufwand:** 12 Stunden
+### Code-Organisation ✅ **Abgeschlossen am 2025-12-06**
+- [x] **Dependency Injection formalisieren** ✅ **Implementiert**
+  - Status: Vollständig implementiert am 2025-12-06
+  - Framework: FastAPI's native DI (kein externes Framework nötig)
+  - Datei: `core/dependencies.py`
+  - Implementiert: Singleton und Per-Request Patterns
+  - Dokumentation: ✅ [ADR-010](docs/adr/ADR-010-dependency-injection-pattern.md), [DI Guide](docs/DEPENDENCY_INJECTION_GUIDE.md)
+  - **Zeitaufwand:** 12 Stunden ✅
+  - **Erledigt am:** 2025-12-06
 
-- [ ] **Service-Konsolidierung prüfen**
-  - Ähnliche Services zusammenlegen
-  - Code-Duplikation reduzieren
-  - **Zeitaufwand:** 8 Stunden
+- [x] **Service-Konsolidierung prüfen** ✅ **Analysiert & Implementiert**
+  - Status: Vollständig analysiert und Base-Klassen implementiert am 2025-12-06
+  - Dateien: `services/base.py`, `services/utils.py`
+  - Analysiert: 16 Services, Konsolidierungsmöglichkeiten identifiziert
+  - Implementiert: BaseService, PlaceholderService, RepositoryBackedService, ExternalServiceIntegration
+  - Identifiziert: 5 Multimedia-Services → 1 MediaService (für Phase 2)
+  - Dokumentation: ✅ [ADR-011](docs/adr/ADR-011-service-consolidation-strategy.md), [Analysis](docs/SERVICE_CONSOLIDATION_ANALYSIS.md)
+  - **Zeitaufwand:** 8 Stunden ✅
+  - **Erledigt am:** 2025-12-06
 
-- [ ] **Error-Handling zentralisieren**
-  - Konsistente Error-Response Format
-  - Globale Exception-Handler
-  - **Zeitaufwand:** 6 Stunden
+- [x] **Error-Handling zentralisieren** ✅ **Implementiert**
+  - Status: Vollständig implementiert am 2025-12-06
+  - Datei: `core/error_handlers.py`
+  - Implementiert: ErrorResponse Builder, Exception Handlers, Security-Safe Errors
+  - Features: Standardisierte Error-Responses, Production/Debug Modes, Error Metrics
+  - Dokumentation: ✅ [ADR-012](docs/adr/ADR-012-error-handling-centralization.md), [Error Guide](docs/ERROR_HANDLING_GUIDE.md)
+  - **Zeitaufwand:** 6 Stunden ✅
+  - **Erledigt am:** 2025-12-06
 
 ### Testing Infrastructure
 - [x] **Performance Tests einrichten** ✅ **Dokumentiert**
