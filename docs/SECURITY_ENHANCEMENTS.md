@@ -364,6 +364,377 @@ class Message(Base):
     )
 ```
 
+## Request Signing for Critical Endpoints
+
+### HMAC-Based Request Signing
+
+Implement request signing to prevent replay attacks and ensure request integrity:
+
+```python
+import hmac
+import hashlib
+import time
+from typing import Optional
+from fastapi import HTTPException, Header, Request
+from config.settings import API_SECRET_KEY, logger
+
+class RequestSigner:
+    """
+    HMAC-based request signing for API security
+    
+    Features:
+    - Request integrity verification
+    - Replay attack prevention
+    - Timestamp validation
+    - Signature verification
+    """
+    
+    def __init__(self, secret_key: str, max_age_seconds: int = 300):
+        self.secret_key = secret_key.encode()
+        self.max_age_seconds = max_age_seconds
+    
+    def sign_request(
+        self,
+        method: str,
+        path: str,
+        body: bytes,
+        timestamp: int
+    ) -> str:
+        """
+        Generate HMAC signature for request
+        
+        Args:
+            method: HTTP method (GET, POST, etc.)
+            path: Request path
+            body: Request body bytes
+            timestamp: Unix timestamp
+            
+        Returns:
+            Hex-encoded HMAC signature
+        """
+        # Create canonical request string
+        canonical = f"{method}\n{path}\n{timestamp}\n{body.hex()}"
+        
+        # Generate HMAC-SHA256 signature
+        signature = hmac.new(
+            self.secret_key,
+            canonical.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        
+        return signature
+    
+    async def verify_request(
+        self,
+        request: Request,
+        signature: str,
+        timestamp: int,
+        body: bytes
+    ) -> bool:
+        """
+        Verify request signature
+        
+        Args:
+            request: FastAPI request object
+            signature: Provided signature
+            timestamp: Provided timestamp
+            body: Request body bytes
+            
+        Returns:
+            True if signature is valid
+            
+        Raises:
+            HTTPException: If signature is invalid or request expired
+        """
+        # Check timestamp freshness (prevent replay attacks)
+        current_time = int(time.time())
+        age = current_time - timestamp
+        
+        if age > self.max_age_seconds:
+            logger.warning(
+                "expired_request",
+                age=age,
+                max_age=self.max_age_seconds,
+                path=request.url.path
+            )
+            raise HTTPException(
+                status_code=401,
+                detail="Request expired"
+            )
+        
+        if age < -60:  # Allow 1 minute clock skew
+            logger.warning(
+                "future_request",
+                age=age,
+                path=request.url.path
+            )
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid timestamp"
+            )
+        
+        # Generate expected signature
+        expected_signature = self.sign_request(
+            method=request.method,
+            path=str(request.url.path),
+            body=body,
+            timestamp=timestamp
+        )
+        
+        # Compare signatures (constant-time to prevent timing attacks)
+        if not hmac.compare_digest(signature, expected_signature):
+            logger.warning(
+                "invalid_signature",
+                path=request.url.path,
+                provided=signature[:20] + "...",
+                expected=expected_signature[:20] + "..."
+            )
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid signature"
+            )
+        
+        return True
+
+# Initialize signer
+request_signer = RequestSigner(
+    secret_key=os.getenv("API_SECRET_KEY", "change-me-in-production"),
+    max_age_seconds=300  # 5 minutes
+)
+```
+
+### Dependency for Signature Verification
+
+```python
+from fastapi import Depends, Header
+
+async def verify_signature(
+    request: Request,
+    x_signature: str = Header(...),
+    x_timestamp: int = Header(...),
+) -> bool:
+    """
+    FastAPI dependency for request signature verification
+    
+    Usage:
+        @app.post("/api/critical-action", dependencies=[Depends(verify_signature)])
+        async def critical_action():
+            pass
+    """
+    # Read request body
+    body = await request.body()
+    
+    # Verify signature
+    await request_signer.verify_request(
+        request=request,
+        signature=x_signature,
+        timestamp=x_timestamp,
+        body=body
+    )
+    
+    return True
+```
+
+### Protecting Critical Endpoints
+
+```python
+from fastapi import APIRouter, Depends
+
+router = APIRouter()
+
+@router.post("/api/admin/users", dependencies=[Depends(verify_signature)])
+async def create_admin_user(user_data: dict):
+    """Create admin user (requires signed request)"""
+    # This endpoint requires valid request signature
+    return await user_service.create_admin(user_data)
+
+@router.delete("/api/admin/users/{user_id}", dependencies=[Depends(verify_signature)])
+async def delete_user(user_id: int):
+    """Delete user (requires signed request)"""
+    # This endpoint requires valid request signature
+    return await user_service.delete(user_id)
+
+@router.post("/api/payments/process", dependencies=[Depends(verify_signature)])
+async def process_payment(payment_data: dict):
+    """Process payment (requires signed request)"""
+    # This endpoint requires valid request signature
+    return await payment_service.process(payment_data)
+```
+
+### Client-Side Implementation
+
+**Python Client:**
+
+```python
+import requests
+import hmac
+import hashlib
+import time
+import json
+
+class SignedAPIClient:
+    """Client for making signed API requests"""
+    
+    def __init__(self, base_url: str, api_key: str, secret_key: str):
+        self.base_url = base_url
+        self.api_key = api_key
+        self.secret_key = secret_key.encode()
+    
+    def _sign_request(self, method: str, path: str, body: bytes, timestamp: int) -> str:
+        """Generate request signature"""
+        canonical = f"{method}\n{path}\n{timestamp}\n{body.hex()}"
+        signature = hmac.new(
+            self.secret_key,
+            canonical.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        return signature
+    
+    def post(self, path: str, data: dict):
+        """Make signed POST request"""
+        timestamp = int(time.time())
+        body = json.dumps(data).encode()
+        
+        signature = self._sign_request("POST", path, body, timestamp)
+        
+        response = requests.post(
+            f"{self.base_url}{path}",
+            json=data,
+            headers={
+                "X-API-Key": self.api_key,
+                "X-Signature": signature,
+                "X-Timestamp": str(timestamp),
+                "Content-Type": "application/json"
+            }
+        )
+        
+        return response
+
+# Usage
+client = SignedAPIClient(
+    base_url="https://api.example.com",
+    api_key="your-api-key",
+    secret_key="your-secret-key"
+)
+
+response = client.post("/api/admin/users", {
+    "username": "newadmin",
+    "email": "admin@example.com"
+})
+```
+
+**JavaScript/Node.js Client:**
+
+```javascript
+const crypto = require('crypto');
+const axios = require('axios');
+
+class SignedAPIClient {
+    constructor(baseURL, apiKey, secretKey) {
+        this.baseURL = baseURL;
+        this.apiKey = apiKey;
+        this.secretKey = secretKey;
+    }
+    
+    signRequest(method, path, body, timestamp) {
+        // Create canonical request
+        const bodyHex = Buffer.from(body).toString('hex');
+        const canonical = `${method}\n${path}\n${timestamp}\n${bodyHex}`;
+        
+        // Generate HMAC signature
+        const signature = crypto
+            .createHmac('sha256', this.secretKey)
+            .update(canonical)
+            .digest('hex');
+        
+        return signature;
+    }
+    
+    async post(path, data) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const body = JSON.stringify(data);
+        
+        const signature = this.signRequest('POST', path, body, timestamp);
+        
+        const response = await axios.post(
+            `${this.baseURL}${path}`,
+            data,
+            {
+                headers: {
+                    'X-API-Key': this.apiKey,
+                    'X-Signature': signature,
+                    'X-Timestamp': timestamp.toString(),
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        
+        return response.data;
+    }
+}
+
+// Usage
+const client = new SignedAPIClient(
+    'https://api.example.com',
+    'your-api-key',
+    'your-secret-key'
+);
+
+client.post('/api/admin/users', {
+    username: 'newadmin',
+    email: 'admin@example.com'
+}).then(response => {
+    console.log('User created:', response);
+});
+```
+
+### Replay Attack Prevention
+
+The implementation prevents replay attacks through:
+
+1. **Timestamp Validation:** Requests older than `max_age_seconds` (default 5 minutes) are rejected
+2. **Signature Uniqueness:** Each signature includes timestamp, making it valid only for a short window
+3. **Request Binding:** Signature includes method, path, and body, preventing request modification
+
+### Configuration
+
+Add to `.env`:
+
+```bash
+# Request Signing Configuration
+API_SECRET_KEY=<generate-strong-secret-key>
+REQUEST_MAX_AGE_SECONDS=300
+ENABLE_REQUEST_SIGNING=true
+```
+
+Generate strong secret key:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+### Monitoring Signed Requests
+
+Track signature verification metrics:
+
+```python
+from prometheus_client import Counter
+
+signature_verifications = Counter(
+    'api_signature_verifications_total',
+    'Total signature verifications',
+    ['status', 'endpoint']
+)
+
+# In verify_request method
+signature_verifications.labels(
+    status='success' if valid else 'failed',
+    endpoint=request.url.path
+).inc()
+```
+
+---
+
 ## Additional Security Measures
 
 ### Rate Limiting Enhancement
