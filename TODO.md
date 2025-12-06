@@ -104,13 +104,30 @@ except SpecificException as e:
   - Inhalt: Unit Tests, Integration Tests, Coverage-Ziele
   - **Erledigt am:** 2025-12-05
 
-- [ ] **Fehlende Tests für neue Services implementieren**
-  - Services ohne Tests identifizieren
-  - Priorität: Core Services zuerst (Voice, ELYZA, Workflow, Integration, Plugins)
-  - **Zeitaufwand:** 40 Stunden (8 Stunden pro Service-Gruppe)
-  - **Test-Beispiele:** ✅ [Testing Guide](docs/TESTING_GUIDE.md)
+- [x] **Fehlende Tests für neue Services implementieren** ✅ **Abgeschlossen**
+  - Status: Umfassende Tests erstellt am 2025-12-05
+  - Voice Services: ✅ Text-to-Speech (11 tests), Transcription (11 tests), Audio Processor (10 tests)
+  - Workflow: ✅ Automation Pipeline (13 tests)
+  - Integration: ✅ Slack Adapter (9 tests), Messaging Bridge (14 tests)
+  - Plugin System: ✅ Plugin Service (19 tests)
+  - **Gesamt:** 87 neue Tests, 86 passed, 1 skipped
+  - **Test-Dateien:**
+    - `tests/unit/test_text_to_speech.py`
+    - `tests/unit/test_transcription.py`
+    - `tests/unit/test_audio_processor.py`
+    - `tests/unit/test_workflow_automation.py`
+    - `tests/unit/test_slack_adapter.py`
+    - `tests/unit/test_messaging_bridge.py`
+    - `tests/unit/test_plugin_service.py`
+  - **Erledigt am:** 2025-12-05
 
 ```bash
+# Tests ausführen:
+pytest tests/unit/test_text_to_speech.py tests/unit/test_transcription.py \
+       tests/unit/test_audio_processor.py tests/unit/test_workflow_automation.py \
+       tests/unit/test_slack_adapter.py tests/unit/test_messaging_bridge.py \
+       tests/unit/test_plugin_service.py -v
+
 # Coverage-Report generieren:
 pytest --cov=. --cov-report=html --cov-report=term
 # Report in htmlcov/index.html
@@ -142,73 +159,107 @@ pytest --cov=. --cov-report=html --cov-report=term
 ### Feature-Vervollständigung
 
 #### A. Voice Processing ✅ **Dokumentiert**
-- [ ] **Text-to-Speech implementieren**
+- [ ] **Text-to-Speech implementieren** 📝 **Implementierungsplan vorhanden**
+  - Status: Placeholder funktionsfähig, awaiting library integration
   - Datei: `voice/text_to_speech.py`
-  - TODO: Integrate actual TTS implementation
-  - Libraries: `pyttsx3`, `gTTS`, oder Cloud-APIs
-  - **Zeitaufwand:** 8 Stunden
+  - Libraries: OpenAI TTS API (empfohlen), `gTTS`, oder `pyttsx3`
+  - **Implementierung:** ✅ [Implementation Notes](docs/IMPLEMENTATION_NOTES.md#text-to-speech-implementation-task-2)
   - **Dokumentation:** ✅ [Voice Processing Guide](docs/VOICE_PROCESSING.md)
+  - **Tests:** ✅ 11 tests in `tests/unit/test_text_to_speech.py`
+  - **Nächster Schritt:** Library installieren und Placeholder ersetzen
 
-- [ ] **Whisper Transcription implementieren**
+- [ ] **Whisper Transcription implementieren** 📝 **Implementierungsplan vorhanden**
+  - Status: Placeholder funktionsfähig, awaiting library integration
   - Datei: `voice/transcription.py`
-  - TODO: Integrate actual Whisper implementation
-  - Library: `openai-whisper`
-  - **Zeitaufwand:** 8 Stunden
+  - Libraries: OpenAI Whisper API (empfohlen) oder `openai-whisper` (lokal)
+  - **Implementierung:** ✅ [Implementation Notes](docs/IMPLEMENTATION_NOTES.md#whisper-transcription-implementation-task-3)
   - **Dokumentation:** ✅ [Voice Processing Guide](docs/VOICE_PROCESSING.md)
+  - **Tests:** ✅ 11 tests in `tests/unit/test_transcription.py`
+  - **Nächster Schritt:** Library installieren und Placeholder ersetzen
 
-- [ ] **Audio Processing implementieren**
+- [ ] **Audio Processing implementieren** 📝 **Implementierungsplan vorhanden**
+  - Status: Placeholder funktionsfähig, awaiting library integration
   - Datei: `voice/audio_processor.py`
-  - TODO: Implement actual audio processing
-  - Libraries: `librosa`, `pydub`
-  - **Zeitaufwand:** 6 Stunden
+  - Libraries: `librosa`, `pydub`, `soundfile`, ffmpeg (system)
+  - **Implementierung:** ✅ [Implementation Notes](docs/IMPLEMENTATION_NOTES.md#audio-processing-implementation-task-4)
   - **Dokumentation:** ✅ [Voice Processing Guide](docs/VOICE_PROCESSING.md)
+  - **Tests:** ✅ 10 tests in `tests/unit/test_audio_processor.py`
+  - **Nächster Schritt:** Libraries installieren und Placeholder ersetzen
 
 #### B. Elyza Model ✅ **Dokumentiert**
-- [ ] **Elyza Model Loading implementieren**
+- [ ] **Elyza Model Loading implementieren** 📝 **Implementierungsplan vorhanden**
+  - Status: Placeholder funktionsfähig, awaiting model integration
   - Datei: `elyza/elyza_model.py`
-  - TODO: Load actual ELYZA model
-  - Research: Model-Format und Requirements
-  - **Zeitaufwand:** 12 Stunden
+  - Libraries: `transformers`, `torch`, `accelerate` ODER `llama-cpp-python`
+  - Model: ELYZA-japanese-Llama-2-7b (Hugging Face)
+  - **Implementierung:** ✅ [Implementation Notes](docs/IMPLEMENTATION_NOTES.md#elyza-model-loading-task-5)
   - **Dokumentation:** ✅ [ELYZA Model Guide](docs/ELYZA_MODEL.md)
+  - **Nächster Schritt:** Model herunterladen und laden
 
-- [ ] **Elyza Inference implementieren**
+- [ ] **Elyza Inference implementieren** 📝 **Implementierungsplan vorhanden**
+  - Status: Placeholder funktionsfähig, abhängig von Task 5
   - Datei: `elyza/elyza_model.py`
-  - TODO: Implement actual ELYZA inference
   - Abhängigkeit: Model Loading muss fertig sein
-  - **Zeitaufwand:** 8 Stunden
+  - **Implementierung:** ✅ [Implementation Notes](docs/IMPLEMENTATION_NOTES.md#elyza-inference-implementation-task-6)
   - **Dokumentation:** ✅ [ELYZA Model Guide](docs/ELYZA_MODEL.md)
+  - **Nächster Schritt:** Inference-Code nach Model-Loading hinzufügen
 
 #### C. Workflow Automation ✅ **Dokumentiert**
-- [ ] **Workflow Step Execution implementieren**
+- [x] **Workflow Step Execution implementieren** ✅ **Abgeschlossen**
+  - Status: Implementiert am 2025-12-05
   - Datei: `workflow/automation_pipeline.py`
-  - TODO: Implement actual step execution logic
-  - Design: State Machine oder Task Queue
-  - **Zeitaufwand:** 16 Stunden
+  - Implementiert: Step-Handler für Upload, OCR, Analyze, Store, Extract, Transform, Validate, Load, Notify, Condition
+  - Features:
+    - ✅ Sequential und parallel execution
+    - ✅ Safe condition evaluation (ohne eval())
+    - ✅ Error handling und retry logic
+    - ✅ Step result chaining
   - **Dokumentation:** ✅ [Workflow Automation Guide](docs/WORKFLOW_AUTOMATION.md)
+  - **Erledigt am:** 2025-12-05
 
 #### D. Integration Layer ✅ **Dokumentiert**
-- [ ] **Slack API Integration vervollständigen**
+- [x] **Slack API Integration vervollständigen** ✅ **Abgeschlossen**
+  - Status: Implementiert am 2025-12-05
   - Datei: `integration/adapters/slack_adapter.py`
-  - TODO: Implement actual Slack API call
-  - TODO: Implement actual Slack auth
-  - Library: `slack_sdk`
-  - **Zeitaufwand:** 12 Stunden
+  - Implementiert:
+    - ✅ `chat_postMessage` API integration (mit slack_sdk)
+    - ✅ `auth.test` authentication
+    - ✅ Graceful fallback wenn slack_sdk nicht installiert
+    - ✅ Support für blocks, attachments, threading
+    - ✅ Error handling und logging
+  - Library: `slack_sdk` (optional - fallback auf placeholder)
+  - Installation: `pip install slack-sdk`
   - **Dokumentation:** ✅ [Integration Guide](docs/INTEGRATIONS_GUIDE.md)
+  - **Erledigt am:** 2025-12-05
 
-- [ ] **Messaging Bridge Platform-Transformations**
+- [x] **Messaging Bridge Platform-Transformations** ✅ **Abgeschlossen**
+  - Status: Implementiert am 2025-12-05
   - Datei: `integration/messaging_bridge.py`
-  - TODO: Implement platform-specific transformations
-  - Plattformen: Slack, Discord, Teams, etc.
-  - **Zeitaufwand:** 16 Stunden
+  - Implementierte Transformationen:
+    - ✅ Slack: Block format, threading, mentions
+    - ✅ Discord: Embeds, content format, mentions
+    - ✅ Microsoft Teams: Adaptive cards, mentions
+    - ✅ Telegram: Parse modes, reply threading
+  - Features:
+    - ✅ Unified message format zu platform-specific
+    - ✅ Attachment/media handling
+    - ✅ User mentions transformation
+    - ✅ Thread/reply support
   - **Dokumentation:** ✅ [Integration Guide](docs/INTEGRATIONS_GUIDE.md)
+  - **Erledigt am:** 2025-12-05
 
 #### E. Plugin System ✅ **Dokumentiert**
-- [ ] **Docker Container Management vervollständigen**
+- [x] **Docker Container Management vervollständigen** ✅ **Bereits implementiert**
+  - Status: Vollständig implementiert
   - Datei: `services/plugin_service.py`
-  - TODO: Stop and remove Docker container
+  - Implementiert:
+    - ✅ Container stop und remove
+    - ✅ Error handling (NotFound, APIError)
+    - ✅ Graceful cleanup mit timeout
+    - ✅ Proper logging und debugging support
   - Library: `docker-py`
-  - **Zeitaufwand:** 6 Stunden
   - **Dokumentation:** ✅ [Plugin System Guide](docs/PLUGIN_SYSTEM.md)
+  - **Note:** Container management bereits vorhanden, keine Änderungen nötig
 
 - [ ] **Plugin Lifecycle Management**
   - Install, Start, Stop, Uninstall
