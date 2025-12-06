@@ -650,9 +650,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Core Documentation:**
 - [Setup Guide](SETUP.md) - Installation and configuration
 - [Architecture](ARCHITECTURE.md) - System architecture overview
+- [Architecture Decision Records (ADRs)](docs/adr/README.md) - Key architectural decisions (Updated!)
 - [Deployment Guide](DEPLOYMENT.md) - Production deployment
 - [Contributing Guidelines](CONTRIBUTING.md) - How to contribute
-- [Testing Guide](docs/TESTING_GUIDE.md) - Testing strategies and coverage (New!)
+- [Testing Guide](docs/TESTING_GUIDE.md) - Testing strategies and coverage
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions (New!)
+- [API Examples](docs/API_EXAMPLES.md) - Code examples in multiple languages (New!)
 
 **Feature Documentation (New!):**
 - 🔊 [Voice Processing Guide](docs/VOICE_PROCESSING.md) - TTS, Transcription, Audio Processing
@@ -662,7 +665,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 🧩 [Plugin System](docs/PLUGIN_SYSTEM.md) - Extensibility and plugin development
 
 **Advanced Documentation:**
-- [Architecture Decision Records (ADRs)](docs/adr/README.md) - Key architectural decisions
 - [Monitoring & Observability](docs/MONITORING.md) - Prometheus, Jaeger, logging
 - [Security Enhancements](docs/SECURITY_ENHANCEMENTS.md) - Virus scanning, performance monitoring
 - [API Documentation](docs/API.md) - REST API reference

@@ -1,6 +1,6 @@
 # TODO Liste - Chat System
 
-**Letzte Aktualisierung:** 2025-12-05  
+**Letzte Aktualisierung:** 2025-12-06  
 **Version:** 2.0.0  
 **Priorisierung:** 🔴 Kritisch | 🟡 Hoch | 🟢 Medium | 🔵 Niedrig
 
@@ -355,22 +355,42 @@ sentry_sdk.init(
   - Gesamt: ✅ [Documentation Index](docs/README.md)
   - **Erledigt am:** 2025-12-05
 
-- [ ] **ADR (Architecture Decision Records) erstellen**
-  - Wichtige Design-Entscheidungen dokumentieren
+- [x] **ADR (Architecture Decision Records) erstellen** ✅ **Abgeschlossen**
+  - Status: 3 neue ADRs erstellt am 2025-12-06
+  - ADRs:
+    - ✅ ADR-005: Vector Database Choice for RAG System
+    - ✅ ADR-006: Docker-Based Plugin Sandbox Architecture
+    - ✅ ADR-007: Multi-Database Support Strategy
   - Format: docs/adr/001-decision-title.md
-  - **Zeitaufwand:** 4 Stunden
+  - **Erledigt am:** 2025-12-06
 
-- [ ] **API-Beispiele erweitern**
-  - Curl-Beispiele für alle Endpoints
-  - Code-Samples (Python, JavaScript)
-  - **Zeitaufwand:** 6 Stunden
-  - **Basis vorhanden:** API-Beispiele in Feature-Dokumentationen
+- [x] **API-Beispiele erweitern** ✅ **Abgeschlossen**
+  - Status: Umfassendes API Examples Dokument erstellt am 2025-12-06
+  - Dokument: [API Examples](docs/API_EXAMPLES.md)
+  - Inhalt:
+    - ✅ Curl-Beispiele für alle Endpoints
+    - ✅ Python Code-Samples mit vollständigem Client
+    - ✅ JavaScript (Node.js) Code-Samples
+    - ✅ JavaScript (Browser) Code-Samples
+    - ✅ Error Handling Beispiele
+    - ✅ WebSocket Integration Beispiele
+  - **Erledigt am:** 2025-12-06
 
-- [ ] **Troubleshooting-Guide erweitern**
-  - Häufige Fehler und Lösungen
-  - Debug-Workflows
-  - **Zeitaufwand:** 4 Stunden
-  - **Basis vorhanden:** Troubleshooting-Sektionen in allen Feature-Guides
+- [x] **Troubleshooting-Guide erweitern** ✅ **Abgeschlossen**
+  - Status: Umfassender Troubleshooting Guide erstellt am 2025-12-06
+  - Dokument: [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
+  - Inhalt:
+    - ✅ Installation Issues
+    - ✅ Database Issues (SQLite, PostgreSQL, MongoDB)
+    - ✅ Authentication Issues
+    - ✅ WebSocket Connection Issues
+    - ✅ AI Integration Issues (Ollama)
+    - ✅ RAG System Issues
+    - ✅ Plugin System Issues
+    - ✅ Performance Issues
+    - ✅ Docker Issues
+    - ✅ Logging and Debugging
+  - **Erledigt am:** 2025-12-06
 
 ---
 
