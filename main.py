@@ -20,6 +20,7 @@ from middleware import (
 from routes.admin import router as admin_router
 from routes.chat import router as chat_router
 from routes.database import router as database_router
+from routes.health import router as health_router
 from routes.messages import router as messages_router
 from routes.rag import router as rag_router
 from routes.settings import router as settings_router
@@ -308,6 +309,7 @@ for route, directory, description in static_dirs:
 
 # Register routes with enhanced logging
 routes_config = [
+    (health_router, "", "Health Check API routes"),
     (chat_router, "", "Chat routes (WebSocket, UI, AI)"),
     (messages_router, "/api", "Messages API routes"),
     (settings_router, "", "Settings API routes"),
@@ -355,9 +357,9 @@ async def prometheus_metrics(request: Request):
     return await metrics_endpoint(request)
 
 
-# Enhanced health and info endpoints
-@app.get("/health", tags=["monitoring"])
-async def comprehensive_health_check():
+# Enhanced system info endpoints
+@app.get("/status", tags=["monitoring"])
+async def system_status():
     """Comprehensive health check with system status"""
     health_data = {
         "status": "healthy",

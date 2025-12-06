@@ -25,6 +25,7 @@ The Universal Chat System is a full-featured enterprise communication platform t
 ## 📋 Table of Contents
 
 - [Features](#-features)
+- [What's New](#-whats-new)
 - [Architecture](#-architecture)
 - [Prerequisites](#-prerequisites)
 - [Installation](#-installation)
@@ -76,6 +77,12 @@ The Universal Chat System is a full-featured enterprise communication platform t
 - **Role-Based Access Control**: User, Moderator, Manager, and Admin roles
 - **Rate Limiting**: Configurable API rate limiting to prevent abuse
 - **CORS Support**: Flexible cross-origin resource sharing configuration
+- **Comprehensive Security Headers**: ([Setup Guide](docs/SETUP_MONITORING_PERFORMANCE.md#-security-headers))
+  - Content Security Policy with nonce support
+  - X-Frame-Options, X-Content-Type-Options
+  - Strict-Transport-Security (HSTS)
+  - Referrer-Policy, Permissions-Policy
+  - Development vs Production configurations
 
 ### Admin Dashboard
 - **Tabbed Interface**: 
@@ -99,6 +106,12 @@ The Universal Chat System is a full-featured enterprise communication platform t
 - **Connection Pooling**: Efficient database connection management
 - **Migration Support**: Alembic-based schema migrations
 - **Backup & Restore**: Built-in database backup utilities
+- **Performance Optimization**: ([Setup Guide](docs/SETUP_MONITORING_PERFORMANCE.md#️-database-performance-monitoring))
+  - Slow query logging and monitoring
+  - 14 performance indexes for common queries
+  - Query execution tracking with Prometheus
+  - Connection pool monitoring
+  - See [Performance Guide](docs/06-operations/PERFORMANCE.md)
 
 ### Integration & Extensibility
 - **Plugin System**: Docker-based plugin isolation and management ([Documentation](docs/PLUGIN_SYSTEM.md))
@@ -109,11 +122,27 @@ The Universal Chat System is a full-featured enterprise communication platform t
 - **ELYZA Model**: Local AI model for offline operation ([Documentation](docs/ELYZA_MODEL.md))
 
 ### Monitoring & Observability
+- **Prometheus Metrics**: Comprehensive metrics export at `/metrics` endpoint
+  - HTTP request metrics (rate, duration, status codes)
+  - Database query performance tracking
+  - WebSocket connection monitoring
+  - AI/RAG request metrics
+  - Cache hit/miss rates
+  - File upload tracking
+  - See [Setup Guide](docs/SETUP_MONITORING_PERFORMANCE.md)
+- **Enhanced Health Checks**: Multiple health check endpoints
+  - `/health` - Basic health check
+  - `/health/liveness` - Kubernetes liveness probe
+  - `/health/readiness` - Kubernetes readiness probe
+  - `/health/detailed` - Comprehensive system status
+- **Sentry Error Tracking**: Production-ready error monitoring
+  - Automatic error capture and aggregation
+  - Performance monitoring and profiling
+  - User context and breadcrumbs
+  - Release tracking
 - **Structured Logging**: JSON-based logs with multiple severity levels
-- **Health Checks**: Comprehensive system health endpoints
-- **Metrics Export**: Ready for Prometheus integration
-- **Error Tracking**: Sentry support for production monitoring
-- **Performance Monitoring**: Request timing and performance metrics
+- **Database Performance Monitoring**: Slow query logging and connection pool tracking
+- **Performance Monitoring**: Request timing and comprehensive metrics
 
 ## 🏗️ Architecture
 
@@ -147,6 +176,53 @@ The system follows a modular, layered architecture:
 ```
 
 For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## 🆕 What's New
+
+### December 2025 - Monitoring & Performance Enhancements
+
+**🎉 Major Updates:**
+
+- **✅ Prometheus Metrics Export** - Comprehensive metrics for monitoring
+  - HTTP requests, database queries, WebSocket connections
+  - AI/RAG requests, cache operations, file uploads
+  - Access at `/metrics` endpoint
+  
+- **✅ Sentry Error Tracking** - Production-grade error monitoring
+  - Automatic error capture and aggregation
+  - Performance monitoring with traces and profiling
+  - User context and debugging breadcrumbs
+
+- **✅ Response Compression** - Automatic Gzip/Brotli compression
+  - Reduces bandwidth usage by up to 70%
+  - Intelligent content-type filtering
+  - Automatic encoding selection
+
+- **✅ Enhanced Security Headers** - Comprehensive CSP and headers
+  - Content Security Policy with nonce support
+  - HSTS, X-Frame-Options, Permissions-Policy
+  - Development vs production configurations
+
+- **✅ Database Performance Monitoring** - Track query performance
+  - Slow query logging (>100ms threshold)
+  - Query execution tracking
+  - Connection pool monitoring
+
+- **✅ Performance Indexes** - 14 optimized database indexes
+  - Speeds up common query patterns
+  - Messages, Projects, Tickets, Files, Users tables
+  - Easy migration script
+
+- **✅ Enhanced Health Checks** - Kubernetes-ready probes
+  - Basic, liveness, readiness, detailed endpoints
+  - Component-level health status
+  - System resource metrics
+
+**📚 Documentation:**
+- [Setup Guide](docs/SETUP_MONITORING_PERFORMANCE.md) - Complete setup instructions
+- [Implementation Status](docs/IMPLEMENTATION_STATUS.md) - Detailed implementation details
+- [Performance Guide](docs/06-operations/PERFORMANCE.md) - Performance optimization
+- [Monitoring Guide](docs/06-operations/MONITORING.md) - Monitoring configuration
 
 ## 🔧 Prerequisites
 
