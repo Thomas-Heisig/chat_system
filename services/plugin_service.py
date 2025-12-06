@@ -297,20 +297,19 @@ class PluginService:
 
         Returns:
             Installation result
-
-        TODO:
-        - [ ] Implement plugin package extraction
-        - [ ] Add plugin validation
-        - [ ] Implement dependency resolution
-        - [ ] Add security scanning
+        
+        Note:
+            Plugin installation from packages is a future enhancement.
+            Currently plugins must be manually placed in the plugins directory.
+            See docs/PLUGIN_SYSTEM.md for manual installation instructions.
         """
-        logger.warning("Plugin installation is a stub")
+        logger.warning("Plugin installation from package is not yet implemented")
 
         return {
             "success": False,
-            "message": "Plugin installation not yet implemented",
+            "message": "Plugin installation from package not yet implemented. Use manual installation.",
             "plugin_package": plugin_package,
-            "stub": True,
+            "note": "See docs/PLUGIN_SYSTEM.md for manual installation instructions",
         }
 
     async def enable_plugin(self, plugin_id: str) -> Dict[str, Any]:

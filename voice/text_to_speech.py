@@ -182,7 +182,9 @@ class TextToSpeechService:
                 output_path = str(output_dir / f"tts_{hash(text)}.mp3")
             
             # Generate speech
-            tts = gTTS(text=text, lang=voice if len(voice) == 2 else 'en', slow=(speed < 1.0))
+            # gTTS expects 2-letter language codes, default to 'en' for other voice IDs
+            lang = voice if len(voice) == 2 and voice.isalpha() else 'en'
+            tts = gTTS(text=text, lang=lang, slow=(speed < 1.0))
             tts.save(output_path)
             
             file_size = os.path.getsize(output_path)
@@ -266,8 +268,12 @@ class TextToSpeechService:
 
         Yields:
             Audio chunks
+        
+        Note:
+            Streaming TTS is a future enhancement. Currently returns empty bytes.
+            See docs/VOICE_PROCESSING.md for implementation roadmap.
         """
-        # TODO: Implement streaming TTS
+        # Not implemented - future enhancement
         yield b""  # Placeholder
 
     def get_available_voices(self) -> list:

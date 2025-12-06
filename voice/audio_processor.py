@@ -182,6 +182,10 @@ class AudioProcessor:
                 y, sr = librosa.load(file_path, sr=None)
                 duration = librosa.get_duration(y=y, sr=sr)
                 
+                # Determine channel count correctly
+                # librosa returns (n_samples,) for mono, (n_channels, n_samples) for multi-channel
+                channels = 1 if len(y.shape) == 1 else y.shape[0]
+                
                 result = {
                     "success": True,
                     "fallback": False,
@@ -190,7 +194,7 @@ class AudioProcessor:
                     "format": Path(file_path).suffix[1:],
                     "duration": duration,
                     "sample_rate": sr,
-                    "channels": 1 if len(y.shape) == 1 else y.shape[0],
+                    "channels": channels,
                     "bitrate": sr * 16,  # Estimate
                     "processed_file": file_path,
                     "status": "success",

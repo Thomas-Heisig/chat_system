@@ -155,9 +155,11 @@ class TranscriptionService:
             model = whisper.load_model(self.whisper_model)
             
             # Transcribe
+            # None means auto-detect language in Whisper
+            lang_param = None if language == "auto" else language
             result = model.transcribe(
                 audio_file_path,
-                language=None if language == "auto" else language,
+                language=lang_param,
                 word_timestamps=include_timestamps
             )
             
@@ -193,11 +195,14 @@ class TranscriptionService:
             # Open audio file
             with open(audio_file_path, "rb") as audio_file:
                 # Transcribe
+                # None means auto-detect language in Whisper API
+                lang_param = None if language == "auto" else language
+                
                 if include_timestamps:
                     result = await client.audio.transcriptions.create(
                         model="whisper-1",
                         file=audio_file,
-                        language=None if language == "auto" else language,
+                        language=lang_param,
                         response_format="verbose_json",
                         timestamp_granularities=["word"]
                     )
@@ -205,7 +210,7 @@ class TranscriptionService:
                     result = await client.audio.transcriptions.create(
                         model="whisper-1",
                         file=audio_file,
-                        language=None if language == "auto" else language,
+                        language=lang_param,
                     )
             
             logger.info(f"🎤 Audio transcribed via API: {Path(audio_file_path).name}")
@@ -238,8 +243,12 @@ class TranscriptionService:
 
         Returns:
             Partial transcription result
+        
+        Note:
+            Streaming transcription is a future enhancement.
+            See docs/VOICE_PROCESSING.md for implementation roadmap.
         """
-        # TODO: Implement streaming transcription
+        # Not implemented - future enhancement
         return {
             "text": "",
             "is_final": False,
