@@ -32,7 +32,7 @@ import aiohttp
 from typing import Optional
 
 
-class AIChat Example:
+class AIChatExample:
     """Example AI chat client"""
     
     def __init__(self, base_url: str = "http://localhost:8000", api_key: Optional[str] = None):
