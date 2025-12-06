@@ -549,16 +549,32 @@ class ElyzaService:
         """
         Stage 3: RAG (Retrieval Augmented Generation) - 2020s.
         Searches knowledge base for relevant information.
+        
+        Note: This is a decoupled implementation that doesn't create circular dependencies.
+        RAG provider can be injected via set_rag_provider() method for better testability.
         """
+        # Check if we have a RAG provider instance
+        if not hasattr(self, '_rag_provider') or self._rag_provider is None:
+            # Try to initialize RAG provider (only once)
+            try:
+                from services.rag.chroma_rag import ChromaRAGProvider
+                
+                # This is optional - only if RAG is configured
+                self._rag_provider = ChromaRAGProvider({"collection_name": "documents"})
+                if self._rag_provider.is_initialized:
+                    enhanced_logger.info("RAG provider initialized for Elyza")
+                else:
+                    self._rag_provider = None
+            except (ImportError, Exception) as e:
+                enhanced_logger.debug(f"RAG provider not available: {e}")
+                self._rag_provider = None
+                return None
+        
+        # Try to use RAG provider
         try:
-            # Try to get RAG provider from routes/rag module
-            # This requires the RAG system to be initialized
-            from routes.rag import get_rag_provider
-            
-            rag_provider = get_rag_provider()
-            if rag_provider and rag_provider.is_initialized:
+            if self._rag_provider and hasattr(self._rag_provider, 'query'):
                 # Query the knowledge base
-                results = await rag_provider.query(prompt, top_k=3)
+                results = await self._rag_provider.query(prompt, top_k=3)
                 
                 if results and len(results) > 0:
                     # Build response from retrieved knowledge
@@ -574,12 +590,20 @@ class ElyzaService:
                     
                     return response
             
-            # RAG not initialized or no results
             return None
             
-        except (ImportError, AttributeError, Exception) as e:
-            enhanced_logger.debug(f"RAG knowledge stage not available: {e}")
+        except Exception as e:
+            enhanced_logger.debug(f"RAG knowledge query failed: {e}")
             return None
+    
+    def set_rag_provider(self, provider):
+        """
+        Inject RAG provider for better testability and decoupling.
+        
+        Args:
+            provider: Instance of BaseRAGProvider or None
+        """
+        self._rag_provider = provider
     
     async def _try_internet_search(
         self, prompt: str, language: Language, sentiment: SentimentType, user_id: Optional[str]
@@ -600,9 +624,12 @@ class ElyzaService:
             return None
         
         try:
-            # Try to use httpx for web search
-            # In a production system, this would use a proper search API like Google, Bing, or DuckDuckGo
-            import httpx
+            # Try to import httpx - it's in requirements.txt
+            try:
+                import httpx
+            except ImportError:
+                enhanced_logger.warning("httpx not installed - internet search stage unavailable")
+                return None
             
             # For now, we'll use a simple HTTP request as a placeholder
             # A real implementation would integrate with:
@@ -709,16 +736,29 @@ class ElyzaService:
             "total_requests": self.stats["total_requests"],
         }
 
-    def add_custom_pattern(self, pattern: str, responses: List[str], category: str = "custom"):
+    def add_custom_pattern(
+        self,
+        pattern: str,
+        responses: Dict[Language, List[str]],
+        category: str = "custom",
+        sentiment: SentimentType = SentimentType.NEUTRAL,
+    ):
         """
-        Add a custom pattern-response mapping.
+        Add a custom pattern-response mapping with multilingual support.
 
         Args:
             pattern: Regex pattern to match
-            responses: List of possible responses
+            responses: Dict mapping Language to list of responses
+                      e.g., {Language.GERMAN: ["Antwort"], Language.ENGLISH: ["Answer"]}
             category: Category name for logging
+            sentiment: Default sentiment type for this pattern
         """
-        self.patterns.append({"pattern": pattern, "responses": responses, "category": category})
+        self.patterns.append({
+            "pattern": pattern,
+            "responses": responses,
+            "category": category,
+            "sentiment": sentiment,
+        })
 
         enhanced_logger.info(
             "Custom pattern added to ElyzaService", category=category, pattern=pattern
