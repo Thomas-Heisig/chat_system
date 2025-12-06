@@ -43,24 +43,44 @@ class ELYZAModel:
     """
 
     def __init__(self):
-        self.enabled = os.getenv("ENABLE_ELYZA_FALLBACK", "false").lower() == "true"
-        self.model_path = os.getenv("ELYZA_MODEL_PATH", "./models/elyza")
+        # Use centralized configuration
+        try:
+            from config.settings import ai_config, settings
+            self.enabled = ai_config.elyza_enabled
+            self.model_path = ai_config.elyza_model_path
+            self.use_gpu = ai_config.elyza_use_gpu
+            self.max_length = ai_config.elyza_max_length
+            self.temperature = ai_config.elyza_temperature
+            self.device = ai_config.elyza_device
+            self._rag_enabled = settings.RAG_ENABLED
+        except Exception:
+            # Fallback to environment variables if config import fails
+            self.enabled = os.getenv("ELYZA_ENABLED", "false").lower() == "true"
+            self.model_path = os.getenv("ELYZA_MODEL_PATH", "./models/elyza")
+            self.use_gpu = os.getenv("ELYZA_USE_GPU", "false").lower() == "true"
+            self.max_length = int(os.getenv("ELYZA_MAX_LENGTH", "512"))
+            self.temperature = float(os.getenv("ELYZA_TEMPERATURE", "0.7"))
+            self.device = os.getenv("ELYZA_DEVICE", "cpu")
+            self._rag_enabled = os.getenv("RAG_ENABLED", "false").lower() == "true"
+        
         self.model_loaded = False
         self.fallback_active = False
         
         # Integration with ElyzaService
         self._elyza_service = None
         
-        # RAG and Internet capabilities
-        self._rag_enabled = os.getenv("RAG_ENABLED", "false").lower() == "true"
+        # Internet capabilities
         self._internet_enabled = os.getenv("ELYZA_INTERNET_SEARCH", "false").lower() == "true"
 
         if self.enabled:
             self._initialize_model()
+        else:
+            logger.info("🤖 ELYZA Model is disabled (set ELYZA_ENABLED=true to enable)")
 
         logger.info(
             f"🤖 ELYZA Evolutionary Model initialized "
-            f"(enabled: {self.enabled}, RAG: {self._rag_enabled}, Internet: {self._internet_enabled})"
+            f"(enabled: {self.enabled}, loaded: {self.model_loaded}, "
+            f"RAG: {self._rag_enabled}, Internet: {self._internet_enabled})"
         )
 
     def _initialize_model(self):
