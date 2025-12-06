@@ -199,23 +199,68 @@ class PluginSandbox:
 
 class PluginService:
     """
-    Plugin management service
+    Plugin management service with configurable lifecycle management.
 
-    Handles plugin installation, lifecycle, and execution.
+    Handles plugin installation, lifecycle, and execution with
+    graceful fallback when Docker is not available.
     """
 
     def __init__(self, plugin_dir: Optional[str] = None):
-        self.plugin_dir = Path(plugin_dir or "./plugins")
-        self.plugin_dir.mkdir(exist_ok=True)
+        # Use centralized configuration
+        try:
+            from config.settings import plugin_config
+            self.enabled = plugin_config.enabled
+            self.plugin_dir = Path(plugin_config.plugins_dir)
+            self.auto_load = plugin_config.auto_load
+            self.sandbox_enabled = plugin_config.sandbox_enabled
+            self.timeout = plugin_config.timeout
+            self.max_memory = plugin_config.max_memory
+        except Exception:
+            # Fallback to environment variables
+            self.enabled = os.getenv("PLUGINS_ENABLED", "false").lower() == "true"
+            self.plugin_dir = Path(plugin_dir or os.getenv("PLUGINS_DIR", "./plugins"))
+            self.auto_load = os.getenv("PLUGINS_AUTO_LOAD", "false").lower() == "true"
+            self.sandbox_enabled = os.getenv("PLUGINS_SANDBOX_ENABLED", "true").lower() == "true"
+            self.timeout = int(os.getenv("PLUGINS_TIMEOUT", "30"))
+            self.max_memory = os.getenv("PLUGINS_MAX_MEMORY", "512m")
+        
+        self.plugin_dir.mkdir(exist_ok=True, parents=True)
 
         self.plugins: Dict[str, Plugin] = {}
         self.sandboxes: Dict[str, PluginSandbox] = {}
         self.hooks: Dict[str, List[Callable]] = {}
+        
+        # Check Docker availability
+        self.docker_available = self._check_docker_availability()
 
-        logger.info(f"🔌 Plugin Service initialized (plugin_dir={self.plugin_dir})")
+        logger.info(
+            f"🔌 Plugin Service initialized "
+            f"(enabled: {self.enabled}, dir: {self.plugin_dir}, "
+            f"sandbox: {self.sandbox_enabled}, docker: {self.docker_available})"
+        )
+        
+        if self.enabled and not self.docker_available and self.sandbox_enabled:
+            logger.warning(
+                "⚠️ Plugin sandbox is enabled but Docker is not available. "
+                "Plugins will run without isolation (not recommended for production)."
+            )
 
         # Load installed plugins
-        self._load_plugins()
+        if self.enabled and self.auto_load:
+            self._load_plugins()
+
+    def _check_docker_availability(self) -> bool:
+        """Check if Docker is available"""
+        if not self.sandbox_enabled:
+            return False
+            
+        try:
+            import docker
+            client = docker.from_env()
+            client.ping()
+            return True
+        except Exception:
+            return False
 
     def _load_plugins(self):
         """Load plugins from plugin directory"""
@@ -252,20 +297,19 @@ class PluginService:
 
         Returns:
             Installation result
-
-        TODO:
-        - [ ] Implement plugin package extraction
-        - [ ] Add plugin validation
-        - [ ] Implement dependency resolution
-        - [ ] Add security scanning
+        
+        Note:
+            Plugin installation from packages is a future enhancement.
+            Currently plugins must be manually placed in the plugins directory.
+            See docs/PLUGIN_SYSTEM.md for manual installation instructions.
         """
-        logger.warning("Plugin installation is a stub")
+        logger.warning("Plugin installation from package is not yet implemented")
 
         return {
             "success": False,
-            "message": "Plugin installation not yet implemented",
+            "message": "Plugin installation from package not yet implemented. Use manual installation.",
             "plugin_package": plugin_package,
-            "stub": True,
+            "note": "See docs/PLUGIN_SYSTEM.md for manual installation instructions",
         }
 
     async def enable_plugin(self, plugin_id: str) -> Dict[str, Any]:
@@ -340,28 +384,66 @@ class PluginService:
             "message": f"Plugin {plugin.name} disabled successfully",
         }
 
-    async def uninstall_plugin(self, plugin_id: str) -> Dict[str, Any]:
+    async def start_plugin(self, plugin_id: str) -> Dict[str, Any]:
         """
-        Uninstall a plugin
+        Start a plugin (alias for enable_plugin for clarity).
 
         Args:
             plugin_id: Plugin identifier
 
         Returns:
-            Uninstall result
+            Start result
+        """
+        return await self.enable_plugin(plugin_id)
 
-        TODO:
-        - [ ] Implement plugin file cleanup
-        - [ ] Add data cleanup option
+    async def stop_plugin(self, plugin_id: str) -> Dict[str, Any]:
+        """
+        Stop a plugin (alias for disable_plugin for clarity).
+
+        Args:
+            plugin_id: Plugin identifier
+
+        Returns:
+            Stop result
+        """
+        return await self.disable_plugin(plugin_id)
+
+    async def uninstall_plugin(self, plugin_id: str, cleanup_data: bool = False) -> Dict[str, Any]:
+        """
+        Uninstall a plugin with configurable cleanup.
+
+        Args:
+            plugin_id: Plugin identifier
+            cleanup_data: Whether to cleanup plugin data directory
+
+        Returns:
+            Uninstall result
         """
         if plugin_id not in self.plugins:
             return {"success": False, "error": f"Plugin {plugin_id} not found"}
 
+        plugin = self.plugins[plugin_id]
+        
         # Disable first if enabled
-        if self.plugins[plugin_id].status == PluginStatus.ENABLED:
+        if plugin.status == PluginStatus.ENABLED:
             await self.disable_plugin(plugin_id)
 
-        plugin = self.plugins[plugin_id]
+        # Cleanup plugin files if requested
+        cleanup_status = "skipped"
+        if cleanup_data:
+            try:
+                plugin_path = self.plugin_dir / plugin_id
+                if plugin_path.exists():
+                    import shutil
+                    shutil.rmtree(plugin_path)
+                    cleanup_status = "success"
+                    logger.info(f"Plugin files cleaned up: {plugin_path}")
+                else:
+                    cleanup_status = "no_files"
+            except Exception as e:
+                logger.error(f"Failed to cleanup plugin files: {e}")
+                cleanup_status = f"error: {e}"
+
         plugin.status = PluginStatus.UNINSTALLED
 
         # Remove from registry
@@ -371,7 +453,8 @@ class PluginService:
 
         return {
             "success": True,
-            "message": f"Plugin {plugin.name} uninstalled successfully (file cleanup is stub)",
+            "message": f"Plugin {plugin.name} uninstalled successfully",
+            "cleanup_status": cleanup_status,
         }
 
     async def execute_plugin(
@@ -466,6 +549,7 @@ class PluginService:
         """Get service status"""
         return {
             "service": "plugin",
+            "enabled": self.enabled,
             "plugin_dir": str(self.plugin_dir),
             "total_plugins": len(self.plugins),
             "enabled_plugins": len(
@@ -473,7 +557,18 @@ class PluginService:
             ),
             "active_sandboxes": len(self.sandboxes),
             "hooks": {name: len(callbacks) for name, callbacks in self.hooks.items()},
-            "status": "online",
+            "docker_available": self.docker_available,
+            "sandbox_enabled": self.sandbox_enabled,
+            "fallback_mode": not self.docker_available and self.sandbox_enabled,
+            "configuration": {
+                "PLUGINS_ENABLED": self.enabled,
+                "PLUGINS_DIR": str(self.plugin_dir),
+                "PLUGINS_AUTO_LOAD": self.auto_load,
+                "PLUGINS_SANDBOX_ENABLED": self.sandbox_enabled,
+                "PLUGINS_TIMEOUT": self.timeout,
+                "PLUGINS_MAX_MEMORY": self.max_memory,
+            },
+            "status": "online" if self.enabled else "disabled",
         }
 
 

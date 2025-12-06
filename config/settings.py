@@ -81,6 +81,79 @@ class EnvironmentSettings(BaseSettings):
     RAG_ENABLED: bool = Field(default=False)
     VECTOR_STORE_ENABLED: bool = Field(default=False)
 
+    # Voice Processing Configuration
+    # NOTE: Voice processing features have fallback mechanisms
+    # They return placeholder responses when dependencies are not available
+    TTS_ENABLED: bool = Field(default=False)
+    TTS_ENGINE: str = Field(default="openai")  # openai, coqui, google, azure, gtts
+    TTS_VOICE: str = Field(default="alloy")
+    TTS_FORMAT: str = Field(default="mp3")
+    TTS_API_KEY: Optional[str] = Field(default=None)
+    TTS_SPEED: float = Field(default=1.0)
+    
+    WHISPER_ENABLED: bool = Field(default=False)
+    WHISPER_MODEL: str = Field(default="base")  # tiny, base, small, medium, large
+    WHISPER_LOCAL: bool = Field(default=True)
+    WHISPER_API_KEY: Optional[str] = Field(default=None)
+    WHISPER_LANGUAGE: str = Field(default="auto")
+    
+    AUDIO_PROCESSING_ENABLED: bool = Field(default=True)
+    MAX_AUDIO_SIZE: int = Field(default=25 * 1024 * 1024)  # 25MB
+    AUDIO_FORMATS: List[str] = Field(default=["mp3", "wav", "ogg", "flac", "m4a", "webm"])
+
+    # Elyza Model Configuration
+    # NOTE: Elyza Japanese model has fallback to standard AI service
+    ELYZA_ENABLED: bool = Field(default=False)
+    ELYZA_MODEL_PATH: str = Field(default="elyza/ELYZA-japanese-Llama-2-7b")
+    ELYZA_USE_GPU: bool = Field(default=False)
+    ELYZA_MAX_LENGTH: int = Field(default=512)
+    ELYZA_TEMPERATURE: float = Field(default=0.7)
+    ELYZA_DEVICE: str = Field(default="cpu")  # cpu, cuda, mps
+
+    # Plugin System Configuration
+    # NOTE: Plugin system has isolation and fallback mechanisms
+    PLUGINS_ENABLED: bool = Field(default=False)
+    PLUGINS_DIR: str = Field(default="plugins")
+    PLUGINS_AUTO_LOAD: bool = Field(default=False)
+    PLUGINS_SANDBOX_ENABLED: bool = Field(default=True)
+    PLUGINS_TIMEOUT: int = Field(default=30)
+    PLUGINS_MAX_MEMORY: str = Field(default="512m")
+
+    # Monitoring Configuration
+    # NOTE: All monitoring features are optional with graceful degradation
+    GRAFANA_ENABLED: bool = Field(default=False)
+    GRAFANA_URL: Optional[str] = Field(default=None)
+    GRAFANA_API_KEY: Optional[str] = Field(default=None)
+    
+    TRACING_ENABLED: bool = Field(default=False)
+    TRACING_PROVIDER: str = Field(default="jaeger")  # jaeger, zipkin, otlp
+    TRACING_ENDPOINT: Optional[str] = Field(default=None)
+    TRACING_SAMPLE_RATE: float = Field(default=0.1)
+
+    # Testing Configuration
+    PERFORMANCE_TESTS_ENABLED: bool = Field(default=False)
+    SECURITY_TESTS_ENABLED: bool = Field(default=False)
+    CONTRACT_TESTS_ENABLED: bool = Field(default=False)
+
+    # Deployment Configuration
+    CI_CD_ENABLED: bool = Field(default=False)
+    CONTAINER_REGISTRY: str = Field(default="ghcr.io")
+    CONTAINER_REGISTRY_USER: Optional[str] = Field(default=None)
+    CONTAINER_REGISTRY_TOKEN: Optional[str] = Field(default=None)
+
+    # Redis Configuration for Scaling
+    REDIS_ENABLED: bool = Field(default=False)
+    REDIS_URL: str = Field(default="redis://localhost:6379/0")
+    REDIS_PUBSUB_ENABLED: bool = Field(default=False)
+
+    # Object Storage Configuration
+    OBJECT_STORAGE_ENABLED: bool = Field(default=False)
+    OBJECT_STORAGE_PROVIDER: str = Field(default="s3")  # s3, minio, local
+    OBJECT_STORAGE_BUCKET: str = Field(default="chat-system")
+    OBJECT_STORAGE_ENDPOINT: Optional[str] = Field(default=None)
+    OBJECT_STORAGE_ACCESS_KEY: Optional[str] = Field(default=None)
+    OBJECT_STORAGE_SECRET_KEY: Optional[str] = Field(default=None)
+
     # Features
     FEATURE_PROJECT_MANAGEMENT: bool = Field(default=True)
     FEATURE_TICKET_SYSTEM: bool = Field(default=True)
@@ -389,6 +462,100 @@ class AIConfig:
         self.context_messages = settings.AI_CONTEXT_MESSAGES
         self.rag_enabled = settings.RAG_ENABLED
         self.vector_store_enabled = settings.VECTOR_STORE_ENABLED
+        
+        # Elyza Model Config
+        self.elyza_enabled = settings.ELYZA_ENABLED
+        self.elyza_model_path = settings.ELYZA_MODEL_PATH
+        self.elyza_use_gpu = settings.ELYZA_USE_GPU
+        self.elyza_max_length = settings.ELYZA_MAX_LENGTH
+        self.elyza_temperature = settings.ELYZA_TEMPERATURE
+        self.elyza_device = settings.ELYZA_DEVICE
+
+
+class VoiceConfig:
+    """Voice processing configuration"""
+
+    def __init__(self, settings: EnvironmentSettings):
+        # Text-to-Speech
+        self.tts_enabled = settings.TTS_ENABLED
+        self.tts_engine = settings.TTS_ENGINE
+        self.tts_voice = settings.TTS_VOICE
+        self.tts_format = settings.TTS_FORMAT
+        self.tts_api_key = settings.TTS_API_KEY
+        self.tts_speed = settings.TTS_SPEED
+        
+        # Transcription
+        self.whisper_enabled = settings.WHISPER_ENABLED
+        self.whisper_model = settings.WHISPER_MODEL
+        self.whisper_local = settings.WHISPER_LOCAL
+        self.whisper_api_key = settings.WHISPER_API_KEY
+        self.whisper_language = settings.WHISPER_LANGUAGE
+        
+        # Audio Processing
+        self.audio_processing_enabled = settings.AUDIO_PROCESSING_ENABLED
+        self.max_audio_size = settings.MAX_AUDIO_SIZE
+        self.audio_formats = settings.AUDIO_FORMATS
+
+
+class PluginConfig:
+    """Plugin system configuration"""
+
+    def __init__(self, settings: EnvironmentSettings):
+        self.enabled = settings.PLUGINS_ENABLED
+        self.plugins_dir = settings.PLUGINS_DIR
+        self.auto_load = settings.PLUGINS_AUTO_LOAD
+        self.sandbox_enabled = settings.PLUGINS_SANDBOX_ENABLED
+        self.timeout = settings.PLUGINS_TIMEOUT
+        self.max_memory = settings.PLUGINS_MAX_MEMORY
+
+
+class MonitoringConfig:
+    """Monitoring and observability configuration"""
+
+    def __init__(self, settings: EnvironmentSettings):
+        # Sentry
+        self.sentry_dsn = settings.SENTRY_DSN
+        self.sentry_enabled = bool(settings.SENTRY_DSN)
+        
+        # Database Monitoring
+        self.slow_query_threshold_ms = settings.SLOW_QUERY_THRESHOLD_MS
+        self.query_logging_enabled = settings.ENABLE_QUERY_LOGGING
+        self.pool_monitoring_enabled = settings.ENABLE_POOL_MONITORING
+        
+        # Grafana
+        self.grafana_enabled = settings.GRAFANA_ENABLED
+        self.grafana_url = settings.GRAFANA_URL
+        self.grafana_api_key = settings.GRAFANA_API_KEY
+        
+        # Distributed Tracing
+        self.tracing_enabled = settings.TRACING_ENABLED
+        self.tracing_provider = settings.TRACING_PROVIDER
+        self.tracing_endpoint = settings.TRACING_ENDPOINT
+        self.tracing_sample_rate = settings.TRACING_SAMPLE_RATE
+
+
+class InfrastructureConfig:
+    """Infrastructure configuration"""
+
+    def __init__(self, settings: EnvironmentSettings):
+        # Redis
+        self.redis_enabled = settings.REDIS_ENABLED
+        self.redis_url = settings.REDIS_URL
+        self.redis_pubsub_enabled = settings.REDIS_PUBSUB_ENABLED
+        
+        # Object Storage
+        self.object_storage_enabled = settings.OBJECT_STORAGE_ENABLED
+        self.object_storage_provider = settings.OBJECT_STORAGE_PROVIDER
+        self.object_storage_bucket = settings.OBJECT_STORAGE_BUCKET
+        self.object_storage_endpoint = settings.OBJECT_STORAGE_ENDPOINT
+        self.object_storage_access_key = settings.OBJECT_STORAGE_ACCESS_KEY
+        self.object_storage_secret_key = settings.OBJECT_STORAGE_SECRET_KEY
+        
+        # CI/CD
+        self.ci_cd_enabled = settings.CI_CD_ENABLED
+        self.container_registry = settings.CONTAINER_REGISTRY
+        self.container_registry_user = settings.CONTAINER_REGISTRY_USER
+        self.container_registry_token = settings.CONTAINER_REGISTRY_TOKEN
 
 
 class SecurityConfig:
@@ -441,6 +608,10 @@ security_config = SecurityConfig(settings)
 file_config = FileConfig(settings)
 feature_config = FeatureConfig(settings)
 system_config = SystemConfig(settings)
+voice_config = VoiceConfig(settings)
+plugin_config = PluginConfig(settings)
+monitoring_config = MonitoringConfig(settings)
+infrastructure_config = InfrastructureConfig(settings)
 
 
 # Configuration validation and logging - Kombination aus alter und neuer Datei
@@ -627,4 +798,8 @@ __all__ = [
     "file_config",
     "feature_config",
     "system_config",
+    "voice_config",
+    "plugin_config",
+    "monitoring_config",
+    "infrastructure_config",
 ]
