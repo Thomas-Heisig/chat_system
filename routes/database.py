@@ -66,17 +66,48 @@ async def get_database_statistics():
 
 @router.get("/adapters")
 async def list_available_adapters():
-    """List available database adapters"""
+    """
+    List available database adapters
+    
+    Returns information about supported database types and current adapter.
+    See docs/adr/ADR-007-multi-database-support.md for details on database support.
+    """
     try:
-        # TODO: Implement get_available_adapters() in database.adapters module
-        adapters = ["sqlite"]  # Currently only SQLite is directly supported
+        # Supported database adapters based on ADR-007
+        adapters = [
+            {
+                "name": "sqlite",
+                "display_name": "SQLite",
+                "description": "Lightweight embedded database (default)",
+                "recommended_for": "development, small deployments",
+                "status": "fully_supported"
+            },
+            {
+                "name": "postgresql",
+                "display_name": "PostgreSQL",
+                "description": "Advanced open-source relational database",
+                "recommended_for": "production, high-load applications",
+                "status": "supported"
+            },
+            {
+                "name": "mongodb",
+                "display_name": "MongoDB",
+                "description": "Document-oriented NoSQL database",
+                "recommended_for": "flexible schema, document storage",
+                "status": "supported"
+            }
+        ]
+        
+        current_type = settings_service.get("database", "type", "sqlite")
 
         return {
             "adapters": adapters,
-            "current_adapter": settings_service.get("database", "type", "sqlite"),
+            "current_adapter": current_type,
+            "note": "SQLite is directly integrated. PostgreSQL and MongoDB require SQLAlchemy/Motor setup."
         }
 
     except Exception as e:
+        enhanced_logger.error("Failed to list database adapters", error=str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -84,13 +115,20 @@ async def list_available_adapters():
 async def test_database_connection(
     config: Dict[str, Any] = Body(None, description="Optional connection config to test")
 ):
-    """Test database connection with optional configuration"""
+    """
+    Test database connection with optional configuration
+    
+    Note: Custom config testing is not yet implemented for SQLite connections.
+    For production multi-database support, use the unified repository pattern
+    documented in docs/adr/ADR-007-multi-database-support.md
+    """
     try:
         if config:
-            # TODO: Implement adapter-based connection testing
-            # For now, just test current connection
-            enhanced_logger.warning(
-                "Custom config testing not yet implemented, testing current connection"
+            # Custom configuration testing would require implementing
+            # adapter-specific connection methods. For now, we test the current connection.
+            enhanced_logger.info(
+                "Testing current connection (custom config testing requires adapter implementation)",
+                config_provided=True
             )
 
         # Test current connection

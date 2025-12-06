@@ -4,13 +4,19 @@
 Provides JWT-based authentication and Role-Based Access Control (RBAC)
 for the Chat System.
 
-TODO:
-- [ ] Implement OAuth2 provider integration (Google, GitHub, etc.)
-- [ ] Add multi-factor authentication (MFA)
-- [ ] Implement refresh token rotation
-- [ ] Add session management with Redis
-- [ ] Implement audit logging for auth events
-- [ ] Add rate limiting for login attempts
+Features:
+- JWT-based authentication with database user lookup
+- Role-Based Access Control (RBAC)
+- Password hashing with bcrypt
+- Token-based session management
+
+Future Enhancements:
+- OAuth2 provider integration (Google, GitHub, etc.)
+- Multi-factor authentication (MFA)
+- Refresh token rotation
+- Session management with Redis
+- Audit logging for auth events
+- Rate limiting for login attempts
 """
 
 import os
@@ -25,6 +31,8 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from config.settings import logger, settings
+from database.repositories import UserRepository
+from database.models import User as DBUser, UserRole as DBUserRole
 
 # Security configuration
 SECRET_KEY = settings.SECRET_KEY
@@ -233,26 +241,56 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     Raises:
         HTTPException: If authentication fails
 
-    TODO:
-    - [ ] Fetch user from database instead of creating stub
-    - [ ] Check user is_active status
-    - [ ] Implement token blacklist for logout
+    Note:
+        - Fetches user from database
+        - Validates user is_active status
+        - Token blacklist for logout can be implemented with Redis in future
     """
     token = credentials.credentials
     token_data = decode_token(token)
 
-    # TODO: Fetch user from database
-    # For now, create a stub user from token data
-    user = User(
-        id=token_data.sub,
-        username=f"user_{token_data.sub}",
-        email=f"user_{token_data.sub}@example.com",
-        role=Role(token_data.role),
-        is_active=True,
-    )
-
-    logger.debug(f"Authenticated user: {user.username} (role: {user.role})")
-    return user
+    # Fetch user from database
+    try:
+        db_user = UserRepository.get_user_by_id(token_data.sub)
+        if not db_user:
+            logger.warning(f"User not found in database: {token_data.sub}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Check if user is active
+        if not db_user.is_active:
+            logger.warning(f"Inactive user attempted to authenticate: {db_user.username}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User account is inactive",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Convert database user to auth User model
+        user = User(
+            id=db_user.id,
+            username=db_user.username,
+            email=db_user.email,
+            role=Role(db_user.role.value) if isinstance(db_user.role, DBUserRole) else Role(db_user.role),
+            is_active=db_user.is_active,
+            created_at=db_user.created_at or datetime.now(),
+        )
+        
+        logger.debug(f"Authenticated user: {user.username} (role: {user.role})")
+        return user
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching user from database: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
@@ -376,41 +414,52 @@ async def authenticate_user(username: str, password: str) -> Optional[User]:
     Returns:
         User object if authentication successful, None otherwise
 
-    TODO:
-    - [ ] Implement actual database lookup
-    - [ ] Add rate limiting for failed attempts
-    - [ ] Log authentication attempts
-    - [ ] Implement account lockout after N failed attempts
-
-    SECURITY WARNING: This is a STUB implementation for development only!
-    DO NOT USE IN PRODUCTION without implementing proper database authentication.
+    Note:
+        - Fetches user from database
+        - Verifies password hash
+        - Updates last login timestamp on successful authentication
+        - Future enhancements: rate limiting, account lockout, audit logging
     """
-    # TODO: Fetch user from database and verify password
-    # This is a stub implementation
-    logger.warning("authenticate_user is a stub - implement database lookup")
-
-    # DEVELOPMENT ONLY: Return None to disable authentication in stub mode
-    # Remove this check and implement proper authentication for production
-    if os.getenv("APP_ENVIRONMENT") == "production":
-        raise NotImplementedError(
-            "Authentication stub cannot be used in production. "
-            "Implement proper database-backed authentication."
+    try:
+        # Fetch user from database
+        db_user = UserRepository.get_user_by_username(username)
+        if not db_user:
+            logger.debug(f"Authentication failed: User not found - {username}")
+            return None
+        
+        # Check if user is active
+        if not db_user.is_active:
+            logger.warning(f"Authentication failed: Inactive user - {username}")
+            return None
+        
+        # Verify password
+        if not verify_password(password, db_user.password_hash):
+            logger.debug(f"Authentication failed: Invalid password - {username}")
+            return None
+        
+        # Update last login timestamp
+        try:
+            UserRepository.update_user_last_login(db_user.id)
+        except Exception as e:
+            logger.warning(f"Failed to update last login for user {username}: {e}")
+            # Don't fail authentication if we can't update last login
+        
+        # Convert database user to auth User model
+        user = User(
+            id=db_user.id,
+            username=db_user.username,
+            email=db_user.email,
+            role=Role(db_user.role.value) if isinstance(db_user.role, DBUserRole) else Role(db_user.role),
+            is_active=db_user.is_active,
+            created_at=db_user.created_at or datetime.now(),
         )
-
-    # Development stub: Only allow authentication if explicitly enabled
-    if os.getenv("ENABLE_STUB_AUTH", "false").lower() != "true":
+        
+        logger.info(f"User authenticated successfully: {username}")
+        return user
+        
+    except Exception as e:
+        logger.error(f"Error during authentication for user {username}: {e}")
         return None
-
-    # Stub: Accept specific test user for development
-    if username == "test_user" and password == "test_password":
-        return User(
-            id=f"user_{username}",
-            username=username,
-            email=f"{username}@example.com",
-            role=Role.USER,
-        )
-
-    return None
 
 
 async def login(login_request: LoginRequest) -> TokenResponse:
