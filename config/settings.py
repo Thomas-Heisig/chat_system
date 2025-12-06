@@ -90,13 +90,13 @@ class EnvironmentSettings(BaseSettings):
     TTS_FORMAT: str = Field(default="mp3")
     TTS_API_KEY: Optional[str] = Field(default=None)
     TTS_SPEED: float = Field(default=1.0)
-    
+
     WHISPER_ENABLED: bool = Field(default=False)
     WHISPER_MODEL: str = Field(default="base")  # tiny, base, small, medium, large
     WHISPER_LOCAL: bool = Field(default=True)
     WHISPER_API_KEY: Optional[str] = Field(default=None)
     WHISPER_LANGUAGE: str = Field(default="auto")
-    
+
     AUDIO_PROCESSING_ENABLED: bool = Field(default=True)
     MAX_AUDIO_SIZE: int = Field(default=25 * 1024 * 1024)  # 25MB
     AUDIO_FORMATS: List[str] = Field(default=["mp3", "wav", "ogg", "flac", "m4a", "webm"])
@@ -124,7 +124,7 @@ class EnvironmentSettings(BaseSettings):
     GRAFANA_ENABLED: bool = Field(default=False)
     GRAFANA_URL: Optional[str] = Field(default=None)
     GRAFANA_API_KEY: Optional[str] = Field(default=None)
-    
+
     TRACING_ENABLED: bool = Field(default=False)
     TRACING_PROVIDER: str = Field(default="jaeger")  # jaeger, zipkin, otlp
     TRACING_ENDPOINT: Optional[str] = Field(default=None)
@@ -158,7 +158,7 @@ class EnvironmentSettings(BaseSettings):
     FEATURE_PROJECT_MANAGEMENT: bool = Field(default=True)
     FEATURE_TICKET_SYSTEM: bool = Field(default=True)
     FEATURE_FILE_UPLOAD: bool = Field(default=True)
-    
+
     # NOTE: User Authentication is fully implemented (JWT, bcrypt, Sessions),
     # but disabled by default for easier development/testing.
     # In PRODUCTION this should be set to True!
@@ -462,7 +462,7 @@ class AIConfig:
         self.context_messages = settings.AI_CONTEXT_MESSAGES
         self.rag_enabled = settings.RAG_ENABLED
         self.vector_store_enabled = settings.VECTOR_STORE_ENABLED
-        
+
         # Elyza Model Config
         self.elyza_enabled = settings.ELYZA_ENABLED
         self.elyza_model_path = settings.ELYZA_MODEL_PATH
@@ -483,14 +483,14 @@ class VoiceConfig:
         self.tts_format = settings.TTS_FORMAT
         self.tts_api_key = settings.TTS_API_KEY
         self.tts_speed = settings.TTS_SPEED
-        
+
         # Transcription
         self.whisper_enabled = settings.WHISPER_ENABLED
         self.whisper_model = settings.WHISPER_MODEL
         self.whisper_local = settings.WHISPER_LOCAL
         self.whisper_api_key = settings.WHISPER_API_KEY
         self.whisper_language = settings.WHISPER_LANGUAGE
-        
+
         # Audio Processing
         self.audio_processing_enabled = settings.AUDIO_PROCESSING_ENABLED
         self.max_audio_size = settings.MAX_AUDIO_SIZE
@@ -516,17 +516,17 @@ class MonitoringConfig:
         # Sentry
         self.sentry_dsn = settings.SENTRY_DSN
         self.sentry_enabled = bool(settings.SENTRY_DSN)
-        
+
         # Database Monitoring
         self.slow_query_threshold_ms = settings.SLOW_QUERY_THRESHOLD_MS
         self.query_logging_enabled = settings.ENABLE_QUERY_LOGGING
         self.pool_monitoring_enabled = settings.ENABLE_POOL_MONITORING
-        
+
         # Grafana
         self.grafana_enabled = settings.GRAFANA_ENABLED
         self.grafana_url = settings.GRAFANA_URL
         self.grafana_api_key = settings.GRAFANA_API_KEY
-        
+
         # Distributed Tracing
         self.tracing_enabled = settings.TRACING_ENABLED
         self.tracing_provider = settings.TRACING_PROVIDER
@@ -542,7 +542,7 @@ class InfrastructureConfig:
         self.redis_enabled = settings.REDIS_ENABLED
         self.redis_url = settings.REDIS_URL
         self.redis_pubsub_enabled = settings.REDIS_PUBSUB_ENABLED
-        
+
         # Object Storage
         self.object_storage_enabled = settings.OBJECT_STORAGE_ENABLED
         self.object_storage_provider = settings.OBJECT_STORAGE_PROVIDER
@@ -550,7 +550,7 @@ class InfrastructureConfig:
         self.object_storage_endpoint = settings.OBJECT_STORAGE_ENDPOINT
         self.object_storage_access_key = settings.OBJECT_STORAGE_ACCESS_KEY
         self.object_storage_secret_key = settings.OBJECT_STORAGE_SECRET_KEY
-        
+
         # CI/CD
         self.ci_cd_enabled = settings.CI_CD_ENABLED
         self.container_registry = settings.CONTAINER_REGISTRY

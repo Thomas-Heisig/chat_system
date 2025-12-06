@@ -30,11 +30,11 @@ class MessageRepository:
         try:
             with get_db_connection() as conn:
                 cursor = conn.execute(
-                    """INSERT INTO messages 
-                       (username, message, message_compressed, timestamp, message_type, 
+                    """INSERT INTO messages
+                       (username, message, message_compressed, timestamp, message_type,
                         parent_id, room_id, project_id, ticket_id,
                         is_ai_response, ai_model_used, context_message_ids, rag_sources,
-                        sentiment, is_edited, edit_history, reaction_count, flags, metadata) 
+                        sentiment, is_edited, edit_history, reaction_count, flags, metadata)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         message.username,
@@ -283,7 +283,7 @@ class MessageRepository:
         try:
             with get_db_connection() as conn:
                 cursor = conn.execute(
-                    """SELECT id, message_id, user_id, reaction, created_at 
+                    """SELECT id, message_id, user_id, reaction, created_at
                        FROM message_reactions WHERE message_id = ?""",
                     (message_id,),
                 )
@@ -365,8 +365,8 @@ class UserRepository:
         try:
             with get_db_connection() as conn:
                 conn.execute(
-                    """INSERT INTO users 
-                       (id, username, email, password_hash, display_name, avatar_url, role, 
+                    """INSERT INTO users
+                       (id, username, email, password_hash, display_name, avatar_url, role,
                         is_active, is_verified, force_password_change, last_login, created_at, updated_at, preferences, metadata)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
@@ -468,7 +468,7 @@ class ProjectRepository:
         try:
             with get_db_connection() as conn:
                 conn.execute(
-                    """INSERT INTO projects 
+                    """INSERT INTO projects
                        (id, name, description, status, created_by, created_at, updated_at,
                         due_date, tags, members, settings, metadata, ticket_count,
                         completed_ticket_count, progress_percentage)
@@ -586,7 +586,7 @@ class TicketRepository:
         try:
             with get_db_connection() as conn:
                 conn.execute(
-                    """INSERT INTO tickets 
+                    """INSERT INTO tickets
                        (id, title, description, project_id, created_by, assigned_to,
                         status, priority, type, due_date, created_at, updated_at,
                         resolved_at, estimated_hours, actual_hours, related_tickets,
@@ -735,7 +735,7 @@ class FileRepository:
         try:
             with get_db_connection() as conn:
                 conn.execute(
-                    """INSERT INTO files 
+                    """INSERT INTO files
                        (id, original_filename, stored_filename, file_path, file_size,
                         file_hash, mime_type, file_type, uploaded_by, project_id,
                         ticket_id, message_id, upload_date, description, download_count,
@@ -913,7 +913,7 @@ class StatisticsRepository:
                 # Message statistics
                 cursor = conn.execute(
                     """
-                    SELECT 
+                    SELECT
                         COUNT(*) as total,
                         SUM(CASE WHEN is_ai_response = 1 THEN 1 ELSE 0 END) as ai_messages,
                         COUNT(DISTINCT username) as unique_users
@@ -932,8 +932,8 @@ class StatisticsRepository:
                 # Project statistics
                 cursor = conn.execute(
                     """
-                    SELECT status, COUNT(*) as count 
-                    FROM projects 
+                    SELECT status, COUNT(*) as count
+                    FROM projects
                     GROUP BY status
                 """
                 )
@@ -942,8 +942,8 @@ class StatisticsRepository:
                 # Ticket statistics
                 cursor = conn.execute(
                     """
-                    SELECT status, COUNT(*) as count 
-                    FROM tickets 
+                    SELECT status, COUNT(*) as count
+                    FROM tickets
                     GROUP BY status
                 """
                 )
@@ -952,8 +952,8 @@ class StatisticsRepository:
                 # Recent activity
                 cursor = conn.execute(
                     """
-                    SELECT COUNT(*) as count 
-                    FROM messages 
+                    SELECT COUNT(*) as count
+                    FROM messages
                     WHERE timestamp > datetime('now', '-1 day')
                 """
                 )

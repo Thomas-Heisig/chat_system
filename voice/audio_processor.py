@@ -39,7 +39,7 @@ class AudioProcessor:
             f"🎵 Audio Processor initialized "
             f"(Enabled: {self.enabled}, Libraries: {self.libraries_available})"
         )
-        
+
         if self.enabled and not self.libraries_available:
             logger.warning(
                 "⚠️ Audio processing is enabled but libraries (pydub/librosa) "
@@ -49,25 +49,28 @@ class AudioProcessor:
     def _check_libraries(self) -> Dict[str, bool]:
         """Check availability of audio processing libraries"""
         libraries = {}
-        
+
         try:
             import pydub  # noqa: F401
-            libraries['pydub'] = True
+
+            libraries["pydub"] = True
         except ImportError:
-            libraries['pydub'] = False
-            
+            libraries["pydub"] = False
+
         try:
             import librosa  # noqa: F401
-            libraries['librosa'] = True
+
+            libraries["librosa"] = True
         except ImportError:
-            libraries['librosa'] = False
-            
+            libraries["librosa"] = False
+
         try:
             import soundfile  # noqa: F401
-            libraries['soundfile'] = True
+
+            libraries["soundfile"] = True
         except ImportError:
-            libraries['soundfile'] = False
-            
+            libraries["soundfile"] = False
+
         return libraries
 
     async def process_upload(
@@ -108,17 +111,19 @@ class AudioProcessor:
             # Check if processing is enabled
             if not self.enabled:
                 return self._fallback_response(
-                    file_path, file_size,
-                    "Audio processing is disabled. Set AUDIO_PROCESSING_ENABLED=true in .env."
+                    file_path,
+                    file_size,
+                    "Audio processing is disabled. Set AUDIO_PROCESSING_ENABLED=true in .env.",
                 )
 
             # Try actual processing if libraries available
-            if self.libraries_available.get('pydub') or self.libraries_available.get('librosa'):
+            if self.libraries_available.get("pydub") or self.libraries_available.get("librosa"):
                 return await self._process_with_libraries(file_path, target_format)
             else:
                 return self._fallback_response(
-                    file_path, file_size,
-                    "Audio processing libraries not available. Install pydub or librosa."
+                    file_path,
+                    file_size,
+                    "Audio processing libraries not available. Install pydub or librosa.",
                 )
 
         except Exception as e:
@@ -144,19 +149,17 @@ class AudioProcessor:
             "suggestion": "Install pydub or librosa for full audio processing",
         }
 
-    async def _process_with_libraries(
-        self, file_path: str, target_format: str
-    ) -> Dict[str, Any]:
+    async def _process_with_libraries(self, file_path: str, target_format: str) -> Dict[str, Any]:
         """Process audio using available libraries"""
         file_size = os.path.getsize(file_path)
-        
+
         try:
             # Try pydub first (more lightweight)
-            if self.libraries_available.get('pydub'):
+            if self.libraries_available.get("pydub"):
                 from pydub import AudioSegment
-                
+
                 audio = AudioSegment.from_file(file_path)
-                
+
                 result = {
                     "success": True,
                     "fallback": False,
@@ -171,21 +174,21 @@ class AudioProcessor:
                     "status": "success",
                     "engine": "pydub",
                 }
-                
+
                 logger.info(f"🎵 Audio processed with pydub: {Path(file_path).name}")
                 return result
-                
+
             # Fall back to librosa
-            elif self.libraries_available.get('librosa'):
+            elif self.libraries_available.get("librosa"):
                 import librosa
-                
+
                 y, sr = librosa.load(file_path, sr=None)
                 duration = librosa.get_duration(y=y, sr=sr)
-                
+
                 # Determine channel count correctly
                 # librosa returns (n_samples,) for mono, (n_channels, n_samples) for multi-channel
                 channels = 1 if len(y.shape) == 1 else y.shape[0]
-                
+
                 result = {
                     "success": True,
                     "fallback": False,
@@ -200,14 +203,14 @@ class AudioProcessor:
                     "status": "success",
                     "engine": "librosa",
                 }
-                
+
                 logger.info(f"🎵 Audio processed with librosa: {Path(file_path).name}")
                 return result
-            
+
         except Exception as e:
             logger.error(f"Audio processing with libraries failed: {e}")
             return self._fallback_response(file_path, file_size, str(e))
-        
+
         return self._fallback_response(file_path, file_size, "No processing libraries available")
 
     async def convert_format(self, input_path: str, output_format: str) -> Dict[str, Any]:
@@ -228,7 +231,7 @@ class AudioProcessor:
             }
 
         output_path = str(Path(input_path).with_suffix(f".{output_format}"))
-        
+
         # Check if pydub is available for conversion
         if not self.libraries_available.get("pydub", False):
             logger.warning(
@@ -241,20 +244,20 @@ class AudioProcessor:
                 "output_format": output_format,
                 "status": "unavailable",
                 "message": "pydub library not available for format conversion",
-                "suggestion": "Install pydub and ffmpeg: pip install pydub && apt-get install ffmpeg"
+                "suggestion": "Install pydub and ffmpeg: pip install pydub && apt-get install ffmpeg",
             }
-        
+
         try:
             from pydub import AudioSegment
-            
+
             # Load audio file
             audio = AudioSegment.from_file(input_path)
-            
+
             # Export to target format
             audio.export(output_path, format=output_format)
-            
+
             logger.info(f"🔄 Audio converted: {Path(input_path).name} -> {output_format}")
-            
+
             return {
                 "success": True,
                 "input_file": input_path,
@@ -265,7 +268,7 @@ class AudioProcessor:
                 "channels": audio.channels,
                 "status": "success",
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Audio conversion failed: {e}")
             return {
@@ -287,17 +290,18 @@ class AudioProcessor:
             Audio analysis including quality metrics
         """
         file_format = Path(file_path).suffix[1:]
-        
+
         # Try WAV analysis with built-in wave library first (no dependencies)
-        if file_format.lower() == 'wav':
+        if file_format.lower() == "wav":
             try:
                 import wave
-                with wave.open(file_path, 'rb') as wav_file:
+
+                with wave.open(file_path, "rb") as wav_file:
                     frames = wav_file.getnframes()
                     rate = wav_file.getframerate()
                     channels = wav_file.getnchannels()
                     duration = frames / float(rate)
-                    
+
                     # Determine quality based on sample rate
                     if rate >= 44100:
                         quality = "high"
@@ -305,7 +309,7 @@ class AudioProcessor:
                         quality = "medium"
                     else:
                         quality = "low"
-                    
+
                     return {
                         "file_path": file_path,
                         "duration": duration,
@@ -315,18 +319,18 @@ class AudioProcessor:
                         "quality": quality,
                         "bitrate": None,  # WAV doesn't have bitrate info
                         "status": "success",
-                        "method": "wave"
+                        "method": "wave",
                     }
             except Exception as e:
                 logger.debug(f"WAV analysis failed: {e}")
-        
+
         # Try pydub for other formats
         if self.libraries_available.get("pydub", False):
             try:
                 from pydub import AudioSegment
-                
+
                 audio = AudioSegment.from_file(file_path)
-                
+
                 # Determine quality based on sample rate and channels
                 if audio.frame_rate >= 44100 and audio.channels >= 2:
                     quality = "high"
@@ -334,7 +338,7 @@ class AudioProcessor:
                     quality = "medium"
                 else:
                     quality = "low"
-                
+
                 return {
                     "file_path": file_path,
                     "duration": len(audio) / 1000.0,  # milliseconds to seconds
@@ -344,9 +348,9 @@ class AudioProcessor:
                     "quality": quality,
                     "bitrate": None,  # Not directly available in pydub
                     "status": "success",
-                    "method": "pydub"
+                    "method": "pydub",
                 }
-                
+
             except Exception as e:
                 logger.error(f"❌ Audio analysis failed: {e}")
                 return {
@@ -355,7 +359,7 @@ class AudioProcessor:
                     "format": file_format,
                     "status": "error",
                 }
-        
+
         # Fallback: return basic file info
         logger.warning("⚠️ Audio analysis libraries not available")
         return {
@@ -367,7 +371,7 @@ class AudioProcessor:
             "quality": "unknown",
             "status": "unavailable",
             "message": "Audio analysis libraries not available",
-            "suggestion": "Install pydub for full audio analysis: pip install pydub"
+            "suggestion": "Install pydub for full audio analysis: pip install pydub",
         }
 
     def is_supported_format(self, filename: str) -> bool:
@@ -389,7 +393,7 @@ class AudioProcessor:
                 "AUDIO_PROCESSING_ENABLED": self.enabled,
                 "MAX_AUDIO_SIZE": self.max_file_size,
                 "AUDIO_FORMATS": self.supported_formats,
-            }
+            },
         }
 
 

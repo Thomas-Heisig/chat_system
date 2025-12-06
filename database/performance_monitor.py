@@ -84,9 +84,7 @@ class DatabasePerformanceMonitor:
             pool_monitoring=self.enable_pool_monitoring,
         )
 
-    def before_cursor_execute(
-        self, conn, cursor, statement, parameters, context, executemany
-    ):
+    def before_cursor_execute(self, conn, cursor, statement, parameters, context, executemany):
         """
         Event handler called before query execution
 
@@ -100,9 +98,7 @@ class DatabasePerformanceMonitor:
         """
         context._query_start_time = time.time()
 
-    def after_cursor_execute(
-        self, conn, cursor, statement, parameters, context, executemany
-    ):
+    def after_cursor_execute(self, conn, cursor, statement, parameters, context, executemany):
         """
         Event handler called after query execution
 
@@ -241,9 +237,7 @@ class DatabasePerformanceMonitor:
             Dictionary with performance statistics
         """
         slow_query_percentage = (
-            (self.slow_query_count / self.query_count * 100)
-            if self.query_count > 0
-            else 0
+            (self.slow_query_count / self.query_count * 100) if self.query_count > 0 else 0
         )
 
         return {

@@ -105,7 +105,7 @@ class Plugin:
 class PluginSandbox:
     """
     Sandbox environment for plugin execution
-    
+
     Current Implementation: Stub with security safeguards
     - Prevents execution without proper sandboxing
     - Requires ENABLE_PLUGIN_EXECUTION=true to bypass (dev only)
@@ -181,7 +181,7 @@ class PluginSandbox:
             container_id = self.container_id  # Keep reference for logging
             logger.info(f"Cleaning up sandbox container {container_id}")
             cleanup_successful = False
-            
+
             try:
                 import docker
 
@@ -198,10 +198,12 @@ class PluginSandbox:
                 except docker.errors.APIError as e:
                     logger.error(f"❌ Docker API error cleaning up container {container_id}: {e}")
             except ImportError:
-                logger.warning(f"⚠️ Docker SDK not installed, cannot cleanup container {container_id}")
+                logger.warning(
+                    f"⚠️ Docker SDK not installed, cannot cleanup container {container_id}"
+                )
             except Exception as e:
                 logger.error(f"❌ Failed to cleanup sandbox container {container_id}: {e}")
-            
+
             # Clear container_id if cleanup was successful or container not found
             if cleanup_successful:
                 self.container_id = None
@@ -224,6 +226,7 @@ class PluginService:
         # Use centralized configuration
         try:
             from config.settings import plugin_config
+
             self.enabled = plugin_config.enabled
             self.plugin_dir = Path(plugin_config.plugins_dir)
             self.auto_load = plugin_config.auto_load
@@ -238,13 +241,13 @@ class PluginService:
             self.sandbox_enabled = os.getenv("PLUGINS_SANDBOX_ENABLED", "true").lower() == "true"
             self.timeout = int(os.getenv("PLUGINS_TIMEOUT", "30"))
             self.max_memory = os.getenv("PLUGINS_MAX_MEMORY", "512m")
-        
+
         self.plugin_dir.mkdir(exist_ok=True, parents=True)
 
         self.plugins: Dict[str, Plugin] = {}
         self.sandboxes: Dict[str, PluginSandbox] = {}
         self.hooks: Dict[str, List[Callable]] = {}
-        
+
         # Check Docker availability
         self.docker_available = self._check_docker_availability()
 
@@ -253,7 +256,7 @@ class PluginService:
             f"(enabled: {self.enabled}, dir: {self.plugin_dir}, "
             f"sandbox: {self.sandbox_enabled}, docker: {self.docker_available})"
         )
-        
+
         if self.enabled and not self.docker_available and self.sandbox_enabled:
             logger.warning(
                 "⚠️ Plugin sandbox is enabled but Docker is not available. "
@@ -268,9 +271,10 @@ class PluginService:
         """Check if Docker is available"""
         if not self.sandbox_enabled:
             return False
-            
+
         try:
             import docker
+
             client = docker.from_env()
             client.ping()
             return True
@@ -312,7 +316,7 @@ class PluginService:
 
         Returns:
             Installation result
-        
+
         Note:
             Plugin installation from packages is a future enhancement.
             Currently plugins must be manually placed in the plugins directory.
@@ -438,7 +442,7 @@ class PluginService:
             return {"success": False, "error": f"Plugin {plugin_id} not found"}
 
         plugin = self.plugins[plugin_id]
-        
+
         # Disable first if enabled
         if plugin.status == PluginStatus.ENABLED:
             await self.disable_plugin(plugin_id)
@@ -450,6 +454,7 @@ class PluginService:
                 plugin_path = self.plugin_dir / plugin_id
                 if plugin_path.exists():
                     import shutil
+
                     shutil.rmtree(plugin_path)
                     cleanup_status = "success"
                     logger.info(f"Plugin files cleaned up: {plugin_path}")

@@ -8,7 +8,7 @@ Author: Chat System Team
 Date: 2025-12-06
 """
 
-from sqlalchemy import Index, MetaData, Table
+from sqlalchemy import Index, MetaData
 
 # Index definitions for common query patterns
 INDEXES = [
@@ -126,9 +126,7 @@ def create_indexes(engine):
 
         # Check if table exists
         if table_name not in metadata.tables:
-            print(
-                f"Warning: Table '{table_name}' not found, skipping index '{index_name}'"
-            )
+            print(f"Warning: Table '{table_name}' not found, skipping index '{index_name}'")
             continue
 
         table = metadata.tables[table_name]
@@ -190,9 +188,7 @@ def drop_indexes(engine):
 
         # Check if table exists
         if table_name not in metadata.tables:
-            print(
-                f"Warning: Table '{table_name}' not found, skipping index '{index_name}'"
-            )
+            print(f"Warning: Table '{table_name}' not found, skipping index '{index_name}'")
             continue
 
         table = metadata.tables[table_name]
@@ -225,7 +221,7 @@ def drop_indexes(engine):
 if __name__ == "__main__":
     """
     Run migration from command line
-    
+
     Usage:
         python -m database.migrations.add_performance_indexes [create|drop]
     """

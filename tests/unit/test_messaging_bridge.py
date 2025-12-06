@@ -15,9 +15,7 @@ class TestMessagingBridge:
     @pytest.fixture
     def mock_adapter(self):
         adapter = Mock()
-        adapter.send = AsyncMock(
-            return_value={"status": "success", "message_id": "mock_id"}
-        )
+        adapter.send = AsyncMock(return_value={"status": "success", "message_id": "mock_id"})
         adapter.normalize = AsyncMock(
             return_value={
                 "platform": "test_platform",
@@ -67,7 +65,7 @@ class TestMessagingBridge:
         bridge.register_adapter("test_platform", mock_adapter)
 
         message = {"text": "Hello"}
-        result = await bridge.send_message("test_platform", message, target="channel_123")
+        await bridge.send_message("test_platform", message, target="channel_123")
 
         mock_adapter.send.assert_called_once()
 
@@ -144,7 +142,11 @@ class TestMessagingBridge:
             "thread_id": "1234567890.123456",
             "mentions": ["user1"],
             "attachments": [
-                {"title": "Test", "text": "Attachment text", "image_url": "http://example.com/image.png"}
+                {
+                    "title": "Test",
+                    "text": "Attachment text",
+                    "image_url": "http://example.com/image.png",
+                }
             ],
         }
 
@@ -161,7 +163,13 @@ class TestMessagingBridge:
         unified_message = {
             "text": "Hello @user1",
             "mentions": ["user1"],
-            "attachments": [{"title": "Test", "text": "Description", "image_url": "http://example.com/image.png"}],
+            "attachments": [
+                {
+                    "title": "Test",
+                    "text": "Description",
+                    "image_url": "http://example.com/image.png",
+                }
+            ],
         }
 
         result = bridge._transform_to_discord(unified_message)

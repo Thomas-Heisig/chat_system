@@ -210,7 +210,7 @@ async def route_info():
             "Pages": {
                 "GET /": "Main chat interface (includes ticket management)",
                 "GET /projects": "Projects management interface",
-                "Note": "Tickets are managed via API endpoints, integrated in main interface"
+                "Note": "Tickets are managed via API endpoints, integrated in main interface",
             },
             "WebSocket": {"WebSocket /ws": "Real-time communication"},
             "AI Services": {

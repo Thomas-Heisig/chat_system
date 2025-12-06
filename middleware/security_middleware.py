@@ -65,9 +65,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         return response
 
-    def _add_security_headers(
-        self, response: Response, nonce: str = None, path: str = "/"
-    ):
+    def _add_security_headers(self, response: Response, nonce: str = None, path: str = "/"):
         """
         Add comprehensive security headers to the response
 

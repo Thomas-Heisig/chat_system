@@ -40,7 +40,7 @@ class TextToSpeechService:
             f"(Engine: {self.tts_engine}, Enabled: {self.tts_enabled}, "
             f"Available: {self.engine_available})"
         )
-        
+
         if self.tts_enabled and not self.engine_available:
             logger.warning(
                 f"⚠️ TTS engine '{self.tts_engine}' is enabled but dependencies "
@@ -51,23 +51,28 @@ class TextToSpeechService:
         """Check if the configured TTS engine has required dependencies"""
         if not self.tts_enabled:
             return False
-            
+
         try:
             if self.tts_engine == "gtts":
                 import gtts  # noqa: F401
+
                 return True
             elif self.tts_engine == "openai":
                 # Check if openai library is available
                 import openai  # noqa: F401
+
                 return bool(self.api_key)
             elif self.tts_engine == "google":
                 import google.cloud.texttospeech  # noqa: F401
+
                 return True
             elif self.tts_engine == "azure":
                 import azure.cognitiveservices.speech  # noqa: F401
+
                 return bool(self.api_key)
             elif self.tts_engine == "coqui":
                 from TTS.api import TTS  # noqa: F401
+
                 return True
             else:
                 logger.warning(f"Unknown TTS engine: {self.tts_engine}")
@@ -110,17 +115,23 @@ class TextToSpeechService:
         # Check if TTS is enabled
         if not self.tts_enabled:
             return self._fallback_response(
-                text, voice, speed, output_path,
+                text,
+                voice,
+                speed,
+                output_path,
                 "Text-to-speech service is disabled. "
-                "Set TTS_ENABLED=true in .env to enable TTS."
+                "Set TTS_ENABLED=true in .env to enable TTS.",
             )
 
         # Check if engine is available
         if not self.engine_available:
             return self._fallback_response(
-                text, voice, speed, output_path,
+                text,
+                voice,
+                speed,
+                output_path,
                 f"TTS engine '{self.tts_engine}' dependencies not available. "
-                f"Install required packages or use a different engine."
+                f"Install required packages or use a different engine.",
             )
 
         try:
@@ -132,24 +143,21 @@ class TextToSpeechService:
             else:
                 # Fallback for unimplemented engines
                 return self._fallback_response(
-                    text, voice, speed, output_path,
-                    f"TTS engine '{self.tts_engine}' implementation pending"
+                    text,
+                    voice,
+                    speed,
+                    output_path,
+                    f"TTS engine '{self.tts_engine}' implementation pending",
                 )
 
         except Exception as e:
             logger.error(f"❌ TTS generation failed: {e}")
             return self._fallback_response(
-                text, voice, speed, output_path,
-                f"TTS generation failed: {str(e)}"
+                text, voice, speed, output_path, f"TTS generation failed: {str(e)}"
             )
 
     def _fallback_response(
-        self,
-        text: str,
-        voice: str,
-        speed: float,
-        output_path: Optional[str],
-        reason: str
+        self, text: str, voice: str, speed: float, output_path: Optional[str], reason: str
     ) -> Dict[str, Any]:
         """Generate fallback response when TTS is unavailable"""
         return {
@@ -174,23 +182,23 @@ class TextToSpeechService:
         """Generate speech using gTTS (Google Text-to-Speech)"""
         try:
             from gtts import gTTS
-            
+
             # Determine output path
             if not output_path:
                 output_dir = Path("uploads/audio/tts")
                 output_dir.mkdir(parents=True, exist_ok=True)
                 output_path = str(output_dir / f"tts_{hash(text)}.mp3")
-            
+
             # Generate speech
             # gTTS expects 2-letter language codes, default to 'en' for other voice IDs
-            lang = voice if len(voice) == 2 and voice.isalpha() else 'en'
+            lang = voice if len(voice) == 2 and voice.isalpha() else "en"
             tts = gTTS(text=text, lang=lang, slow=(speed < 1.0))
             tts.save(output_path)
-            
+
             file_size = os.path.getsize(output_path)
-            
+
             logger.info(f"🔊 Speech generated with gTTS: {len(text)} characters")
-            
+
             return {
                 "success": True,
                 "fallback": False,
@@ -204,7 +212,7 @@ class TextToSpeechService:
                 "status": "success",
                 "engine": "gtts",
             }
-            
+
         except Exception as e:
             logger.error(f"gTTS generation failed: {e}")
             return self._fallback_response(text, voice, speed, output_path, str(e))
@@ -215,31 +223,28 @@ class TextToSpeechService:
         """Generate speech using OpenAI TTS API"""
         try:
             from openai import AsyncOpenAI
-            
+
             client = AsyncOpenAI(api_key=self.api_key)
-            
+
             # Determine output path
             if not output_path:
                 output_dir = Path("uploads/audio/tts")
                 output_dir.mkdir(parents=True, exist_ok=True)
                 output_path = str(output_dir / f"tts_{hash(text)}.mp3")
-            
+
             # Generate speech
             response = await client.audio.speech.create(
-                model="tts-1",
-                voice=voice,
-                input=text,
-                speed=speed
+                model="tts-1", voice=voice, input=text, speed=speed
             )
-            
+
             # Save to file
-            with open(output_path, 'wb') as f:
+            with open(output_path, "wb") as f:
                 f.write(response.content)
-            
+
             file_size = os.path.getsize(output_path)
-            
+
             logger.info(f"🔊 Speech generated with OpenAI TTS: {len(text)} characters")
-            
+
             return {
                 "success": True,
                 "fallback": False,
@@ -253,7 +258,7 @@ class TextToSpeechService:
                 "status": "success",
                 "engine": "openai",
             }
-            
+
         except Exception as e:
             logger.error(f"OpenAI TTS generation failed: {e}")
             return self._fallback_response(text, voice, speed, output_path, str(e))
@@ -268,7 +273,7 @@ class TextToSpeechService:
 
         Yields:
             Audio chunks
-        
+
         Note:
             Streaming TTS is a future enhancement. Currently returns empty bytes.
             See docs/VOICE_PROCESSING.md for implementation roadmap.
@@ -316,7 +321,7 @@ class TextToSpeechService:
                 "TTS_VOICE": self.default_voice,
                 "TTS_FORMAT": self.output_format,
                 "TTS_SPEED": self.default_speed,
-            }
+            },
         }
 
 

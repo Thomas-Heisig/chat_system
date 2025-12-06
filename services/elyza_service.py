@@ -17,7 +17,7 @@ import os
 import random
 import re
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from config.settings import enhanced_logger
 
@@ -52,7 +52,7 @@ class ElyzaService:
     Evolutionary AI Playground - Demonstrating AI development from 1960s to today.
 
     This service showcases the evolution of conversational AI through multiple stages:
-    
+
     Stage 1 - Classical ELIZA (1960s): Pattern matching and reflective responses
     Stage 2 - Text Analysis (1990s): Sentiment detection and language understanding
     Stage 3 - RAG Knowledge (2020s): Retrieval from document knowledge base
@@ -82,7 +82,7 @@ class ElyzaService:
         self.responses = self._initialize_responses()
         self.context: Dict[str, List[str]] = {}  # Per-user context
         self.max_context_size = 10
-        
+
         # Stage configuration - which stages are enabled
         self.stages_enabled = {
             AIEvolutionStage.CLASSICAL_ELIZA: True,  # Always available
@@ -90,7 +90,7 @@ class ElyzaService:
             AIEvolutionStage.RAG_KNOWLEDGE: self._check_rag_enabled(),
             AIEvolutionStage.INTERNET_SEARCH: self._check_internet_enabled(),
         }
-        
+
         # Statistics tracking
         self.stats = {
             "total_requests": 0,
@@ -109,11 +109,11 @@ class ElyzaService:
         """Check if Elyza fallback is enabled via environment variable."""
         enabled_str = os.getenv("ENABLE_ELYZA_FALLBACK", "false").lower()
         return enabled_str in ["true", "1", "yes", "on"]
-    
+
     def _check_rag_enabled(self) -> bool:
         """Check if RAG integration is enabled"""
         return os.getenv("RAG_ENABLED", "false").lower() in ["true", "1", "yes", "on"]
-    
+
     def _check_internet_enabled(self) -> bool:
         """Check if internet search is enabled"""
         return os.getenv("ELYZA_INTERNET_SEARCH", "false").lower() in ["true", "1", "yes", "on"]
@@ -288,84 +288,149 @@ class ElyzaService:
                 ],
             },
         }
-    
+
     def _detect_language(self, text: str) -> Language:
         """
         Detect language from text using simple heuristics.
-        
+
         Args:
             text: Input text to analyze
-            
+
         Returns:
             Detected language (defaults to German)
         """
         text_lower = text.lower()
-        
+
         # Common English words/patterns
         english_indicators = [
-            "the", "is", "are", "what", "how", "when", "where", "why",
-            "you", "your", "my", "can", "could", "would", "should",
+            "the",
+            "is",
+            "are",
+            "what",
+            "how",
+            "when",
+            "where",
+            "why",
+            "you",
+            "your",
+            "my",
+            "can",
+            "could",
+            "would",
+            "should",
         ]
-        
+
         # Common German words/patterns
         german_indicators = [
-            "der", "die", "das", "ist", "sind", "wie", "was", "wann",
-            "wo", "warum", "du", "dein", "mein", "kann", "könnte",
+            "der",
+            "die",
+            "das",
+            "ist",
+            "sind",
+            "wie",
+            "was",
+            "wann",
+            "wo",
+            "warum",
+            "du",
+            "dein",
+            "mein",
+            "kann",
+            "könnte",
         ]
-        
+
         english_count = sum(1 for word in english_indicators if f" {word} " in f" {text_lower} ")
         german_count = sum(1 for word in german_indicators if f" {word} " in f" {text_lower} ")
-        
+
         if english_count > german_count:
             return Language.ENGLISH
-        
+
         return Language.GERMAN
 
     def _detect_sentiment(self, text: str) -> SentimentType:
         """
         Detect sentiment from text using pattern matching.
-        
+
         Args:
             text: Input text to analyze
-            
+
         Returns:
             Detected sentiment type
         """
         text_lower = text.lower()
-        
+
         # Question indicators
-        question_words = ["?", "wie", "was", "wann", "wo", "warum", "wer", "welche",
-                         "how", "what", "when", "where", "why", "who", "which"]
+        question_words = [
+            "?",
+            "wie",
+            "was",
+            "wann",
+            "wo",
+            "warum",
+            "wer",
+            "welche",
+            "how",
+            "what",
+            "when",
+            "where",
+            "why",
+            "who",
+            "which",
+        ]
         if any(word in text_lower for word in question_words):
             return SentimentType.QUESTION
-        
+
         # Positive indicators
-        positive_words = ["toll", "super", "gut", "klasse", "danke", "prima", "perfekt",
-                         "great", "good", "excellent", "awesome", "thanks", "perfect"]
+        positive_words = [
+            "toll",
+            "super",
+            "gut",
+            "klasse",
+            "danke",
+            "prima",
+            "perfekt",
+            "great",
+            "good",
+            "excellent",
+            "awesome",
+            "thanks",
+            "perfect",
+        ]
         positive_count = sum(1 for word in positive_words if word in text_lower)
-        
+
         # Negative indicators
-        negative_words = ["problem", "fehler", "schlecht", "nicht", "falsch", "error",
-                         "bad", "wrong", "issue", "fail", "broken"]
+        negative_words = [
+            "problem",
+            "fehler",
+            "schlecht",
+            "nicht",
+            "falsch",
+            "error",
+            "bad",
+            "wrong",
+            "issue",
+            "fail",
+            "broken",
+        ]
         negative_count = sum(1 for word in negative_words if word in text_lower)
-        
+
         if positive_count > negative_count and positive_count > 0:
             return SentimentType.POSITIVE
         elif negative_count > positive_count and negative_count > 0:
             return SentimentType.NEGATIVE
-        
+
         return SentimentType.NEUTRAL
-    
+
     async def generate_response(
-        self, 
-        prompt: str, 
-        context: Optional[List[str]] = None, 
+        self,
+        prompt: str,
+        context: Optional[List[str]] = None,
         user_id: Optional[str] = None,
         language: Optional[Language] = None,
     ) -> Dict[str, Any]:
         """
         Generate a response using evolutionary AI stages.
-        
+
         This method progressively tries different AI "generations":
         1. Internet Search (if enabled) - Most advanced
         2. RAG Knowledge (if enabled) - Modern context-aware
@@ -402,10 +467,10 @@ class ElyzaService:
         # Detect language if not provided
         if language is None:
             language = self._detect_language(prompt)
-        
+
         # Detect sentiment
         sentiment = self._detect_sentiment(prompt)
-        
+
         # Update context
         self._update_context(prompt, user_id)
 
@@ -416,16 +481,16 @@ class ElyzaService:
             (AIEvolutionStage.TEXT_ANALYSIS, self._try_text_analysis),
             (AIEvolutionStage.CLASSICAL_ELIZA, self._try_classical_eliza),
         ]
-        
+
         for stage, method in stages_to_try:
             if not self.stages_enabled.get(stage, False):
                 continue
-                
+
             try:
                 result = await method(prompt, language, sentiment, user_id)
                 if result:
                     self.stats["stage_usage"][stage.value] += 1
-                    
+
                     enhanced_logger.info(
                         "ElyzaService generated response",
                         stage=stage.value,
@@ -433,7 +498,7 @@ class ElyzaService:
                         sentiment=sentiment.value,
                         user_id=user_id,
                     )
-                    
+
                     return {
                         "response": result,
                         "stage": stage.value,
@@ -453,7 +518,7 @@ class ElyzaService:
                     user_id=user_id,
                 )
                 continue
-        
+
         # Absolute fallback if all stages fail
         fallback_text = random.choice(self.responses["default"][language])
         return {
@@ -474,7 +539,7 @@ class ElyzaService:
             AIEvolutionStage.INTERNET_SEARCH: "Current: Real-time Web Search",
         }
         return descriptions.get(stage, "Unknown stage")
-    
+
     async def _try_classical_eliza(
         self, prompt: str, language: Language, sentiment: SentimentType, user_id: Optional[str]
     ) -> Optional[str]:
@@ -483,26 +548,26 @@ class ElyzaService:
         This is the original Weizenbaum approach - simple pattern matching.
         """
         prompt_lower = prompt.lower()
-        
+
         # Try to match patterns
         for pattern_info in self.patterns:
             pattern = pattern_info["pattern"]
             if re.search(pattern, prompt_lower):
                 responses = pattern_info["responses"]
-                
+
                 # Get response for the detected language
                 if isinstance(responses, dict):
                     response_list = responses.get(language, responses.get(Language.GERMAN, []))
                 else:
                     # Fallback for old-style patterns
                     response_list = responses if isinstance(responses, list) else [responses]
-                
+
                 if response_list:
                     return random.choice(response_list)
-        
+
         # No pattern matched
         return None
-    
+
     async def _try_text_analysis(
         self, prompt: str, language: Language, sentiment: SentimentType, user_id: Optional[str]
     ) -> Optional[str]:
@@ -512,15 +577,15 @@ class ElyzaService:
         """
         # If classical ELIZA didn't match, try sentiment-based responses
         context_messages = self.context.get(user_id or "default", [])
-        
+
         # Build context-aware response based on sentiment and conversation history
         if sentiment == SentimentType.QUESTION and len(context_messages) > 0:
             # Reference previous context
             if language == Language.GERMAN:
-                return f"Das ist eine gute Frage. Basierend auf unserem Gespräch würde ich sagen, dass weitere Details helfen würden."
+                return "Das ist eine gute Frage. Basierend auf unserem Gespräch würde ich sagen, dass weitere Details helfen würden."
             else:
-                return f"That's a good question. Based on our conversation, I'd say more details would help."
-        
+                return "That's a good question. Based on our conversation, I'd say more details would help."
+
         # Sentiment-based fallback
         sentiment_responses = {
             SentimentType.POSITIVE: {
@@ -528,37 +593,43 @@ class ElyzaService:
                 Language.ENGLISH: ["Great to hear!", "Nice that things are going well!"],
             },
             SentimentType.NEGATIVE: {
-                Language.GERMAN: ["Das tut mir leid. Wie kann ich helfen?", "Ich verstehe die Frustration."],
-                Language.ENGLISH: ["I'm sorry to hear that. How can I help?", "I understand the frustration."],
+                Language.GERMAN: [
+                    "Das tut mir leid. Wie kann ich helfen?",
+                    "Ich verstehe die Frustration.",
+                ],
+                Language.ENGLISH: [
+                    "I'm sorry to hear that. How can I help?",
+                    "I understand the frustration.",
+                ],
             },
             SentimentType.QUESTION: {
                 Language.GERMAN: ["Das ist eine interessante Frage!", "Gute Frage!"],
                 Language.ENGLISH: ["That's an interesting question!", "Good question!"],
             },
         }
-        
+
         responses = sentiment_responses.get(sentiment, {}).get(language, [])
         if responses:
             return random.choice(responses)
-        
+
         return None
-    
+
     async def _try_rag_knowledge(
         self, prompt: str, language: Language, sentiment: SentimentType, user_id: Optional[str]
     ) -> Optional[str]:
         """
         Stage 3: RAG (Retrieval Augmented Generation) - 2020s.
         Searches knowledge base for relevant information.
-        
+
         Note: This is a decoupled implementation that doesn't create circular dependencies.
         RAG provider can be injected via set_rag_provider() method for better testability.
         """
         # Check if we have a RAG provider instance
-        if not hasattr(self, '_rag_provider') or self._rag_provider is None:
+        if not hasattr(self, "_rag_provider") or self._rag_provider is None:
             # Try to initialize RAG provider (only once)
             try:
                 from services.rag.chroma_rag import ChromaRAGProvider
-                
+
                 # This is optional - only if RAG is configured
                 self._rag_provider = ChromaRAGProvider({"collection_name": "documents"})
                 if self._rag_provider.is_initialized:
@@ -569,42 +640,41 @@ class ElyzaService:
                 enhanced_logger.debug(f"RAG provider not available: {e}")
                 self._rag_provider = None
                 return None
-        
+
         # Try to use RAG provider
         try:
-            if self._rag_provider and hasattr(self._rag_provider, 'query'):
+            if self._rag_provider and hasattr(self._rag_provider, "query"):
                 # Query the knowledge base
                 results = await self._rag_provider.query(prompt, top_k=3)
-                
+
                 if results and len(results) > 0:
                     # Build response from retrieved knowledge
-                    context_snippets = [
-                        result.document.content[:200] 
-                        for result in results[:2]
-                    ]
-                    
+                    context_snippets = [result.document.content[:200] for result in results[:2]]
+
                     if language == Language.GERMAN:
-                        response = f"Basierend auf der Wissensdatenbank: {' ... '.join(context_snippets)}"
+                        response = (
+                            f"Basierend auf der Wissensdatenbank: {' ... '.join(context_snippets)}"
+                        )
                     else:
                         response = f"Based on the knowledge base: {' ... '.join(context_snippets)}"
-                    
+
                     return response
-            
+
             return None
-            
+
         except Exception as e:
             enhanced_logger.debug(f"RAG knowledge query failed: {e}")
             return None
-    
+
     def set_rag_provider(self, provider):
         """
         Inject RAG provider for better testability and decoupling.
-        
+
         Args:
             provider: Instance of BaseRAGProvider or None
         """
         self._rag_provider = provider
-    
+
     async def _try_internet_search(
         self, prompt: str, language: Language, sentiment: SentimentType, user_id: Optional[str]
     ) -> Optional[str]:
@@ -614,15 +684,27 @@ class ElyzaService:
         """
         # Check if this looks like a question that needs current information
         current_info_keywords = [
-            "aktuell", "heute", "jetzt", "neueste", "aktuelle", "wetter", "news",
-            "current", "today", "now", "latest", "recent", "weather", "news"
+            "aktuell",
+            "heute",
+            "jetzt",
+            "neueste",
+            "aktuelle",
+            "wetter",
+            "news",
+            "current",
+            "today",
+            "now",
+            "latest",
+            "recent",
+            "weather",
+            "news",
         ]
-        
+
         needs_current_info = any(keyword in prompt.lower() for keyword in current_info_keywords)
-        
+
         if not needs_current_info:
             return None
-        
+
         try:
             # Try to import httpx - it's in requirements.txt
             try:
@@ -630,18 +712,19 @@ class ElyzaService:
             except ImportError:
                 enhanced_logger.warning("httpx not installed - internet search stage unavailable")
                 return None
-            
+
             # For now, we'll use a simple HTTP request as a placeholder
             # A real implementation would integrate with:
             # - DuckDuckGo API
             # - Google Custom Search API
             # - Bing Search API
             # - SearxNG instance
-            
-            async with httpx.AsyncClient(timeout=5.0) as client:
+
+            async with httpx.AsyncClient(timeout=5.0) as _client:
                 # This is a demonstration - in reality you'd call a search API
                 # For now, we'll just indicate that web search would happen
-                
+                # The client is prepared for future implementation
+
                 if language == Language.GERMAN:
                     response = (
                         f"[Internet-Suche aktiv] Für Ihre Anfrage '{prompt[:50]}...' würde ich "
@@ -654,19 +737,19 @@ class ElyzaService:
                         f"normally retrieve current web results. "
                         f"Integration with search APIs (DuckDuckGo, Google, Bing) is prepared."
                     )
-                
+
                 return response
-                
+
         except Exception as e:
             enhanced_logger.debug(f"Internet search stage not available: {e}")
             return None
-    
+
     def _update_context(self, message: str, user_id: Optional[str] = None):
         """Update conversation context per user."""
         key = user_id or "default"
         if key not in self.context:
             self.context[key] = []
-        
+
         self.context[key].append(message)
         if len(self.context[key]) > self.max_context_size:
             self.context[key].pop(0)
@@ -679,10 +762,10 @@ class ElyzaService:
     def clear_context(self, user_id: Optional[str] = None) -> bool:
         """
         Clear conversation context for a user.
-        
+
         Args:
             user_id: User identifier, or None to clear default context
-            
+
         Returns:
             True if context was cleared
         """
@@ -696,7 +779,7 @@ class ElyzaService:
     def is_enabled(self) -> bool:
         """Check if service is enabled."""
         return self.enabled
-    
+
     def is_available(self) -> bool:
         """Check if service is available (alias for is_enabled for compatibility)."""
         return self.enabled
@@ -704,11 +787,9 @@ class ElyzaService:
     def get_stats(self) -> Dict:
         """Get comprehensive service statistics."""
         total_responses = sum(
-            len(responses[lang]) 
-            for responses in self.responses.values() 
-            for lang in responses
+            len(responses[lang]) for responses in self.responses.values() for lang in responses
         )
-        
+
         return {
             "enabled": self.enabled,
             "patterns_count": len(self.patterns),
@@ -719,19 +800,23 @@ class ElyzaService:
             "active_users": len(self.context),
             "max_context_size": self.max_context_size,
         }
-    
+
     def get_status(self) -> Dict[str, Any]:
         """
         Get detailed service status (for compatibility with existing tests).
-        
+
         Returns:
             Status dictionary with service information
         """
         return {
             "service": "elyza",
             "enabled": self.enabled,
-            "pattern_count_de": len([p for p in self.patterns if Language.GERMAN in p.get("responses", {})]),
-            "pattern_count_en": len([p for p in self.patterns if Language.ENGLISH in p.get("responses", {})]),
+            "pattern_count_de": len(
+                [p for p in self.patterns if Language.GERMAN in p.get("responses", {})]
+            ),
+            "pattern_count_en": len(
+                [p for p in self.patterns if Language.ENGLISH in p.get("responses", {})]
+            ),
             "stages_available": list(self.stages_enabled.keys()),
             "total_requests": self.stats["total_requests"],
         }
@@ -753,12 +838,14 @@ class ElyzaService:
             category: Category name for logging
             sentiment: Default sentiment type for this pattern
         """
-        self.patterns.append({
-            "pattern": pattern,
-            "responses": responses,
-            "category": category,
-            "sentiment": sentiment,
-        })
+        self.patterns.append(
+            {
+                "pattern": pattern,
+                "responses": responses,
+                "category": category,
+                "sentiment": sentiment,
+            }
+        )
 
         enhanced_logger.info(
             "Custom pattern added to ElyzaService", category=category, pattern=pattern

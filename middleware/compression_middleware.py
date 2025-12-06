@@ -27,9 +27,7 @@ except ImportError:
     BROTLI_AVAILABLE = False
 
 from fastapi import Request, Response
-from starlette.datastructures import Headers, MutableHeaders
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import Message
 
 
 class CompressionMiddleware(BaseHTTPMiddleware):
@@ -157,9 +155,7 @@ class CompressionMiddleware(BaseHTTPMiddleware):
             return False
 
         # Don't compress if no encoding is accepted
-        if not accept_encoding or (
-            "gzip" not in accept_encoding and "br" not in accept_encoding
-        ):
+        if not accept_encoding or ("gzip" not in accept_encoding and "br" not in accept_encoding):
             return False
 
         # Don't compress if it's not a compressible content type
@@ -187,9 +183,7 @@ class CompressionMiddleware(BaseHTTPMiddleware):
             Compressed body
         """
         buffer = io.BytesIO()
-        with gzip.GzipFile(
-            fileobj=buffer, mode="wb", compresslevel=self.gzip_level
-        ) as gz:
+        with gzip.GzipFile(fileobj=buffer, mode="wb", compresslevel=self.gzip_level) as gz:
             gz.write(body)
         return buffer.getvalue()
 

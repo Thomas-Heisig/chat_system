@@ -6,7 +6,7 @@ API endpoints for virtual room management.
 This is a placeholder for the planned virtual rooms routes.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter
 
@@ -24,9 +24,6 @@ async def virtual_rooms_status() -> Dict[str, Any]:
         "feature_enabled": getattr(settings, "FEATURE_VIRTUAL_ROOMS", False),
         "message": "Virtual rooms functionality is planned for a future release",
     }
-
-
-from typing import Optional
 
 
 @router.post("/")

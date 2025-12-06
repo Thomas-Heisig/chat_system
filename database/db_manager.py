@@ -248,7 +248,7 @@ class DatabaseManager:
             # Check for required tables
             cursor.execute(
                 """
-                SELECT name FROM sqlite_master 
+                SELECT name FROM sqlite_master
                 WHERE type='table' AND name NOT LIKE 'sqlite_%'
             """
             )
@@ -370,7 +370,7 @@ class DatabaseManager:
             # Database-level statistics
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     page_count * page_size as size,
                     page_count,
                     page_size

@@ -6,7 +6,7 @@ API endpoints for avatar creation and management.
 This is a placeholder for the planned avatar management routes.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter
 
@@ -65,9 +65,6 @@ async def delete_avatar(avatar_id: str) -> Dict[str, Any]:
         "status": "not_implemented",
         "message": "Avatar deletion not yet available",
     }
-
-
-from typing import Optional
 
 
 @router.post("/{avatar_id}/animate")

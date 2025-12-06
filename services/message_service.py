@@ -159,7 +159,7 @@ class MessageService:
     def _generate_with_custom_model(self, message: str, context: str) -> str:
         """Generate response using custom model (simulated)"""
         try:
-            prompt = self._build_prompt(message, context)
+            _prompt = self._build_prompt(message, context)  # Reserved for future model integration
 
             # Simulated responses for demonstration
             responses = {

@@ -1,8 +1,5 @@
 """Unit tests for SlackAdapter."""
 
-import os
-from unittest.mock import patch
-
 import pytest
 
 from integration.adapters.slack_adapter import SlackAdapter
