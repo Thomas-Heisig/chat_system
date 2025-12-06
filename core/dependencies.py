@@ -18,7 +18,7 @@ See: ADR-010-dependency-injection-pattern.md
 """
 
 from functools import lru_cache
-from typing import Generator, Optional
+from typing import Generator
 
 from sqlalchemy.orm import Session
 
@@ -49,13 +49,13 @@ from services.settings_service import SettingsService
 def get_db() -> Generator[Session, None, None]:
     """
     Database session dependency.
-    
+
     Provides a SQLAlchemy session with automatic cleanup.
     Each request gets its own session.
-    
+
     Yields:
         SQLAlchemy Session object
-        
+
     Example:
         @router.get("/users")
         async def get_users(db: Session = Depends(get_db)):
@@ -112,10 +112,10 @@ def get_statistics_repository(db: Session = None) -> StatisticsRepository:
 def get_auth_service() -> AuthService:
     """
     Get singleton AuthService instance.
-    
+
     The AuthService maintains JWT keys and authentication state,
     so we use a singleton pattern to avoid regenerating keys.
-    
+
     Returns:
         Singleton AuthService instance
     """
@@ -127,9 +127,9 @@ def get_auth_service() -> AuthService:
 def get_settings_service() -> SettingsService:
     """
     Get singleton SettingsService instance.
-    
+
     Settings are loaded once and cached for the application lifetime.
-    
+
     Returns:
         Singleton SettingsService instance
     """
@@ -141,9 +141,9 @@ def get_settings_service() -> SettingsService:
 def get_plugin_service() -> PluginService:
     """
     Get singleton PluginService instance.
-    
+
     Plugin registry is maintained globally across all requests.
-    
+
     Returns:
         Singleton PluginService instance
     """
@@ -155,10 +155,10 @@ def get_plugin_service() -> PluginService:
 def get_ai_service() -> AIService:
     """
     Get singleton AIService instance.
-    
+
     AI connections (Ollama, OpenAI) are expensive to establish,
     so we reuse a single instance.
-    
+
     Returns:
         Singleton AIService instance
     """
@@ -176,13 +176,13 @@ def get_message_service(
 ) -> MessageService:
     """
     Get MessageService instance with injected repository.
-    
+
     Args:
         repository: MessageRepository instance (injected)
-        
+
     Returns:
         MessageService instance with dependencies
-        
+
     Example:
         @router.post("/messages")
         async def create_message(
@@ -200,10 +200,10 @@ def get_file_service(
 ) -> FileService:
     """
     Get FileService instance with injected repository.
-    
+
     Args:
         repository: FileRepository instance (injected)
-        
+
     Returns:
         FileService instance with dependencies
     """
@@ -217,10 +217,10 @@ def get_project_service(
 ) -> ProjectService:
     """
     Get ProjectService instance with injected repository.
-    
+
     Args:
         repository: ProjectRepository instance (injected)
-        
+
     Returns:
         ProjectService instance with dependencies
     """
@@ -240,16 +240,16 @@ _dependency_overrides = {}
 def override_dependency(dependency_func, override_func):
     """
     Override a dependency for testing purposes.
-    
+
     Args:
         dependency_func: Original dependency function
         override_func: Replacement function
-        
+
     Example:
         # In tests
         override_dependency(get_auth_service, lambda: MockAuthService())
         # Now all endpoints will use MockAuthService
-        
+
         # Cleanup
         clear_dependency_overrides()
     """
@@ -268,7 +268,7 @@ def clear_dependency_overrides():
 def get_dependency(dependency_func):
     """
     Get dependency with override support.
-    
+
     Returns the overridden dependency if available, otherwise the original.
     """
     return _dependency_overrides.get(dependency_func, dependency_func)
@@ -282,12 +282,12 @@ def get_dependency(dependency_func):
 def clear_singleton_cache():
     """
     Clear all singleton caches.
-    
+
     This should be called:
     - During application shutdown
     - When services need to be reinitialized
     - In test teardown to ensure clean state
-    
+
     Warning:
         This will force recreation of all singleton services on next access.
         Use with caution in production.
@@ -308,10 +308,10 @@ def clear_singleton_cache():
 def check_dependencies_health() -> dict:
     """
     Check health status of all dependencies.
-    
+
     Returns:
         Dictionary with health status of each dependency
-        
+
     Example response:
         {
             "database": "healthy",
@@ -321,7 +321,7 @@ def check_dependencies_health() -> dict:
         }
     """
     health_status = {}
-    
+
     # Check database
     try:
         db = get_db_session()
@@ -330,24 +330,24 @@ def check_dependencies_health() -> dict:
         db.close()
     except Exception as e:
         health_status["database"] = f"unhealthy: {str(e)}"
-    
+
     # Check services
     try:
-        auth_service = get_auth_service()
+        _auth_service = get_auth_service()  # noqa: F841
         health_status["auth_service"] = "healthy"
     except Exception as e:
         health_status["auth_service"] = f"unhealthy: {str(e)}"
-    
+
     try:
-        ai_service = get_ai_service()
+        _ai_service = get_ai_service()  # noqa: F841
         health_status["ai_service"] = "healthy"
     except Exception as e:
         health_status["ai_service"] = f"unhealthy: {str(e)}"
-    
+
     try:
-        plugin_service = get_plugin_service()
+        _plugin_service = get_plugin_service()  # noqa: F841
         health_status["plugin_service"] = "healthy"
     except Exception as e:
         health_status["plugin_service"] = f"unhealthy: {str(e)}"
-    
+
     return health_status
