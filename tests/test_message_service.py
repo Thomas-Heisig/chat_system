@@ -31,8 +31,8 @@ def test_message_service_initialization(message_service):
     """Test message service initializes correctly"""
     assert message_service is not None
     assert message_service.repository is not None
-    assert hasattr(message_service, "active_connections")
-    assert hasattr(message_service, "elyza_service")
+    assert hasattr(message_service, "ollama_base_url")
+    assert hasattr(message_service, "ollama_available")
 
 
 def test_save_message(message_service, mock_repository):
@@ -47,19 +47,19 @@ def test_save_message(message_service, mock_repository):
 
 
 def test_save_message_validation_empty_username(message_service):
-    """Test save message with empty username"""
-    message = Message(username="", message="Test message")
+    """Test save message with empty username - Pydantic validates at model level"""
+    from pydantic_core import ValidationError
 
-    with pytest.raises(ValueError, match="Username cannot be empty"):
-        message_service.save_message(message)
+    with pytest.raises(ValidationError):
+        Message(username="", message="Test message")
 
 
 def test_save_message_validation_empty_message(message_service):
-    """Test save message with empty content"""
-    message = Message(username="user", message="")
+    """Test save message with empty content - Pydantic validates at model level"""
+    from pydantic_core import ValidationError
 
-    with pytest.raises(ValueError, match="Message cannot be empty"):
-        message_service.save_message(message)
+    with pytest.raises(ValidationError):
+        Message(username="user", message="")
 
 
 def test_get_recent_messages(message_service, mock_repository):
@@ -81,81 +81,8 @@ def test_get_recent_messages_limit_validation(message_service, mock_repository):
     assert messages is not None
 
 
-def test_websocket_registration(message_service):
-    """Test WebSocket connection registration"""
-    room_id = "room_123"
-    mock_ws = Mock()
-
-    message_service.register_websocket(room_id, mock_ws)
-
-    assert room_id in message_service.active_connections
-    assert mock_ws in message_service.active_connections[room_id]
-
-
-def test_websocket_unregistration(message_service):
-    """Test WebSocket connection unregistration"""
-    room_id = "room_123"
-    mock_ws = Mock()
-
-    message_service.register_websocket(room_id, mock_ws)
-    message_service.unregister_websocket(room_id, mock_ws)
-
-    assert room_id not in message_service.active_connections
-
-
-def test_get_room_connections(message_service):
-    """Test getting room connections"""
-    room_id = "room_123"
-    mock_ws1 = Mock()
-    mock_ws2 = Mock()
-
-    message_service.register_websocket(room_id, mock_ws1)
-    message_service.register_websocket(room_id, mock_ws2)
-
-    connections = message_service.get_room_connections(room_id)
-
-    assert len(connections) == 2
-    assert mock_ws1 in connections
-    assert mock_ws2 in connections
-
-
-@pytest.mark.asyncio
-async def test_broadcast_to_room(message_service):
-    """Test broadcasting message to room"""
-    room_id = "room_123"
-    mock_ws = Mock()
-    mock_ws.send_json = Mock(return_value=None)
-
-    # Make send_json async
-    async def async_send_json(data):
-        return None
-
-    mock_ws.send_json = async_send_json
-
-    message_service.register_websocket(room_id, mock_ws)
-
-    message_data = {"type": "message", "content": "Test"}
-    await message_service.broadcast_to_room(room_id, message_data)
-
-    # Verify connection is still registered (not disconnected)
-    assert room_id in message_service.active_connections
-
-
-def test_get_connection_stats(message_service):
-    """Test getting connection statistics"""
-    room1 = "room_1"
-    room2 = "room_2"
-
-    message_service.register_websocket(room1, Mock())
-    message_service.register_websocket(room1, Mock())
-    message_service.register_websocket(room2, Mock())
-
-    stats = message_service.get_connection_stats()
-
-    assert stats["total_rooms"] == 2
-    assert stats["total_connections"] == 3
-    assert room1 in stats["rooms"]
-    assert stats["rooms"][room1] == 2
+# Note: WebSocket management tests moved to test_websocket_manager.py
+# as these are now handled by the ConnectionManager, not MessageService
 
 
 def test_health_check(message_service):
@@ -184,4 +111,4 @@ def test_external_ai_unavailable_error():
     error = ExternalAIUnavailableError("AI service down")
 
     assert isinstance(error, Exception)
-    assert str(error) == "AI service down"
+    assert "AI service down" in str(error)  # Error message includes the reason

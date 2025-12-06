@@ -2,7 +2,8 @@
 
 **Erstellt:** 2025-12-04  
 **Version:** 2.0.0 → 3.0.0  
-**Zeitraum:** Q4 2025 - Q4 2026
+**Zeitraum:** Q4 2025 - Q4 2026  
+**Siehe auch:** [IMPROVEMENTS.md](IMPROVEMENTS.md) für technische Enhancement-Details
 
 ---
 
