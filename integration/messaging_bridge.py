@@ -280,7 +280,10 @@ class MessagingBridge:
         if platform not in self.adapters:
             return {"platform": platform, "status": "not_registered"}
 
-        # adapter = self.adapters[platform]  # Reserved for future adapter status checks
+        # Future enhancement: Add adapter health checks
+        # adapter = self.adapters[platform]
+        # adapter_status = adapter.get_status() if hasattr(adapter, 'get_status') else 'active'
+
         rate_limit = self.rate_limits.get(platform, {})
 
         return {

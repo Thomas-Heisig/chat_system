@@ -97,8 +97,6 @@ class TestPluginSandbox:
     def test_cleanup_with_container_docker_installed(self, sample_plugin):
         """Test cleanup with existing container when docker is available."""
         try:
-            pass
-
             sandbox = PluginSandbox(sample_plugin)
             sandbox.container_id = "test_container_123"
 
