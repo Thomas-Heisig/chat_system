@@ -1,6 +1,8 @@
-# Integration Guide
+# Integration Guide (Quick Reference)
 
-This document covers external service integrations for the Universal Chat System.
+> **📘 For comprehensive documentation**, see [INTEGRATIONS_GUIDE.md](INTEGRATIONS_GUIDE.md)
+
+This document provides quick reference examples for external service integrations.
 
 ## Overview
 
