@@ -80,9 +80,7 @@ cache_hits_total = Counter("cache_hits_total", "Total cache hits", ["cache_type"
 cache_misses_total = Counter("cache_misses_total", "Total cache misses", ["cache_type"])
 
 # AI/RAG Metrics
-ai_requests_total = Counter(
-    "ai_requests_total", "Total AI requests", ["model", "status"]
-)
+ai_requests_total = Counter("ai_requests_total", "Total AI requests", ["model", "status"])
 
 ai_request_duration_seconds = Histogram(
     "ai_request_duration_seconds",
@@ -91,14 +89,10 @@ ai_request_duration_seconds = Histogram(
     buckets=(0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0),
 )
 
-rag_queries_total = Counter(
-    "rag_queries_total", "Total RAG queries", ["vector_db", "status"]
-)
+rag_queries_total = Counter("rag_queries_total", "Total RAG queries", ["vector_db", "status"])
 
 # File Upload Metrics
-file_uploads_total = Counter(
-    "file_uploads_total", "Total file uploads", ["status", "file_type"]
-)
+file_uploads_total = Counter("file_uploads_total", "Total file uploads", ["status", "file_type"])
 
 file_upload_size_bytes = Histogram(
     "file_upload_size_bytes",
@@ -142,9 +136,7 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
 
         try:
             # Measure request duration
-            with http_request_duration_seconds.labels(
-                method=method, endpoint=endpoint
-            ).time():
+            with http_request_duration_seconds.labels(method=method, endpoint=endpoint).time():
                 response = await call_next(request)
 
             # Record request completion
@@ -156,9 +148,7 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
 
         except Exception as e:
             # Record error
-            errors_total.labels(
-                error_type=type(e).__name__, endpoint=endpoint
-            ).inc()
+            errors_total.labels(error_type=type(e).__name__, endpoint=endpoint).inc()
             raise
 
         finally:

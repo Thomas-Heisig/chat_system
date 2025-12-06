@@ -192,9 +192,7 @@ def add_breadcrumb(
     if not SENTRY_AVAILABLE or not sentry_sdk:
         return
 
-    sentry_sdk.add_breadcrumb(
-        message=message, category=category, level=level, data=data or {}
-    )
+    sentry_sdk.add_breadcrumb(message=message, category=category, level=level, data=data or {})
 
 
 def capture_exception(error: Exception, **kwargs):

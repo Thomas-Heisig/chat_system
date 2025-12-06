@@ -106,7 +106,7 @@ def transaction(conn):
         yield conn
         conn.commit()
         logger.debug("💾 Explicit transaction committed")
-    except Exception as e:
+    except Exception:
         conn.rollback()
         logger.debug("🔄 Explicit transaction rolled back")
         raise
@@ -138,7 +138,7 @@ def init_database():
                     edit_history TEXT DEFAULT '[]', -- JSON array of edits
                     reaction_count INTEGER DEFAULT 0,
                     flags INTEGER DEFAULT 0, -- Bit flags for pinned, deleted, etc.
-                    
+
                     -- Indexes
                     FOREIGN KEY (parent_id) REFERENCES messages (id) ON DELETE SET NULL,
                     CHECK (message IS NOT NULL OR message_compressed IS NOT NULL)
@@ -181,7 +181,7 @@ def init_database():
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     due_date DATETIME,
                     metadata TEXT DEFAULT '{}',
-                    
+
                     FOREIGN KEY (created_by) REFERENCES users (id)
                 )
             """
@@ -207,7 +207,7 @@ def init_database():
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     resolved_at DATETIME,
                     metadata TEXT DEFAULT '{}',
-                    
+
                     FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
                     FOREIGN KEY (created_by) REFERENCES users (id),
                     FOREIGN KEY (assigned_to) REFERENCES users (id)
@@ -234,7 +234,7 @@ def init_database():
                     download_count INTEGER DEFAULT 0,
                     is_public BOOLEAN DEFAULT FALSE,
                     metadata TEXT DEFAULT '{}',
-                    
+
                     FOREIGN KEY (uploaded_by) REFERENCES users (id),
                     FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE SET NULL,
                     FOREIGN KEY (ticket_id) REFERENCES tickets (id) ON DELETE SET NULL
@@ -251,7 +251,7 @@ def init_database():
                     user_id TEXT NOT NULL,
                     reaction TEXT NOT NULL, -- emoji or custom reaction
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    
+
                     FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE,
                     FOREIGN KEY (user_id) REFERENCES users (id),
                     UNIQUE(message_id, user_id, reaction)
@@ -271,7 +271,7 @@ def init_database():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     member_count INTEGER DEFAULT 0,
                     metadata TEXT DEFAULT '{}',
-                    
+
                     FOREIGN KEY (created_by) REFERENCES users (id)
                 )
             """
@@ -286,7 +286,7 @@ def init_database():
                     role TEXT DEFAULT 'member', -- member, admin, moderator
                     joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     last_read_at DATETIME,
-                    
+
                     FOREIGN KEY (room_id) REFERENCES chat_rooms (id) ON DELETE CASCADE,
                     FOREIGN KEY (user_id) REFERENCES users (id),
                     PRIMARY KEY (room_id, user_id)
@@ -306,7 +306,7 @@ def init_database():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     is_archived BOOLEAN DEFAULT FALSE,
-                    
+
                     FOREIGN KEY (user_id) REFERENCES users (id)
                 )
             """
@@ -343,7 +343,7 @@ def init_database():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     last_used_at DATETIME,
                     usage_count INTEGER DEFAULT 0,
-                    
+
                     FOREIGN KEY (created_by) REFERENCES users (id)
                 )
             """
@@ -362,7 +362,7 @@ def init_database():
                     ip_address TEXT,
                     user_agent TEXT,
                     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    
+
                     FOREIGN KEY (user_id) REFERENCES users (id)
                 )
             """
@@ -502,7 +502,7 @@ def _insert_default_ai_models(conn):
 
     for model in default_models:
         conn.execute(
-            """INSERT INTO ai_models (id, name, model_type, provider, config, capabilities) 
+            """INSERT INTO ai_models (id, name, model_type, provider, config, capabilities)
                VALUES (?, ?, ?, ?, ?, ?)""",
             (
                 model["id"],
@@ -657,7 +657,7 @@ def get_database_stats() -> Dict[str, Any]:
             # Database size and performance stats
             cursor = conn.execute(
                 """
-                SELECT 
+                SELECT
                     page_count * page_size as size,
                     page_count,
                     page_size,
@@ -687,7 +687,7 @@ def get_database_stats() -> Dict[str, Any]:
             cursor = conn.execute(
                 """
                 SELECT name, SUM(pgsize) as size
-                FROM dbstat 
+                FROM dbstat
                 GROUP BY name
             """
             )
@@ -748,7 +748,7 @@ def run_database_maintenance():
         with get_db_connection() as conn:
             cursor = conn.execute(
                 """
-                DELETE FROM files WHERE upload_date < datetime('now', '-30 days') 
+                DELETE FROM files WHERE upload_date < datetime('now', '-30 days')
                 AND project_id IS NULL AND ticket_id IS NULL
             """
             )
@@ -828,7 +828,7 @@ def check_database_health() -> Dict[str, Any]:
             # Check for long-running transactions
             cursor = conn.execute(
                 """
-                SELECT COUNT(*) as count FROM sqlite_master 
+                SELECT COUNT(*) as count FROM sqlite_master
                 WHERE sql LIKE '%BEGIN%' OR sql LIKE '%COMMIT%'
             """
             )
@@ -881,9 +881,9 @@ def export_database_schema(export_path: Optional[str] = None) -> str:
                 # Export schema for all tables
                 cursor = conn.execute(
                     """
-                    SELECT name, sql 
-                    FROM sqlite_master 
-                    WHERE type IN ('table', 'index', 'view') 
+                    SELECT name, sql
+                    FROM sqlite_master
+                    WHERE type IN ('table', 'index', 'view')
                     AND name NOT LIKE 'sqlite_%'
                     ORDER BY type, name
                 """

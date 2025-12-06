@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
             sentry_initialized = init_sentry()
             if sentry_initialized:
                 enhanced_logger.info("Sentry initialized successfully")
-        
+
         # Initialize database
         enhanced_logger.info("Initializing database")
         init_database()
@@ -119,9 +119,9 @@ app = FastAPI(
     title=settings.APP_NAME,
     description="""
     🚀 Enhanced Chat System with AI, Project Management, and Real-time Collaboration
-    
+
     ## Features
-    
+
     - 💬 Real-time chat with WebSocket support
     - 🤖 AI-powered responses and analysis
     - 📊 Project management and ticket system
@@ -129,9 +129,9 @@ app = FastAPI(
     - 🔍 Advanced search and analytics
     - 👥 User management and authentication
     - 📱 Responsive web interface
-    
+
     ## API Endpoints
-    
+
     - **Chat**: WebSocket and REST endpoints for messaging
     - **Projects**: Complete project management system
     - **Tickets**: Issue tracking and task management
@@ -303,9 +303,9 @@ static_dirs = [
 for route, directory, description in static_dirs:
     if Path(directory).exists():
         app.mount(route, StaticFiles(directory=directory), name=description)
-        enhanced_logger.info(f"Static directory mounted", route=route, directory=directory)
+        enhanced_logger.info("Static directory mounted", route=route, directory=directory)
     else:
-        enhanced_logger.warning(f"Static directory not found", directory=directory)
+        enhanced_logger.warning("Static directory not found", directory=directory)
 
 # Register routes with enhanced logging
 routes_config = [
@@ -320,7 +320,7 @@ routes_config = [
 
 for router, prefix, description in routes_config:
     app.include_router(router, prefix=prefix, tags=[description.split(" ")[0].lower()])
-    enhanced_logger.info(f"Router registered", prefix=prefix, description=description)
+    enhanced_logger.info("Router registered", prefix=prefix, description=description)
 
 
 # DevTools JSON route to prevent 404 errors from Chrome DevTools
@@ -351,7 +351,7 @@ async def favicon():
 async def prometheus_metrics(request: Request):
     """
     Expose Prometheus metrics
-    
+
     Returns metrics in Prometheus text format for scraping
     """
     return await metrics_endpoint(request)

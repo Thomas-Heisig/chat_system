@@ -14,7 +14,6 @@ Author: Chat System Team
 Date: 2025-12-06
 """
 
-import os
 import time
 from typing import Dict, Optional
 
@@ -59,7 +58,7 @@ class DetailedHealthResponse(BaseModel):
 async def health_check():
     """
     Basic health check endpoint
-    
+
     Returns minimal health status for load balancer health checks
     """
     return HealthStatus(
@@ -74,7 +73,7 @@ async def health_check():
 async def liveness_probe():
     """
     Liveness probe for Kubernetes
-    
+
     Indicates if the application is running (not deadlocked)
     Returns 200 if alive, 503 otherwise
     """
@@ -85,7 +84,7 @@ async def liveness_probe():
 async def readiness_probe():
     """
     Readiness probe for Kubernetes
-    
+
     Indicates if the application is ready to receive traffic
     Checks database connectivity
     """
@@ -116,7 +115,7 @@ async def readiness_probe():
 async def detailed_health_check():
     """
     Comprehensive health check with all components
-    
+
     Returns detailed status of:
     - Database
     - Cache (Redis)
@@ -140,9 +139,7 @@ async def detailed_health_check():
         if db_health.get("status") != "healthy":
             overall_status = "degraded"
     except Exception as e:
-        components["database"] = ComponentHealth(
-            status="unhealthy", message=str(e)
-        )
+        components["database"] = ComponentHealth(status="unhealthy", message=str(e))
         overall_status = "unhealthy"
 
     # Check Redis Cache
@@ -266,14 +263,10 @@ async def _check_ai_service_health() -> ComponentHealth:
                         message=f"Ollama returned status {response.status_code}",
                     )
         else:
-            return ComponentHealth(
-                status="unknown", message="AI service URL not configured"
-            )
+            return ComponentHealth(status="unknown", message="AI service URL not configured")
 
     except Exception as e:
-        return ComponentHealth(
-            status="unhealthy", message=f"AI service error: {str(e)}"
-        )
+        return ComponentHealth(status="unhealthy", message=f"AI service error: {str(e)}")
 
 
 def _get_system_metrics() -> Dict:
@@ -293,11 +286,11 @@ def _get_system_metrics() -> Dict:
 
         return {
             "cpu_usage_percent": cpu_percent,
-            "memory_total_gb": round(memory.total / (1024 ** 3), 2),
-            "memory_used_gb": round(memory.used / (1024 ** 3), 2),
+            "memory_total_gb": round(memory.total / (1024**3), 2),
+            "memory_used_gb": round(memory.used / (1024**3), 2),
             "memory_usage_percent": memory.percent,
-            "disk_total_gb": round(disk.total / (1024 ** 3), 2),
-            "disk_used_gb": round(disk.used / (1024 ** 3), 2),
+            "disk_total_gb": round(disk.total / (1024**3), 2),
+            "disk_used_gb": round(disk.used / (1024**3), 2),
             "disk_usage_percent": round(disk.percent, 1),
             "network_bytes_sent": net_io.bytes_sent,
             "network_bytes_recv": net_io.bytes_recv,

@@ -68,7 +68,7 @@ async def get_database_statistics():
 async def list_available_adapters():
     """
     List available database adapters
-    
+
     Returns information about supported database types and current adapter.
     See docs/adr/ADR-007-multi-database-support.md for details on database support.
     """
@@ -80,30 +80,30 @@ async def list_available_adapters():
                 "display_name": "SQLite",
                 "description": "Lightweight embedded database (default)",
                 "recommended_for": "development, small deployments",
-                "status": "fully_supported"
+                "status": "fully_supported",
             },
             {
                 "name": "postgresql",
                 "display_name": "PostgreSQL",
                 "description": "Advanced open-source relational database",
                 "recommended_for": "production, high-load applications",
-                "status": "supported"
+                "status": "supported",
             },
             {
                 "name": "mongodb",
                 "display_name": "MongoDB",
                 "description": "Document-oriented NoSQL database",
                 "recommended_for": "flexible schema, document storage",
-                "status": "supported"
-            }
+                "status": "supported",
+            },
         ]
-        
+
         current_type = settings_service.get("database", "type", "sqlite")
 
         return {
             "adapters": adapters,
             "current_adapter": current_type,
-            "note": "SQLite is directly integrated. PostgreSQL and MongoDB require SQLAlchemy/Motor setup."
+            "note": "SQLite is directly integrated. PostgreSQL and MongoDB require SQLAlchemy/Motor setup.",
         }
 
     except Exception as e:
@@ -117,7 +117,7 @@ async def test_database_connection(
 ):
     """
     Test database connection with optional configuration
-    
+
     Note: Custom config testing is not yet implemented for SQLite connections.
     For production multi-database support, use the unified repository pattern
     documented in docs/adr/ADR-007-multi-database-support.md
@@ -128,7 +128,7 @@ async def test_database_connection(
             # adapter-specific connection methods. For now, we test the current connection.
             enhanced_logger.info(
                 "Testing current connection (custom config testing requires adapter implementation)",
-                config_provided=True
+                config_provided=True,
             )
 
         # Test current connection

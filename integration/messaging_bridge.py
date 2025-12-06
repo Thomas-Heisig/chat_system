@@ -208,9 +208,7 @@ class MessagingBridge:
 
     def _transform_to_teams(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Transform message to Microsoft Teams format"""
-        teams_message = {
-            "body": {"contentType": "html", "content": message.get("text", "")}
-        }
+        teams_message = {"body": {"contentType": "html", "content": message.get("text", "")}}
 
         # Add attachments
         if "attachments" in message:
@@ -282,7 +280,10 @@ class MessagingBridge:
         if platform not in self.adapters:
             return {"platform": platform, "status": "not_registered"}
 
-        adapter = self.adapters[platform]
+        # Future enhancement: Add adapter health checks
+        # adapter = self.adapters[platform]
+        # adapter_status = adapter.get_status() if hasattr(adapter, 'get_status') else 'active'
+
         rate_limit = self.rate_limits.get(platform, {})
 
         return {

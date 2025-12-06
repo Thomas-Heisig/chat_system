@@ -19,7 +19,6 @@ Future Enhancements:
 - Rate limiting for login attempts
 """
 
-import os
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -31,8 +30,8 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from config.settings import logger, settings
+from database.models import UserRole as DBUserRole
 from database.repositories import UserRepository
-from database.models import User as DBUser, UserRole as DBUserRole
 
 # Security configuration
 SECRET_KEY = settings.SECRET_KEY
@@ -259,7 +258,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
                 detail="User not found",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         # Check if user is active
         if not db_user.is_active:
             logger.warning(f"Inactive user attempted to authenticate: {db_user.username}")
@@ -268,20 +267,24 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
                 detail="User account is inactive",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         # Convert database user to auth User model
         user = User(
             id=db_user.id,
             username=db_user.username,
             email=db_user.email,
-            role=Role(db_user.role.value) if isinstance(db_user.role, DBUserRole) else Role(db_user.role),
+            role=(
+                Role(db_user.role.value)
+                if isinstance(db_user.role, DBUserRole)
+                else Role(db_user.role)
+            ),
             is_active=db_user.is_active,
             created_at=db_user.created_at or datetime.now(),
         )
-        
+
         logger.debug(f"Authenticated user: {user.username} (role: {user.role})")
         return user
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -426,37 +429,41 @@ async def authenticate_user(username: str, password: str) -> Optional[User]:
         if not db_user:
             logger.debug(f"Authentication failed: User not found - {username}")
             return None
-        
+
         # Check if user is active
         if not db_user.is_active:
             logger.warning(f"Authentication failed: Inactive user - {username}")
             return None
-        
+
         # Verify password
         if not verify_password(password, db_user.password_hash):
             logger.debug(f"Authentication failed: Invalid password - {username}")
             return None
-        
+
         # Update last login timestamp
         try:
             UserRepository.update_user_last_login(db_user.id)
         except Exception as e:
             logger.warning(f"Failed to update last login for user {username}: {e}")
             # Don't fail authentication if we can't update last login
-        
+
         # Convert database user to auth User model
         user = User(
             id=db_user.id,
             username=db_user.username,
             email=db_user.email,
-            role=Role(db_user.role.value) if isinstance(db_user.role, DBUserRole) else Role(db_user.role),
+            role=(
+                Role(db_user.role.value)
+                if isinstance(db_user.role, DBUserRole)
+                else Role(db_user.role)
+            ),
             is_active=db_user.is_active,
             created_at=db_user.created_at or datetime.now(),
         )
-        
+
         logger.info(f"User authenticated successfully: {username}")
         return user
-        
+
     except Exception as e:
         logger.error(f"Error during authentication for user {username}: {e}")
         return None
@@ -517,6 +524,11 @@ async def get_optional_user(authorization: Optional[str] = Header(None)) -> Opti
 
     Returns:
         User object if authenticated, None otherwise
+
+    Note:
+        - Fetches user from database using token data
+        - Returns None on any error (no exceptions raised)
+        - Validates user is_active status
     """
     if not authorization or not authorization.startswith("Bearer "):
         return None
@@ -525,16 +537,36 @@ async def get_optional_user(authorization: Optional[str] = Header(None)) -> Opti
         token = authorization.replace("Bearer ", "")
         token_data = decode_token(token)
 
-        # TODO: Fetch from database
+        # Fetch user from database
+        db_user = UserRepository.get_user_by_id(token_data.sub)
+        if not db_user:
+            logger.debug(f"User not found in database: {token_data.sub}")
+            return None
+
+        # Check if user is active
+        if not db_user.is_active:
+            logger.debug(f"Inactive user in optional auth: {db_user.username}")
+            return None
+
+        # Convert database user to auth User model
         user = User(
-            id=token_data.sub,
-            username=f"user_{token_data.sub}",
-            email=f"user_{token_data.sub}@example.com",
-            role=Role(token_data.role),
-            is_active=True,
+            id=db_user.id,
+            username=db_user.username,
+            email=db_user.email,
+            role=(
+                Role(db_user.role.value)
+                if isinstance(db_user.role, DBUserRole)
+                else Role(db_user.role)
+            ),
+            is_active=db_user.is_active,
+            created_at=db_user.created_at or datetime.now(),
         )
+
+        logger.debug(f"Optional authentication successful: {user.username}")
         return user
-    except HTTPException:
+
+    except Exception as e:
+        logger.debug(f"Optional authentication failed: {e}")
         return None
 
 

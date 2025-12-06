@@ -3,7 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -97,8 +97,6 @@ class TestPluginSandbox:
     def test_cleanup_with_container_docker_installed(self, sample_plugin):
         """Test cleanup with existing container when docker is available."""
         try:
-            import docker
-
             sandbox = PluginSandbox(sample_plugin)
             sandbox.container_id = "test_container_123"
 

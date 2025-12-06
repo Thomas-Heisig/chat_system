@@ -299,13 +299,13 @@ class AutomationPipeline:
     ) -> Dict[str, Any]:
         """
         Handle conditional branching step
-        
+
         Note: This uses a simple comparison-based evaluation instead of eval()
         for security. Supports basic comparisons like 'field == value',
         'field > value', etc.
         """
         condition = config.get("condition", "true")
-        
+
         # Simple safe evaluation without eval()
         # For more complex conditions, consider using simpleeval library
         if condition == "true":
@@ -315,85 +315,89 @@ class AutomationPipeline:
         else:
             # Parse simple conditions like "field == value" or "field > 10"
             result = self._evaluate_simple_condition(condition, input_data)
-        
+
         return {"condition_met": bool(result), "branch": "true" if result else "false"}
-    
+
     def _evaluate_simple_condition(self, condition: str, data: Dict[str, Any]) -> bool:
         """
         Safely evaluate simple conditions without using eval()
-        
+
         Supports: ==, !=, >, <, >=, <=, in, not in
         Example: "status == 'active'", "count > 10", "type in ['A', 'B']"
         """
         try:
             # Remove extra whitespace
             condition = condition.strip()
-            
+
             # Check for operators in order of specificity (longer operators first)
-            for op in ['>=', '<=', '==', '!=', ' not in ', ' in ', '>', '<']:
+            for op in [">=", "<=", "==", "!=", " not in ", " in ", ">", "<"]:
                 if op in condition:
                     parts = condition.split(op, 1)
                     if len(parts) != 2:
                         continue  # Try next operator
                         left = parts[0].strip()
                         right = parts[1].strip()
-                        
+
                         # Get left value from data (must exist in data for valid comparison)
                         if left not in data:
                             logger.warning(f"Condition field '{left}' not found in data")
                             return False
                         left_val = data[left]
-                        
+
                         # Parse right value (string, number, or boolean)
                         right_val = self._parse_value(right)
-                        
+
                         # Perform comparison
-                        if op == '==':
+                        if op == "==":
                             return left_val == right_val
-                        elif op == '!=':
+                        elif op == "!=":
                             return left_val != right_val
-                        elif op in ['>', '<', '>=', '<=']:
+                        elif op in [">", "<", ">=", "<="]:
                             # Numeric comparisons require both values to be numeric
                             try:
                                 left_num = float(left_val)
                                 right_num = float(right_val)
-                                if op == '>':
+                                if op == ">":
                                     return left_num > right_num
-                                elif op == '<':
+                                elif op == "<":
                                     return left_num < right_num
-                                elif op == '>=':
+                                elif op == ">=":
                                     return left_num >= right_num
-                                elif op == '<=':
+                                elif op == "<=":
                                     return left_num <= right_num
                             except (ValueError, TypeError) as e:
                                 logger.warning(
                                     f"Cannot perform numeric comparison: {left_val} {op} {right_val} - {e}"
                                 )
                                 return False
-                        elif op == ' in ':
+                        elif op == " in ":
                             try:
                                 return left_val in right_val
                             except TypeError:
-                                logger.warning(f"Cannot check membership: {left_val} in {right_val}")
+                                logger.warning(
+                                    f"Cannot check membership: {left_val} in {right_val}"
+                                )
                                 return False
-                        elif op == ' not in ':
+                        elif op == " not in ":
                             try:
                                 return left_val not in right_val
                             except TypeError:
-                                logger.warning(f"Cannot check membership: {left_val} not in {right_val}")
+                                logger.warning(
+                                    f"Cannot check membership: {left_val} not in {right_val}"
+                                )
                                 return False
-            
+
             # If no operator found, treat as boolean
             return bool(data.get(condition, False))
-            
+
         except (ValueError, TypeError, KeyError) as e:
             logger.warning(f"Condition evaluation error: {e}, condition: {condition}")
             return False
-    
+
     def _parse_value(self, value_str: str) -> Any:
         """
         Parse string value to appropriate type
-        
+
         Supports:
         - Numbers: 42, 3.14
         - Booleans: true, false
@@ -401,11 +405,12 @@ class AutomationPipeline:
         - Lists: ['a', 'b', 'c'] (for 'in' operations)
         """
         value_str = value_str.strip()
-        
+
         # Try to parse as list (for 'in' operations)
-        if value_str.startswith('[') and value_str.endswith(']'):
+        if value_str.startswith("[") and value_str.endswith("]"):
             try:
                 import json
+
                 # Use JSON parser for proper list handling
                 return json.loads(value_str)
             except (json.JSONDecodeError, ValueError):
@@ -415,31 +420,31 @@ class AutomationPipeline:
                     if not content:
                         return []
                     # Simple split - won't handle commas in strings correctly
-                    items = [item.strip().strip("'\"") for item in content.split(',')]
+                    items = [item.strip().strip("'\"") for item in content.split(",")]
                     logger.warning(
                         f"List parsed with simple method, may not handle complex values: {value_str}"
                     )
                     return items
                 except Exception:
                     pass
-        
+
         # Remove quotes for scalar values
         value_str = value_str.strip("'\"")
-        
+
         # Try to parse as number
         try:
-            if '.' in value_str:
+            if "." in value_str:
                 return float(value_str)
             return int(value_str)
         except ValueError:
             pass
-        
+
         # Try to parse as boolean
-        if value_str.lower() == 'true':
+        if value_str.lower() == "true":
             return True
-        elif value_str.lower() == 'false':
+        elif value_str.lower() == "false":
             return False
-        
+
         # Return as string
         return value_str
 
@@ -448,7 +453,7 @@ class AutomationPipeline:
     ) -> Dict[str, Any]:
         """Handle generic/unknown step types"""
         await asyncio.sleep(0.1)
-        return {"result": f"Generic step completed", "input": input_data}
+        return {"result": "Generic step completed", "input": input_data}
 
     def get_workflow(self, workflow_id: str) -> Optional[Dict[str, Any]]:
         """Get workflow by ID"""
