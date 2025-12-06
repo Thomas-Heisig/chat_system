@@ -89,16 +89,17 @@ Additional reference materials and resources.
 
 ### For Operations
 - **[Deployment Guide](06-operations/deployment-overview.md)** - Deployment strategies
-- **[Monitoring](06-operations/monitoring.md)** - System monitoring
-- **[Security](06-operations/security-practices.md)** - Security best practices
-- **[Performance](06-operations/performance-tuning.md)** - Performance optimization
+- **[Monitoring](06-operations/MONITORING.md)** - System monitoring
+- **[Security](06-operations/SECURITY_ENHANCEMENTS.md)** - Security best practices
+- **[Performance](06-operations/PERFORMANCE.md)** - Performance optimization
+- **[Troubleshooting](06-operations/TROUBLESHOOTING.md)** - Common issues
 
 ### Feature Documentation
-- **[Voice Processing](08-reference/voice-processing.md)** 🔊 - TTS and transcription (Planned)
-- **[ELYZA Model](08-reference/elyza-model.md)** 🤖 - Local AI model (Planned)
-- **[Workflow Automation](08-reference/workflow-automation.md)** ⚙️ - Workflow orchestration (Planned)
-- **[Integrations](08-reference/integration-system.md)** 🔌 - External integrations (Planned)
-- **[Plugin System](08-reference/plugin-system.md)** 🧩 - Plugin development (Planned)
+- **[Voice Processing](08-reference/VOICE_PROCESSING.md)** 🔊 - TTS and transcription (Planned)
+- **[ELYZA Model](08-reference/ELYZA_MODEL.md)** 🤖 - Local AI model (Planned)
+- **[Workflow Automation](08-reference/WORKFLOW_AUTOMATION.md)** ⚙️ - Workflow orchestration (Planned)
+- **[Integrations](08-reference/INTEGRATIONS_GUIDE.md)** 🔌 - External integrations (Planned)
+- **[Plugin System](08-reference/PLUGIN_SYSTEM.md)** 🧩 - Plugin development (Planned)
 
 ---
 
@@ -123,18 +124,25 @@ This documentation follows international standards:
 
 ## 📊 Feature Status Overview
 
-| Feature | Status | Documentation | Priority |
-|---------|--------|---------------|----------|
-| Real-time Chat | ✅ Available | [User Guide](02-user-guide/chat-interface.md) | - |
-| File Management | ✅ Available | [User Guide](02-user-guide/file-management.md) | - |
-| Project Management | ✅ Available | [User Guide](02-user-guide/projects.md) | - |
-| RAG System | ✅ Available | [Reference](08-reference/rag-system.md) | - |
-| AI Integration | ✅ Available | [Developer Guide](03-developer-guide/ai-integration.md) | - |
-| Voice Processing | ⏸️ Planned | [Reference](08-reference/voice-processing.md) | 🔴 High |
-| ELYZA Model | ⏸️ Planned | [Reference](08-reference/elyza-model.md) | 🔴 High |
-| Workflow Automation | ⏸️ Planned | [Reference](08-reference/workflow-automation.md) | 🟡 Medium |
-| External Integrations | ⏸️ Planned | [Reference](08-reference/integration-system.md) | 🟡 Medium |
-| Plugin System | ⏸️ Planned | [Reference](08-reference/plugin-system.md) | 🟡 Medium |
+### ✅ Available Features
+
+| Feature | Status | Documentation |
+|---------|--------|---------------|
+| Real-time Chat | ✅ Available | [WebSocket Docs](03-developer-guide/components/README_websocket-manager.md) |
+| File Management | ✅ Available | [File Service](03-developer-guide/components/README_services-file_service.md) |
+| Project Management | ✅ Available | [Project Service](03-developer-guide/components/README_services-project_service.md) |
+| RAG System | ✅ Available | [Config](03-developer-guide/components/README_config-settings.md) |
+| AI Integration | ✅ Available | [Implementation](03-developer-guide/IMPLEMENTATION_NOTES.md) |
+
+### ⏸️ Planned Features
+
+| Feature | Priority | Documentation |
+|---------|----------|---------------|
+| Voice Processing | 🔴 High | [Reference](08-reference/VOICE_PROCESSING.md) |
+| ELYZA Model | 🔴 High | [Reference](08-reference/ELYZA_MODEL.md) |
+| Workflow Automation | 🟡 Medium | [Reference](08-reference/WORKFLOW_AUTOMATION.md) |
+| External Integrations | 🟡 Medium | [Reference](08-reference/INTEGRATIONS_GUIDE.md) |
+| Plugin System | 🟡 Medium | [Reference](08-reference/PLUGIN_SYSTEM.md) |
 
 ### Test Coverage Status
 
