@@ -5,6 +5,7 @@ Handles speech-to-text conversion using Whisper or other STT engines with fallba
 """
 
 import os
+import wave
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -63,6 +64,41 @@ class TranscriptionService:
         except ImportError as e:
             logger.debug(f"Whisper not available: {e}")
             return False
+    
+    def _get_audio_duration(self, audio_file_path: str) -> float:
+        """
+        Extract audio duration from file using built-in wave library or fallback.
+        
+        Args:
+            audio_file_path: Path to audio file
+            
+        Returns:
+            Duration in seconds, or 0.0 if unable to determine
+        """
+        try:
+            # Try using wave library for WAV files (no external dependencies)
+            if audio_file_path.lower().endswith('.wav'):
+                with wave.open(audio_file_path, 'rb') as wav_file:
+                    frames = wav_file.getnframes()
+                    rate = wav_file.getframerate()
+                    duration = frames / float(rate)
+                    return duration
+            
+            # For other formats, try to use pydub if available
+            try:
+                from pydub import AudioSegment
+                audio = AudioSegment.from_file(audio_file_path)
+                return len(audio) / 1000.0  # Convert milliseconds to seconds
+            except ImportError:
+                logger.debug("pydub not available for duration extraction")
+            
+            # If we can't determine duration, return 0.0
+            logger.debug(f"Unable to extract duration from {audio_file_path}")
+            return 0.0
+            
+        except Exception as e:
+            logger.debug(f"Error extracting audio duration: {e}")
+            return 0.0
 
     async def transcribe_audio(
         self, audio_file_path: str, language: Optional[str] = None, include_timestamps: bool = False
@@ -128,12 +164,15 @@ class TranscriptionService:
         reason: str
     ) -> Dict[str, Any]:
         """Generate fallback response when transcription is unavailable"""
+        # Try to extract duration even in fallback mode
+        audio_duration = self._get_audio_duration(audio_file_path)
+        
         return {
             "success": False,
             "fallback": True,
             "text": "[Transcription unavailable - placeholder text]",
             "language": language,
-            "duration": 0.0,
+            "duration": audio_duration,
             "confidence": 0.0,
             "file_path": audio_file_path,
             "model": self.whisper_model,
@@ -165,12 +204,15 @@ class TranscriptionService:
             
             logger.info(f"🎤 Audio transcribed locally: {Path(audio_file_path).name}")
             
+            # Extract audio duration
+            audio_duration = self._get_audio_duration(audio_file_path)
+            
             return {
                 "success": True,
                 "fallback": False,
                 "text": result["text"].strip(),
                 "language": result.get("language", language),
-                "duration": 0.0,  # TODO: Extract from audio file
+                "duration": audio_duration,
                 "confidence": 0.0,  # Whisper doesn't provide word confidence
                 "file_path": audio_file_path,
                 "model": self.whisper_model,

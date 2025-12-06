@@ -227,15 +227,54 @@ class AudioProcessor:
                 "supported_formats": self.supported_formats,
             }
 
-        # TODO: Implement format conversion
         output_path = str(Path(input_path).with_suffix(f".{output_format}"))
-
-        return {
-            "input_file": input_path,
-            "output_file": output_path,
-            "output_format": output_format,
-            "status": "placeholder",
-        }
+        
+        # Check if pydub is available for conversion
+        if not self.libraries_available.get("pydub", False):
+            logger.warning(
+                "⚠️ Format conversion requested but pydub not available. "
+                "Install with: pip install pydub"
+            )
+            return {
+                "input_file": input_path,
+                "output_file": output_path,
+                "output_format": output_format,
+                "status": "unavailable",
+                "message": "pydub library not available for format conversion",
+                "suggestion": "Install pydub and ffmpeg: pip install pydub && apt-get install ffmpeg"
+            }
+        
+        try:
+            from pydub import AudioSegment
+            
+            # Load audio file
+            audio = AudioSegment.from_file(input_path)
+            
+            # Export to target format
+            audio.export(output_path, format=output_format)
+            
+            logger.info(f"🔄 Audio converted: {Path(input_path).name} -> {output_format}")
+            
+            return {
+                "success": True,
+                "input_file": input_path,
+                "output_file": output_path,
+                "output_format": output_format,
+                "duration": len(audio) / 1000.0,  # milliseconds to seconds
+                "sample_rate": audio.frame_rate,
+                "channels": audio.channels,
+                "status": "success",
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Audio conversion failed: {e}")
+            return {
+                "error": str(e),
+                "input_file": input_path,
+                "output_file": output_path,
+                "output_format": output_format,
+                "status": "error",
+            }
 
     async def analyze_audio(self, file_path: str) -> Dict[str, Any]:
         """
@@ -247,15 +286,88 @@ class AudioProcessor:
         Returns:
             Audio analysis including quality metrics
         """
-        # TODO: Implement audio analysis
+        file_format = Path(file_path).suffix[1:]
+        
+        # Try WAV analysis with built-in wave library first (no dependencies)
+        if file_format.lower() == 'wav':
+            try:
+                import wave
+                with wave.open(file_path, 'rb') as wav_file:
+                    frames = wav_file.getnframes()
+                    rate = wav_file.getframerate()
+                    channels = wav_file.getnchannels()
+                    duration = frames / float(rate)
+                    
+                    # Determine quality based on sample rate
+                    if rate >= 44100:
+                        quality = "high"
+                    elif rate >= 16000:
+                        quality = "medium"
+                    else:
+                        quality = "low"
+                    
+                    return {
+                        "file_path": file_path,
+                        "duration": duration,
+                        "sample_rate": rate,
+                        "channels": channels,
+                        "format": file_format,
+                        "quality": quality,
+                        "bitrate": None,  # WAV doesn't have bitrate info
+                        "status": "success",
+                        "method": "wave"
+                    }
+            except Exception as e:
+                logger.debug(f"WAV analysis failed: {e}")
+        
+        # Try pydub for other formats
+        if self.libraries_available.get("pydub", False):
+            try:
+                from pydub import AudioSegment
+                
+                audio = AudioSegment.from_file(file_path)
+                
+                # Determine quality based on sample rate and channels
+                if audio.frame_rate >= 44100 and audio.channels >= 2:
+                    quality = "high"
+                elif audio.frame_rate >= 16000:
+                    quality = "medium"
+                else:
+                    quality = "low"
+                
+                return {
+                    "file_path": file_path,
+                    "duration": len(audio) / 1000.0,  # milliseconds to seconds
+                    "sample_rate": audio.frame_rate,
+                    "channels": audio.channels,
+                    "format": file_format,
+                    "quality": quality,
+                    "bitrate": None,  # Not directly available in pydub
+                    "status": "success",
+                    "method": "pydub"
+                }
+                
+            except Exception as e:
+                logger.error(f"❌ Audio analysis failed: {e}")
+                return {
+                    "file_path": file_path,
+                    "error": str(e),
+                    "format": file_format,
+                    "status": "error",
+                }
+        
+        # Fallback: return basic file info
+        logger.warning("⚠️ Audio analysis libraries not available")
         return {
             "file_path": file_path,
             "duration": 0.0,
-            "sample_rate": 16000,
-            "channels": 1,
-            "format": Path(file_path).suffix[1:],
+            "sample_rate": None,
+            "channels": None,
+            "format": file_format,
             "quality": "unknown",
-            "status": "placeholder",
+            "status": "unavailable",
+            "message": "Audio analysis libraries not available",
+            "suggestion": "Install pydub for full audio analysis: pip install pydub"
         }
 
     def is_supported_format(self, filename: str) -> bool:
