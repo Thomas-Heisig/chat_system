@@ -1,8 +1,33 @@
-# 🏗️ Architektur-Dokumentation
+# 🏗️ Architecture Documentation / Architektur-Dokumentation
 
-## Überblick
+## 📚 Complete Architecture Documentation / Vollständige Architekturdokumentation
+
+For comprehensive architecture documentation, please see:  
+Für umfassende Architekturdokumentation siehe:
+
+**[🏗️ Complete Architecture Documentation](docs/05-architecture/README.md)**
+
+This includes / Dies beinhaltet:
+- System Architecture / Systemarchitektur
+- Design Patterns and Principles / Entwurfsmuster und Prinzipien
+- Technology Stack / Technologie-Stack
+- Architecture Decision Records (ADRs) / Architekturentscheidungen
+- Component Architecture / Komponentenarchitektur
+
+## Quick Links / Schnellzugriff
+
+- **[System Architecture](docs/05-architecture/system-architecture.md)** - High-level design
+- **[Technology Stack](docs/05-architecture/technology-stack.md)** - Technologies used
+- **[Design Principles](docs/05-architecture/design-principles.md)** - Architectural principles
+- **[ADRs](docs/05-architecture/adr/README.md)** - Architecture decisions
+
+---
+
+## Überblick / Overview
 
 Das Chat System ist eine modulare, skalierbare Anwendung basierend auf FastAPI mit Echtzeit-WebSocket-Kommunikation, KI-Integration und Enterprise-Features.
+
+The Chat System is a modular, scalable application based on FastAPI with real-time WebSocket communication, AI integration, and enterprise features.
 
 ## Systemarchitektur
 
