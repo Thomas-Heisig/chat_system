@@ -117,10 +117,20 @@ This directory contains comprehensive documentation for the Universal Chat Syste
 
 ### Operations
 
+#### Performance & Optimization
+- **[Performance Optimization Guide](PERFORMANCE.md)** ⚡ NEW
+  - Database query optimization
+  - Caching strategies (Redis, in-memory)
+  - Response compression
+  - WebSocket performance
+  - **Status:** Documentation Complete
+  - **Priority:** High
+
 #### Monitoring & Security
 - [Monitoring Guide](MONITORING.md)
 - [Security Enhancements](SECURITY_ENHANCEMENTS.md)
 - [Security Policy](../SECURITY.md)
+- **[Performance Guide](PERFORMANCE.md)** - Performance monitoring included
 
 #### Migration & Changes
 - [Migration Notes](../MIGRATION_NOTES.md)
@@ -270,7 +280,10 @@ See [Contributing Guidelines](../CONTRIBUTING.md) for:
 - ✅ Added Testing Guide with coverage goals
 - ✅ Added Troubleshooting Guide (2025-12-06)
 - ✅ Added API Examples with multiple languages (2025-12-06)
-- ✅ Added 3 new ADR documents (2025-12-06)
+- ✅ Added 3 new ADR documents (ADR-005, ADR-006, ADR-007) (2025-12-06)
+- ✅ Added Performance Optimization Guide (2025-12-06) ⚡
+- ✅ Updated Security Enhancements with Request Signing (2025-12-06)
+- ✅ Added 2 new ADR documents (ADR-008, ADR-009) (2025-12-06)
 
 ### Planned Updates
 - [ ] Add implementation examples for all new features
