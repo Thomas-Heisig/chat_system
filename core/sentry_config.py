@@ -238,7 +238,7 @@ def capture_message(message: str, level: str = "info", **kwargs):
 
 
 # Initialize Sentry if DSN is configured
-if hasattr(settings, "SENTRY_DSN") and settings.SENTRY_DSN:
+if settings.SENTRY_DSN:
     # Auto-initialize in production
     if settings.APP_ENVIRONMENT == "production":
         init_sentry(traces_sample_rate=0.2, profiles_sample_rate=0.1)

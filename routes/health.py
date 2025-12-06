@@ -249,16 +249,16 @@ async def _check_ai_service_health() -> ComponentHealth:
 
     try:
         # Try to check Ollama health if configured
-        if settings.OLLAMA_URL:
+        if settings.OLLAMA_BASE_URL:
             import httpx
 
             async with httpx.AsyncClient(timeout=5.0) as client:
-                response = await client.get(f"{settings.OLLAMA_URL}/api/tags")
+                response = await client.get(f"{settings.OLLAMA_BASE_URL}/api/tags")
                 if response.status_code == 200:
                     return ComponentHealth(
                         status="healthy",
                         message="Ollama responding",
-                        details={"url": settings.OLLAMA_URL},
+                        details={"url": settings.OLLAMA_BASE_URL},
                     )
                 else:
                     return ComponentHealth(

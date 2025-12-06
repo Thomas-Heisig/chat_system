@@ -68,6 +68,12 @@ class EnvironmentSettings(BaseSettings):
     AI_MAX_RESPONSE_LENGTH: int = Field(default=1000)
     AI_CONTEXT_MESSAGES: int = Field(default=10)
 
+    # Monitoring & Observability
+    SENTRY_DSN: Optional[str] = Field(default=None)
+    SLOW_QUERY_THRESHOLD_MS: float = Field(default=100.0)
+    ENABLE_QUERY_LOGGING: bool = Field(default=True)
+    ENABLE_POOL_MONITORING: bool = Field(default=True)
+
     # RAG Configuration
     # NOTE: RAG (Retrieval Augmented Generation) is fully implemented,
     # but disabled by default as it requires external Vector Stores (ChromaDB/Qdrant).

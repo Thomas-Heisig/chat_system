@@ -61,11 +61,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         # Add security headers
-        self._add_security_headers(response, nonce)
+        self._add_security_headers(response, nonce, request.url.path)
 
         return response
 
-    def _add_security_headers(self, response: Response, nonce: str = None):
+    def _add_security_headers(
+        self, response: Response, nonce: str = None, path: str = "/"
+    ):
         """
         Add comprehensive security headers to the response
 
@@ -102,8 +104,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Disable DNS prefetching for privacy
         response.headers["X-DNS-Prefetch-Control"] = "off"
 
-        # Prevent browser from caching sensitive pages
-        if "/api/" in str(response.headers.get("path", "")):
+        # Prevent browser from caching sensitive API pages
+        if "/api/" in path:
             response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
             response.headers["Pragma"] = "no-cache"
             response.headers["Expires"] = "0"
@@ -157,8 +159,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             connect_sources.append("wss:")
         # Allow connections to AI services if enabled
         if settings.AI_ENABLED:
-            if settings.OLLAMA_URL:
-                connect_sources.append(settings.OLLAMA_URL)
+            if settings.OLLAMA_BASE_URL:
+                connect_sources.append(settings.OLLAMA_BASE_URL)
         directives.append(f"connect-src {' '.join(connect_sources)}")
 
         # Media sources

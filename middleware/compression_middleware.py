@@ -97,8 +97,21 @@ class CompressionMiddleware(BaseHTTPMiddleware):
             return response
 
         # Get response body
+        # Note: For very large responses (>10MB), consider streaming compression
+        # For now, we load into memory which is acceptable for typical API responses
         body = b""
+        max_size = 10 * 1024 * 1024  # 10MB limit
+        total_size = 0
+
         async for chunk in response.body_iterator:
+            total_size += len(chunk)
+            # Don't compress extremely large responses to avoid memory issues
+            if total_size > max_size:
+                # Return original response without compression for very large files
+                body += chunk
+                async for remaining_chunk in response.body_iterator:
+                    body += remaining_chunk
+                return self._create_response(response, body)
             body += chunk
 
         # Check if body meets minimum size requirement

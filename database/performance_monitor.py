@@ -23,6 +23,8 @@ from sqlalchemy.pool import Pool
 
 from config.settings import enhanced_logger
 
+# Optional Prometheus integration - try/except prevents circular import issues
+# Database monitoring can work independently without Prometheus
 try:
     from middleware.prometheus_middleware import track_database_query
 

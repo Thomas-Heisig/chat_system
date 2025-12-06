@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
 
     try:
         # Initialize Sentry for error tracking (if configured)
-        if hasattr(settings, "SENTRY_DSN") and settings.SENTRY_DSN:
+        if settings.SENTRY_DSN:
             enhanced_logger.info("Initializing Sentry error tracking")
             sentry_initialized = init_sentry()
             if sentry_initialized:
