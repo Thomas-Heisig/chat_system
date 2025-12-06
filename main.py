@@ -9,10 +9,18 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from config.settings import enhanced_logger, settings
+from core.sentry_config import init_sentry
 from database.connection import check_database_health, get_database_stats, init_database
+from middleware import (
+    CompressionMiddleware,
+    PrometheusMiddleware,
+    SecurityHeadersMiddleware,
+    metrics_endpoint,
+)
 from routes.admin import router as admin_router
 from routes.chat import router as chat_router
 from routes.database import router as database_router
+from routes.health import router as health_router
 from routes.messages import router as messages_router
 from routes.rag import router as rag_router
 from routes.settings import router as settings_router
@@ -32,6 +40,13 @@ async def lifespan(app: FastAPI):
     )
 
     try:
+        # Initialize Sentry for error tracking (if configured)
+        if settings.SENTRY_DSN:
+            enhanced_logger.info("Initializing Sentry error tracking")
+            sentry_initialized = init_sentry()
+            if sentry_initialized:
+                enhanced_logger.info("Sentry initialized successfully")
+        
         # Initialize database
         enhanced_logger.info("Initializing database")
         init_database()
@@ -150,6 +165,24 @@ app.add_middleware(
     expose_headers=["X-Process-Time", "X-Request-ID"],
 )
 
+# Add Prometheus Metrics Middleware
+app.add_middleware(PrometheusMiddleware)
+
+# Add Security Headers Middleware
+app.add_middleware(
+    SecurityHeadersMiddleware,
+    enable_csp=True,
+    enable_hsts=(settings.APP_ENVIRONMENT == "production"),
+)
+
+# Add Response Compression Middleware
+app.add_middleware(
+    CompressionMiddleware,
+    minimum_size=500,  # Only compress responses > 500 bytes
+    gzip_level=6,  # Balance between speed and compression
+    brotli_quality=4,  # Faster Brotli compression
+)
+
 
 # Enhanced logging middleware with performance monitoring
 @app.middleware("http")
@@ -202,26 +235,8 @@ async def enhanced_logging_middleware(request: Request, call_next):
         raise
 
 
-# Security headers middleware
-@app.middleware("http")
-async def security_headers_middleware(request: Request, call_next):
-    response = await call_next(request)
-
-    # Add security headers
-    security_headers = {
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block",
-        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
-        "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
-    }
-
-    for header, value in security_headers.items():
-        response.headers[header] = value
-
-    return response
+# Note: Security headers middleware is now handled by SecurityHeadersMiddleware
+# (configured above with app.add_middleware)
 
 
 # Enhanced exception handlers
@@ -294,6 +309,7 @@ for route, directory, description in static_dirs:
 
 # Register routes with enhanced logging
 routes_config = [
+    (health_router, "", "Health Check API routes"),
     (chat_router, "", "Chat routes (WebSocket, UI, AI)"),
     (messages_router, "/api", "Messages API routes"),
     (settings_router, "", "Settings API routes"),
@@ -330,9 +346,20 @@ async def favicon():
     return Response(content=svg_icon, media_type="image/svg+xml")
 
 
-# Enhanced health and info endpoints
-@app.get("/health", tags=["monitoring"])
-async def comprehensive_health_check():
+# Prometheus Metrics Endpoint
+@app.get("/metrics", tags=["monitoring"])
+async def prometheus_metrics(request: Request):
+    """
+    Expose Prometheus metrics
+    
+    Returns metrics in Prometheus text format for scraping
+    """
+    return await metrics_endpoint(request)
+
+
+# Enhanced system info endpoints
+@app.get("/status", tags=["monitoring"])
+async def system_status():
     """Comprehensive health check with system status"""
     health_data = {
         "status": "healthy",
