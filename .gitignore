@@ -77,3 +77,6 @@ dist/
 *.tmp
 *.bak
 tmp/
+
+# Archived temporary files
+.archive/

@@ -32,21 +32,21 @@ What other options did we evaluate?
 ## Index
 
 ### Core Architecture
-- [ADR-001: Choice of FastAPI as Web Framework](ADR-001-fastapi-framework.md)
-- [ADR-002: SQLAlchemy ORM for Database Abstraction](ADR-002-sqlalchemy-orm.md)
-- [ADR-003: JWT for Authentication](ADR-003-jwt-authentication.md)
-- [ADR-004: WebSocket for Real-Time Communication](ADR-004-websocket-realtime.md)
+- [ADR-001: Choice of FastAPI as Web Framework](ADR-001-fastapi-framework.md) - Web framework selection
+- [ADR-002: SQLAlchemy ORM for Database Abstraction](ADR-002-sqlalchemy-orm.md) - ORM choice
+- [ADR-003: JWT for Authentication](ADR-003-jwt-authentication.md) - Authentication strategy
+- [ADR-004: WebSocket for Real-Time Communication](ADR-004-websocket-realtime.md) - Real-time messaging
 
 ### Data & Storage
-- [ADR-005: Vector Database Choice for RAG System](ADR-005-vector-database-choice.md)
-- [ADR-007: Multi-Database Support Strategy](ADR-007-multi-database-support.md)
+- [ADR-005: Vector Database Choice for RAG System](ADR-005-vector-database-choice.md) - Vector DB for RAG
+- [ADR-007: Multi-Database Support Strategy](ADR-007-multi-database-support.md) - Multi-DB architecture
 
 ### Extensions & Integrations
-- [ADR-006: Docker-Based Plugin Sandbox Architecture](ADR-006-plugin-sandbox-architecture.md)
+- [ADR-006: Docker-Based Plugin Sandbox Architecture](ADR-006-plugin-sandbox-architecture.md) - Plugin isolation
 
-### Performance & Security (NEW)
-- [ADR-008: Performance Optimization Strategy](ADR-008-performance-optimization-strategy.md) ✨
-- [ADR-009: Security Enhancement Strategy](ADR-009-security-enhancement-strategy.md) ✨
+### Performance & Security
+- [ADR-008: Performance Optimization Strategy](ADR-008-performance-optimization-strategy.md) - Performance improvements
+- [ADR-009: Security Enhancement Strategy](ADR-009-security-enhancement-strategy.md) - Security enhancements
 
 ## Creating a New ADR
 

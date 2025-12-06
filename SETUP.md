@@ -1,6 +1,22 @@
 # Chat System Setup Guide
 
-This guide will help you set up and run the Chat System locally or with Docker.
+## 📚 Complete Setup Documentation
+
+For comprehensive setup instructions, please see:
+
+**[🚀 Getting Started Guide](docs/01-getting-started/README.md)**
+
+This includes:
+- **[Quick Start Guide](docs/01-getting-started/quick-start.md)** - 5-minute setup
+- **[Installation Guide](docs/01-getting-started/installation.md)** - Detailed installation
+- **[Configuration Guide](docs/01-getting-started/configuration.md)** - Complete configuration reference
+- **[First Steps Tutorial](docs/01-getting-started/first-steps.md)** - Getting started
+
+---
+
+## Quick Setup
+
+This guide provides a quick overview. For detailed instructions, see the complete documentation linked above.
 
 ## Prerequisites
 

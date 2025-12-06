@@ -1,8 +1,35 @@
-# 🚀 Deployment-Dokumentation
+# 🚀 Deployment Documentation / Deployment-Dokumentation
 
-## Überblick
+## 📚 Complete Deployment Documentation / Vollständige Deployment-Dokumentation
+
+For comprehensive deployment documentation, please see:  
+Für umfassende Deployment-Dokumentation siehe:
+
+**[⚙️ Complete Operations & Deployment Guide](docs/06-operations/README.md)**
+
+This includes / Dies beinhaltet:
+- Deployment Strategies / Deployment-Strategien (Docker, Kubernetes, VMs)
+- Environment Configuration / Umgebungskonfiguration
+- Security Configuration / Sicherheitskonfiguration
+- Performance Tuning / Performance-Optimierung
+- Monitoring and Observability / Monitoring und Observability
+- Backup and Disaster Recovery / Backup und Wiederherstellung
+
+## Quick Links / Schnellzugriff
+
+- **[Deployment Overview](docs/06-operations/deployment-overview.md)** - Deployment strategies
+- **[Docker Deployment](docs/06-operations/docker-deployment.md)** - Container deployment
+- **[Kubernetes Deployment](docs/06-operations/kubernetes-deployment.md)** - K8s orchestration
+- **[Monitoring](docs/06-operations/monitoring.md)** - System monitoring
+- **[Troubleshooting](docs/06-operations/troubleshooting.md)** - Common issues
+
+---
+
+## Überblick / Overview
 
 Diese Anleitung beschreibt verschiedene Deployment-Optionen für das Chat System und erklärt die notwendigen Konfigurationen.
+
+This guide describes various deployment options for the Chat System and explains the necessary configurations.
 
 ## Voraussetzungen
 

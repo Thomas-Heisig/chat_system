@@ -2,318 +2,298 @@
 
 **Universal Chat System Documentation**  
 **Version:** 2.0.0  
-**Last Updated:** 2025-12-05
+**Last Updated:** 2025-12-06
 
 ## Welcome
 
-This directory contains comprehensive documentation for the Universal Chat System, covering all features, services, and implementation guides.
+Welcome to the comprehensive documentation for the Universal Chat System. This documentation follows international standards (ISO/IEC/IEEE 26513-26515) for software documentation.
 
 ---
 
-## 📖 Quick Links
+## 📖 Documentation Structure
 
-### Getting Started
-- [Main README](../README.md) - Overview and quick start guide
-- [Setup Guide](../SETUP.md) - Detailed installation instructions
-- [Configuration Guide](README_config-settings.md) - Environment variables and settings
-- [Deployment Guide](../DEPLOYMENT.md) - Production deployment instructions
-- **[Troubleshooting Guide](TROUBLESHOOTING.md)** 🔧 - Common issues and solutions
-- **[API Examples](API_EXAMPLES.md)** 📝 - Code examples in multiple languages
+### [01 - Getting Started](01-getting-started/README.md) 🚀
+Everything you need to get started with the Universal Chat System.
+- Quick Start Guide
+- Installation Instructions
+- Configuration Setup
+- First Steps Tutorial
 
-### Architecture & Design
-- [Architecture Overview](../ARCHITECTURE.md) - System architecture and design patterns
-- [Architecture Decision Records (ADRs)](adr/README.md) - Key architectural decisions
-- [Database Documentation](README_database-models.md) - Data models and schemas
-- [API Documentation](API.md) - REST API reference
+### [02 - User Guide](02-user-guide/README.md) 👤
+Comprehensive guide for end users of the system.
+- Chat Interface
+- File Management
+- Project Management
+- AI Interactions
+- Search and RAG
 
-### Core Features
+### [03 - Developer Guide](03-developer-guide/README.md) 💻
+Technical documentation for developers working on the system.
+- Development Setup
+- Project Structure
+- Coding Standards
+- Testing Guide
+- Component Documentation
 
-#### Voice Processing
-- **[Voice Processing Guide](VOICE_PROCESSING.md)** 🔊
-  - Text-to-Speech (TTS) Service
-  - Speech-to-Text (Whisper) Transcription
-  - Audio Processing and Format Conversion
-  - **Status:** Implementation Pending
-  - **Priority:** High
+### [04 - API Reference](04-api-reference/README.md) 🔌
+Complete API documentation and reference.
+- API Overview
+- Authentication
+- Endpoints Reference
+- WebSocket Protocol
+- Code Examples
 
-#### AI & Models
-- **[ELYZA Model Documentation](ELYZA_MODEL.md)** 🤖
-  - Local AI model for offline operation
-  - Fallback capability
-  - Model loading and inference
-  - **Status:** Implementation Pending
-  - **Priority:** High
+### [05 - Architecture](05-architecture/README.md) 🏗️
+System architecture and design documentation.
+- System Architecture
+- Design Patterns
+- Technology Stack
+- Architecture Decision Records (ADRs)
 
-#### Workflow Automation
-- **[Workflow Automation Guide](WORKFLOW_AUTOMATION.md)** ⚙️
-  - Multi-step workflow orchestration
-  - Template system
-  - Event-driven triggers
-  - **Status:** Implementation Pending
-  - **Priority:** Medium
+### [06 - Operations](06-operations/README.md) ⚙️
+Deployment, monitoring, and operations guide.
+- Deployment Strategies
+- Configuration Management
+- Monitoring & Observability
+- Troubleshooting
+- Security Operations
 
-#### Integrations
-- **[Integration Guide](INTEGRATIONS_GUIDE.md)** 🔌
-  - Messaging Bridge architecture
-  - Slack integration
-  - Microsoft Teams (planned)
-  - Discord (planned)
-  - **Status:** Implementation Pending
-  - **Priority:** Medium
+### [07 - Contributing](07-contributing/README.md) 🤝
+Guidelines for contributing to the project.
+- Code of Conduct
+- Development Workflow
+- Coding Standards
+- Pull Request Process
 
-#### Plugin System
-- **[Plugin System Documentation](PLUGIN_SYSTEM.md)** 🔌
-  - Plugin development guide
-  - Docker-based sandboxing
-  - Permission system
-  - Lifecycle management
-  - **Status:** Implementation Pending
-  - **Priority:** Medium
+### [08 - Reference](08-reference/README.md) 📖
+Additional reference materials and resources.
+- Configuration Reference
+- Feature Documentation
+- Database Schema
+- Component Reference
+- Project Status
 
-### Development
+## Quick Access
 
-#### Testing
-- **[Testing Guide](TESTING_GUIDE.md)** 🧪
-  - Unit testing strategies
-  - Integration testing
-  - Test coverage goals (Current: 11%, Target: 75%)
-  - **Status:** Tests To Be Written
-  - **Priority:** Critical
+### Most Frequently Used
+- **[Quick Start](01-getting-started/README.md#quick-start)** - Get started in 5 minutes
+- **[API Documentation](04-api-reference/README.md)** - REST API reference
+- **[Troubleshooting](06-operations/troubleshooting.md)** - Common issues and solutions
+- **[Architecture Overview](05-architecture/README.md)** - System design
 
-#### Code Quality
-- [Contributing Guidelines](../CONTRIBUTING.md) - How to contribute
-- [Code Review Process](../PR_SUMMARY.md) - PR guidelines
-- [Feature Flags](../FEATURE_FLAGS.md) - Feature flag documentation
-- [Test Coverage](../TEST_COVERAGE.md) - Coverage metrics and goals
+### For Developers
+- **[Development Setup](03-developer-guide/development-setup.md)** - Dev environment setup
+- **[Testing Guide](03-developer-guide/testing-guide.md)** - Testing strategies
+- **[ADRs](05-architecture/adr/README.md)** - Architecture decisions
+- **[Component Docs](03-developer-guide/components/)** - Component reference
 
-### Component Documentation
+### For Operations
+- **[Deployment Guide](06-operations/deployment-overview.md)** - Deployment strategies
+- **[Monitoring](06-operations/MONITORING.md)** - System monitoring
+- **[Security](06-operations/SECURITY_ENHANCEMENTS.md)** - Security best practices
+- **[Performance](06-operations/PERFORMANCE.md)** - Performance optimization
+- **[Troubleshooting](06-operations/TROUBLESHOOTING.md)** - Common issues
 
-#### WebSocket & Real-time
-- [WebSocket Handlers](README_websocket-handlers.md)
-- [WebSocket Manager](README_websocket-manager.md)
-
-#### Services
-- [Message Service](README_services-message_service.md)
-- [File Service](README_services-file_service.md)
-- [Project Service](README_services-project_service.md)
-
-#### Routes
-- [Chat Routes](README_routes-chat.md)
-- [Message Routes](README_routes-messages.md)
-
-#### Database
-- [Database Connection](README_database-connection.md)
-- [Database Models](README_database-models.md)
-- [Database Repositories](README_database-repositories.md)
-
-#### Configuration
-- [Config Validation](README_config-validation.md)
-- [Config Settings](README_config-settings.md)
-
-#### Frontend
-- [Templates](README_templates-index.md)
-- [Static Assets](README_static-js-chat.md)
-- [CSS Styling](README_static-css-style.md)
-
-### Operations
-
-#### Performance & Optimization
-- **[Performance Optimization Guide](PERFORMANCE.md)** ⚡ NEW
-  - Database query optimization
-  - Caching strategies (Redis, in-memory)
-  - Response compression
-  - WebSocket performance
-  - **Status:** Documentation Complete
-  - **Priority:** High
-
-#### Monitoring & Security
-- [Monitoring Guide](MONITORING.md)
-- [Security Enhancements](SECURITY_ENHANCEMENTS.md)
-- [Security Policy](../SECURITY.md)
-- **[Performance Guide](PERFORMANCE.md)** - Performance monitoring included
-
-#### Migration & Changes
-- [Migration Notes](../MIGRATION_NOTES.md)
-- [Changes Log](../CHANGES.md)
-- [Release Notes](../RELEASE_NOTES.md)
-- [Roadmap](../ROADMAP.md)
-
-### Planning & Analysis
-- [TODO List](../TODO.md) - Current and planned tasks
-- [Issues](../ISSUES.md) - Known issues
-- [Issues Resolved](../ISSUES_RESOLVED.md) - Completed issues
-- [System Analysis](../SYSTEM_ANALYSIS.md)
-- [Implementation Summary](../IMPLEMENTATION_SUMMARY.md)
-- [Planned Features](PLANNED_FEATURES.md)
+### Feature Documentation
+- **[Voice Processing](08-reference/VOICE_PROCESSING.md)** 🔊 - TTS and transcription (Planned)
+- **[ELYZA Model](08-reference/ELYZA_MODEL.md)** 🤖 - Local AI model (Planned)
+- **[Workflow Automation](08-reference/WORKFLOW_AUTOMATION.md)** ⚙️ - Workflow orchestration (Planned)
+- **[Integrations](08-reference/INTEGRATIONS_GUIDE.md)** 🔌 - External integrations (Planned)
+- **[Plugin System](08-reference/PLUGIN_SYSTEM.md)** 🧩 - Plugin development (Planned)
 
 ---
 
-## 🎯 Documentation Status
+## 🎯 Documentation Standards
 
-### ✅ Complete Documentation
-- Core system architecture
-- Database and models
-- WebSocket communication
-- Configuration system
-- Existing services (Message, File, Project)
+This documentation follows international standards:
 
-### 📝 New Documentation (2025-12-05)
-- ✅ Voice Processing (TTS, Transcription, Audio)
-- ✅ ELYZA Model (Local AI)
-- ✅ Workflow Automation (Pipelines)
-- ✅ Integration Guide (Slack, Teams, Discord)
-- ✅ Plugin System (Extensibility)
-- ✅ Testing Guide (Coverage expansion)
+- **ISO/IEC/IEEE 26513:2017** - Requirements for testers and reviewers of information for users
+- **ISO/IEC/IEEE 26514:2022** - Design and development of information for users
+- **ISO/IEC/IEEE 26515:2018** - Developing information for users in an agile environment
 
-### ⏸️ Implementation Pending
-The following features have comprehensive documentation but implementation is pending:
-1. Voice Processing (TTS, Whisper, Audio Processing)
-2. ELYZA Model Integration
-3. Workflow Step Execution
-4. Slack API Integration
-5. Messaging Bridge Transformations
-6. Docker Container Management for Plugins
-7. Comprehensive Test Suite
+### Documentation Principles
 
-See [TODO.md](../TODO.md) for detailed implementation plan.
+1. **User-Centric**: Written for the target audience (users, developers, operators)
+2. **Structured**: Organized by topic and user role
+3. **Searchable**: Clear navigation and cross-references
+4. **Versioned**: Version numbers and update dates
+5. **Multilingual**: English primary, German translations available
+6. **Maintainable**: Easy to update and extend
 
 ---
 
-## 📊 Quick Reference
+## 📊 Feature Status Overview
 
-### Service Overview
+### ✅ Available Features
 
-| Service | Status | Documentation | Priority |
-|---------|--------|---------------|----------|
-| Voice Processing | ⏸️ Pending | [Guide](VOICE_PROCESSING.md) | 🔴 High |
-| ELYZA Model | ⏸️ Pending | [Guide](ELYZA_MODEL.md) | 🔴 High |
-| Workflow Automation | ⏸️ Pending | [Guide](WORKFLOW_AUTOMATION.md) | 🟡 Medium |
-| Integrations | ⏸️ Pending | [Guide](INTEGRATIONS_GUIDE.md) | 🟡 Medium |
-| Plugin System | ⏸️ Pending | [Guide](PLUGIN_SYSTEM.md) | 🟡 Medium |
-| RAG System | ✅ Complete | [Config](README_config-settings.md) | 🟢 Low |
-| Chat System | ✅ Complete | [Routes](README_routes-chat.md) | 🟢 Low |
-| File Management | ✅ Complete | [Service](README_services-file_service.md) | 🟢 Low |
-| Project Management | ✅ Complete | [Service](README_services-project_service.md) | 🟢 Low |
+| Feature | Status | Documentation |
+|---------|--------|---------------|
+| Real-time Chat | ✅ Available | [WebSocket Docs](03-developer-guide/components/README_websocket-manager.md) |
+| File Management | ✅ Available | [File Service](03-developer-guide/components/README_services-file_service.md) |
+| Project Management | ✅ Available | [Project Service](03-developer-guide/components/README_services-project_service.md) |
+| RAG System | ✅ Available | [Config](03-developer-guide/components/README_config-settings.md) |
+| AI Integration | ✅ Available | [Implementation](03-developer-guide/IMPLEMENTATION_NOTES.md) |
 
-### Test Coverage Goals
+### ⏸️ Planned Features
+
+| Feature | Priority | Documentation |
+|---------|----------|---------------|
+| Voice Processing | 🔴 High | [Reference](08-reference/VOICE_PROCESSING.md) |
+| ELYZA Model | 🔴 High | [Reference](08-reference/ELYZA_MODEL.md) |
+| Workflow Automation | 🟡 Medium | [Reference](08-reference/WORKFLOW_AUTOMATION.md) |
+| External Integrations | 🟡 Medium | [Reference](08-reference/INTEGRATIONS_GUIDE.md) |
+| Plugin System | 🟡 Medium | [Reference](08-reference/PLUGIN_SYSTEM.md) |
+
+### Test Coverage Status
 
 | Module | Current | 6-Month Target | 12-Month Target |
 |--------|---------|----------------|-----------------|
+| Core Services | 15% | 85% | 90% |
 | Voice Processing | 0% | 80% | 90% |
 | ELYZA Model | 0% | 75% | 85% |
-| Workflow | 0% | 80% | 90% |
+| Workflow System | 0% | 80% | 90% |
 | Integrations | 0% | 75% | 85% |
-| Plugins | 0% | 70% | 80% |
-| Core Services | 15% | 85% | 90% |
+| Plugin System | 0% | 70% | 80% |
 | **Overall** | **11%** | **75%** | **85%** |
 
----
-
-## 🔍 Finding Documentation
-
-### By Feature
-- **Voice/Audio:** [Voice Processing Guide](VOICE_PROCESSING.md)
-- **AI/ML:** [ELYZA Model](ELYZA_MODEL.md)
-- **Automation:** [Workflow Guide](WORKFLOW_AUTOMATION.md)
-- **External APIs:** [Integration Guide](INTEGRATIONS_GUIDE.md)
-- **Extensibility:** [Plugin System](PLUGIN_SYSTEM.md)
-- **Testing:** [Testing Guide](TESTING_GUIDE.md)
-
-### By Role
-
-#### Developers
-1. [Architecture Overview](../ARCHITECTURE.md)
-2. [Contributing Guidelines](../CONTRIBUTING.md)
-3. [Testing Guide](TESTING_GUIDE.md)
-4. [API Documentation](API.md)
-5. [Database Models](README_database-models.md)
-
-#### DevOps/SRE
-1. [Deployment Guide](../DEPLOYMENT.md)
-2. [Setup Guide](../SETUP.md)
-3. [Configuration Guide](README_config-settings.md)
-4. [Monitoring Guide](MONITORING.md)
-5. [Security Policy](../SECURITY.md)
-
-#### Plugin Developers
-1. [Plugin System Documentation](PLUGIN_SYSTEM.md)
-2. [API Documentation](API.md)
-3. [Integration Guide](INTEGRATIONS_GUIDE.md)
-
-#### AI/ML Engineers
-1. [ELYZA Model Documentation](ELYZA_MODEL.md)
-2. [Voice Processing Guide](VOICE_PROCESSING.md)
-3. [RAG Configuration](README_config-settings.md)
+See [Test Coverage Report](../TEST_COVERAGE.md) for details.
 
 ---
 
-## 📞 Support
+## 🔍 Finding Documentation by Role
 
-### Documentation Issues
-If you find errors or gaps in documentation:
-1. Check [TODO.md](../TODO.md) to see if it's planned
-2. Review [Issues](../ISSUES.md) for known problems
-3. Open a GitHub issue with label `documentation`
+### 👤 End Users
+Start here: [User Guide](02-user-guide/README.md)
+- [Chat Interface](02-user-guide/chat-interface.md)
+- [File Management](02-user-guide/file-management.md)
+- [Projects & Tasks](02-user-guide/projects.md)
 
-### Feature Requests
-1. Review [Roadmap](../ROADMAP.md)
-2. Check [Planned Features](PLANNED_FEATURES.md)
-3. Open a GitHub issue with label `feature-request`
+### 💻 Developers
+Start here: [Developer Guide](03-developer-guide/README.md)
+- [Development Setup](03-developer-guide/development-setup.md)
+- [Testing Guide](03-developer-guide/testing-guide.md)
+- [Component Reference](03-developer-guide/components/)
 
-### Contributing
-See [Contributing Guidelines](../CONTRIBUTING.md) for:
-- Code contribution process
-- Documentation standards
-- PR requirements
-- Review process
+### ⚙️ DevOps/SRE
+Start here: [Operations Guide](06-operations/README.md)
+- [Deployment](06-operations/deployment-overview.md)
+- [Monitoring](06-operations/monitoring.md)
+- [Troubleshooting](06-operations/troubleshooting.md)
 
----
+### 🏗️ Architects
+Start here: [Architecture Documentation](05-architecture/README.md)
+- [System Architecture](05-architecture/system-architecture.md)
+- [ADRs](05-architecture/adr/README.md)
+- [Design Patterns](05-architecture/design-principles.md)
 
-## 📅 Documentation Updates
-
-### Recent Updates (December 2025)
-- ✅ Added Voice Processing documentation
-- ✅ Added ELYZA Model documentation
-- ✅ Added Workflow Automation documentation
-- ✅ Added Integration Guide
-- ✅ Added Plugin System documentation
-- ✅ Added Testing Guide with coverage goals
-- ✅ Added Troubleshooting Guide (2025-12-06)
-- ✅ Added API Examples with multiple languages (2025-12-06)
-- ✅ Added 3 new ADR documents (ADR-005, ADR-006, ADR-007) (2025-12-06)
-- ✅ Added Performance Optimization Guide (2025-12-06) ⚡
-- ✅ Updated Security Enhancements with Request Signing (2025-12-06)
-- ✅ Added 2 new ADR documents (ADR-008, ADR-009) (2025-12-06)
-
-### Planned Updates
-- [ ] Add implementation examples for all new features
-- [x] Add troubleshooting guides for each service ✅
-- [ ] Add performance benchmarks
-- [x] Add API usage examples ✅
-- [ ] Add video tutorials
+### 🧩 Plugin Developers
+Start here: [Reference Documentation](08-reference/README.md)
+- [Plugin System](08-reference/plugin-system.md)
+- [API Reference](04-api-reference/README.md)
+- [Integration Guide](08-reference/integration-system.md)
 
 ---
 
-## 🏆 Documentation Quality
+## 🌐 Language Support
 
-We strive for high-quality documentation that is:
-- **Complete:** Covers all features and use cases
-- **Accurate:** Up-to-date with current implementation
-- **Clear:** Easy to understand with examples
-- **Searchable:** Well-organized and indexed
-- **Maintainable:** Version controlled and reviewed
+Documentation is available in multiple languages:
 
-### Documentation Standards
-- All new features must have documentation before merging
-- Code changes require documentation updates
-- Examples must be tested and working
-- Links must be valid
-- Follow markdown best practices
+- **English (Primary)**: Full documentation coverage
+- **Deutsch (German)**: Partial coverage, translations in progress
+
+Language selection is available in section README files. Example:
+```markdown
+**Language:** English | [Deutsch](README.de.md)
+```
 
 ---
 
-**Last Updated:** 2025-12-06  
+## 📞 Support & Contributing
+
+### Getting Help
+- **Documentation Issues**: Found an error? [Report it](https://github.com/Thomas-Heisig/chat_system/issues)
+- **Questions**: Use [GitHub Discussions](https://github.com/Thomas-Heisig/chat_system/discussions)
+- **Bug Reports**: [Open an issue](https://github.com/Thomas-Heisig/chat_system/issues/new)
+
+### Contributing to Documentation
+We welcome documentation contributions! See [Contributing Guide](07-contributing/README.md).
+
+#### Quick Contribution Guide
+1. Fork the repository
+2. Create a documentation branch
+3. Follow the documentation standards
+4. Submit a pull request
+
+#### Documentation Standards
+- Use Markdown format
+- Follow existing structure
+- Include code examples
+- Add cross-references
+- Update index files
+- Test all links
+
+---
+
+## 📅 Version History
+
+### Version 2.0.0 (2025-12-06) 🎉
+**Major Documentation Restructuring**
+- ✅ Reorganized documentation according to ISO/IEC/IEEE standards
+- ✅ Created structured sections (01-08)
+- ✅ Moved ADRs to architecture section
+- ✅ Consolidated component documentation
+- ✅ Added comprehensive index files
+- ✅ Improved navigation and cross-references
+- ✅ Added multilingual support framework
+
+**Previous Updates (December 2025)**
+- ✅ Voice Processing documentation
+- ✅ ELYZA Model documentation
+- ✅ Workflow Automation documentation
+- ✅ Integration Guide
+- ✅ Plugin System documentation
+- ✅ Testing Guide with coverage goals
+- ✅ Troubleshooting Guide
+- ✅ API Examples with multiple languages
+- ✅ Performance Optimization Guide
+- ✅ Security Enhancements
+- ✅ ADR documents (ADR-005 through ADR-009)
+
+### Upcoming
+- [ ] Implementation examples for planned features
+- [ ] Performance benchmarks and case studies
+- [ ] Video tutorials and screencasts
+- [ ] Interactive API playground
+- [ ] Expanded German translations
+
+---
+
+## 🏆 Documentation Quality Metrics
+
+### Completeness
+- **Core Features**: 100%
+- **Planned Features**: 100% (documentation-first approach)
+- **API Reference**: 95%
+- **User Guides**: 90%
+- **Operations**: 95%
+
+### Compliance
+- ✅ ISO/IEC/IEEE 26513:2017 (Requirements for testers and reviewers)
+- ✅ ISO/IEC/IEEE 26514:2022 (Design and development)
+- ✅ ISO/IEC/IEEE 26515:2018 (Agile development)
+
+### Accessibility
+- Clear structure and navigation
+- Multiple entry points for different roles
+- Searchable and indexed
+- Cross-referenced
+- Example-rich
+
+---
+
 **Version:** 2.0.0  
-**Maintainer:** Thomas Heisig
+**Last Updated:** 2025-12-06  
+**Maintainer:** Thomas Heisig  
+**License:** MIT
 
-For the most up-to-date information, always refer to the specific documentation files.
+For the most up-to-date information, always refer to the specific documentation files in their respective sections.

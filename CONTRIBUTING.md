@@ -1,16 +1,122 @@
-# 🤝 Contributing to Chat System
+# 🤝 Contributing to Universal Chat System
 
-Vielen Dank für Ihr Interesse, zum Chat System beizutragen! Dieses Dokument enthält Richtlinien für Beiträge.
+Thank you for your interest in contributing to the Universal Chat System!
 
-## Inhaltsverzeichnis
+## 📚 Complete Contributing Guide
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Pull Request Process](#pull-request-process)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Documentation](#documentation)
+For comprehensive contribution guidelines, please see:
+
+**[📖 Complete Contributing Guide](docs/07-contributing/README.md)**
+
+This includes:
+- Code of Conduct
+- Getting Started for Contributors
+- Development Workflow
+- Coding Standards
+- Testing Requirements
+- Documentation Standards
+- Pull Request Process
+- Issue Guidelines
+
+## Quick Links
+
+- **[Getting Started](docs/07-contributing/getting-started.md)** - First-time contributors
+- **[Development Workflow](docs/07-contributing/development-workflow.md)** - Git workflow
+- **[Coding Standards](docs/07-contributing/coding-standards.md)** - Code style
+- **[Testing Guide](docs/07-contributing/testing-requirements.md)** - Testing guidelines
+- **[PR Process](docs/07-contributing/pull-request-process.md)** - Pull request guidelines
+
+## Quick Start for Contributors
+
+### 1. Fork and Clone
+
+```bash
+git clone https://github.com/YOUR-USERNAME/chat_system.git
+cd chat_system
+```
+
+### 2. Set Up Development Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pre-commit install
+```
+
+### 3. Create Feature Branch
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### 4. Make Changes
+
+- Follow coding standards
+- Write tests
+- Update documentation
+- Ensure all tests pass
+
+### 5. Submit Pull Request
+
+```bash
+git add .
+git commit -m "Add your feature"
+git push origin feature/your-feature-name
+```
+
+Then open a Pull Request on GitHub.
+
+## Ways to Contribute
+
+### 🐛 Report Bugs
+Found a bug? [Open an issue](https://github.com/Thomas-Heisig/chat_system/issues)
+
+### 💡 Suggest Features
+Have an idea? [Open a feature request](https://github.com/Thomas-Heisig/chat_system/issues)
+
+### 📝 Improve Documentation
+- Fix typos
+- Add examples
+- Translate documentation
+- Update outdated content
+
+### 🔧 Submit Code
+- Fix bugs
+- Implement features
+- Improve performance
+- Add tests
+
+## Code of Conduct
+
+### Our Pledge
+
+We are committed to providing a welcoming and inspiring community:
+
+- ✅ Be respectful and inclusive
+- ✅ Provide constructive feedback
+- ✅ Focus on what is best for the community
+- ✅ Show empathy towards others
+
+### Unacceptable Behavior
+
+- ❌ Harassment or discrimination
+- ❌ Trolling or insulting comments
+- ❌ Personal or political attacks
+- ❌ Publishing others' private information
+
+## Getting Help
+
+- **Documentation**: [Full Documentation](docs/README.md)
+- **Discussions**: [GitHub Discussions](https://github.com/Thomas-Heisig/chat_system/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Thomas-Heisig/chat_system/issues)
+
+---
+
+**Thank you for contributing to the Universal Chat System! 🙏**
+
+For detailed guidelines, see the [Complete Contributing Guide](docs/07-contributing/README.md).
 
 ## Code of Conduct
 

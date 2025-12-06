@@ -645,35 +645,58 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Documentation
 
-**📚 [Complete Documentation Index](docs/README.md)** - Full documentation directory
+**📚 [Complete Documentation Index](docs/README.md)** - Comprehensive documentation following international standards (ISO/IEC/IEEE 26513-26515)
 
-**Core Documentation:**
-- [Setup Guide](SETUP.md) - Installation and configuration
-- [Architecture](ARCHITECTURE.md) - System architecture overview
-- [Architecture Decision Records (ADRs)](docs/adr/README.md) - Key architectural decisions (Updated!)
-- [Deployment Guide](DEPLOYMENT.md) - Production deployment
-- [Contributing Guidelines](CONTRIBUTING.md) - How to contribute
-- [Testing Guide](docs/TESTING_GUIDE.md) - Testing strategies and coverage
-- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions (New!)
-- [API Examples](docs/API_EXAMPLES.md) - Code examples in multiple languages (New!)
+#### Documentation Sections
 
-**Feature Documentation (New!):**
-- 🔊 [Voice Processing Guide](docs/VOICE_PROCESSING.md) - TTS, Transcription, Audio Processing
-- 🤖 [ELYZA Model Documentation](docs/ELYZA_MODEL.md) - Local AI model and fallback
-- ⚙️ [Workflow Automation](docs/WORKFLOW_AUTOMATION.md) - Multi-step workflow orchestration
-- 🔌 [Integration Guide](docs/INTEGRATIONS_GUIDE.md) - Slack, Teams, Discord integration
-- 🧩 [Plugin System](docs/PLUGIN_SYSTEM.md) - Extensibility and plugin development
+**[📖 Getting Started](docs/01-getting-started/README.md)**
+- Quick Start Guide
+- Installation & Setup
+- Configuration
+- First Steps Tutorial
 
-**Advanced Documentation:**
-- [Monitoring & Observability](docs/MONITORING.md) - Prometheus, Jaeger, logging
-- [Security Enhancements](docs/SECURITY_ENHANCEMENTS.md) - Virus scanning, performance monitoring
-- [API Documentation](docs/API.md) - REST API reference
+**[👤 User Guide](docs/02-user-guide/README.md)**
+- Chat Interface
+- File Management
+- Project & Task Management
+- AI Interactions
 
-**Component Documentation:**
-- [WebSocket Handlers](docs/README_websocket-handlers.md)
-- [Config Validation](docs/README_config-validation.md)
-- [Database Models](docs/README_database-models.md)
-- [Services](docs/README_services-message_service.md)
+**[💻 Developer Guide](docs/03-developer-guide/README.md)**
+- Development Setup
+- Project Structure
+- Testing Guide
+- Component Documentation
+
+**[🔌 API Reference](docs/04-api-reference/README.md)**
+- REST API Documentation
+- WebSocket Protocol
+- Authentication
+- Code Examples (Python, JavaScript, cURL)
+
+**[🏗️ Architecture](docs/05-architecture/README.md)**
+- System Architecture
+- Design Patterns
+- Technology Stack
+- [Architecture Decision Records (ADRs)](docs/05-architecture/adr/README.md)
+
+**[⚙️ Operations](docs/06-operations/README.md)**
+- Deployment Strategies
+- Monitoring & Logging
+- Troubleshooting
+- Security Operations
+- Performance Tuning
+
+**[🤝 Contributing](docs/07-contributing/README.md)**
+- Contribution Guidelines
+- Code of Conduct
+- Development Workflow
+- Pull Request Process
+
+**[📖 Reference](docs/08-reference/README.md)**
+- Configuration Reference
+- Feature Documentation (Voice, ELYZA, Workflows, Plugins)
+- Database Schema
+- Component Reference
 
 ### Useful Links
 
