@@ -7,7 +7,8 @@ from unittest.mock import Mock
 import pytest
 
 from database.models import Message, MessageType
-from services.message_service import ExternalAIUnavailableError, MessageService
+from services.exceptions import ExternalAIUnavailableError
+from services.message_service import MessageService
 
 
 @pytest.fixture

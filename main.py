@@ -461,50 +461,6 @@ async def comprehensive_root():
     }
 
 
-@app.get("/status", tags=["monitoring"])
-async def system_status():
-    """Detailed system status and metrics"""
-    status_data = {
-        "status": "operational",
-        "timestamp": time.time(),
-        "metrics": {},
-        "configuration": {},
-    }
-
-    try:
-        db_stats = get_database_stats()
-
-        status_data["metrics"] = {
-            "database": db_stats,
-            "uptime": time.time() - getattr(app.state, "start_time", time.time()),
-            "memory_usage": "N/A",
-            "cpu_usage": "N/A",
-        }
-
-        status_data["configuration"] = {
-            "ai": {
-                "enabled": settings.AI_ENABLED,
-                "rag_enabled": settings.RAG_ENABLED,
-                "auto_respond": settings.AI_AUTO_RESPOND,
-            },
-            "security": {
-                "rate_limiting": settings.RATE_LIMIT_ENABLED,
-                "cors_enabled": len(settings.CORS_ORIGINS) > 0,
-            },
-            "features": settings.feature_config,
-            "limits": {
-                "max_file_size": settings.MAX_FILE_SIZE,
-                "max_message_length": settings.AI_MAX_RESPONSE_LENGTH,
-            },
-        }
-
-    except Exception as e:
-        status_data["status"] = "degraded"
-        status_data["error"] = str(e)
-
-    return status_data
-
-
 # Development and debugging endpoints
 if settings.APP_DEBUG:
 
