@@ -94,25 +94,108 @@ class PersonalizationEngine:
         self, user_id: str, recommendation_type: str = "general"
     ) -> List[Dict[str, Any]]:
         """
-        Get personalized recommendations.
+        Get personalized recommendations based on user preferences and behavior.
 
         Args:
             user_id: User identifier
-            recommendation_type: Type of recommendations
+            recommendation_type: Type of recommendations (content, features, etc.)
 
         Returns:
-            List of recommendations
+            List of recommendations with relevance scores
+            
+        Note:
+            This is a basic implementation using preference matching.
+            Future enhancements: ML-based recommendations, collaborative filtering.
         """
-        # TODO: Implement actual recommendation logic
-        # This is a placeholder
-        return [
-            {
-                "type": recommendation_type,
-                "title": "Sample Recommendation",
-                "description": "Based on your activity",
-                "relevance_score": 0.8,
-            }
-        ]
+        recommendations = []
+        
+        # Get user preferences
+        user_prefs = self.user_preferences.get(user_id, {})
+        user_actions = self.user_behavior.get(user_id, [])
+        
+        if recommendation_type == "content":
+            # Recommend content based on previous interactions
+            recent_topics = self._extract_topics_from_behavior(user_actions)
+            
+            for topic in recent_topics[:3]:  # Top 3 topics
+                recommendations.append({
+                    "type": "content",
+                    "title": f"More about {topic}",
+                    "description": f"Based on your interest in {topic}",
+                    "relevance_score": 0.8,
+                    "topic": topic,
+                })
+        
+        elif recommendation_type == "features":
+            # Recommend features based on usage patterns
+            used_features = self._extract_features_from_behavior(user_actions)
+            
+            # Suggest related features
+            all_features = ["ai_chat", "rag_search", "voice_transcription", "projects", "tickets"]
+            unused_features = [f for f in all_features if f not in used_features]
+            
+            for feature in unused_features[:3]:
+                recommendations.append({
+                    "type": "feature",
+                    "title": f"Try {feature.replace('_', ' ').title()}",
+                    "description": f"Enhance your workflow with {feature}",
+                    "relevance_score": 0.6,
+                    "feature": feature,
+                })
+        
+        elif recommendation_type == "settings":
+            # Recommend settings based on usage patterns
+            theme_pref = user_prefs.get("theme", {}).get("value")
+            if not theme_pref:
+                recommendations.append({
+                    "type": "settings",
+                    "title": "Customize Your Theme",
+                    "description": "Choose between light and dark mode",
+                    "relevance_score": 0.7,
+                    "action": "set_theme_preference",
+                })
+        
+        # Fallback: generic recommendations
+        if not recommendations:
+            recommendations = [
+                {
+                    "type": recommendation_type,
+                    "title": "Explore the System",
+                    "description": "Try different features to get personalized recommendations",
+                    "relevance_score": 0.5,
+                }
+            ]
+        
+        # Sort by relevance score
+        recommendations.sort(key=lambda x: x["relevance_score"], reverse=True)
+        
+        logger.debug(f"Generated {len(recommendations)} recommendations for user {user_id}")
+        return recommendations
+    
+    def _extract_topics_from_behavior(self, actions: List[Dict]) -> List[str]:
+        """Extract topics from user behavior actions"""
+        topics = set()
+        for action in actions[-20:]:  # Last 20 actions
+            if action.get("action") == "message" and action.get("metadata"):
+                # Extract keywords or topics from messages
+                message = action.get("metadata", {}).get("content", "")
+                # Simple keyword extraction (could be enhanced with NLP)
+                if "ai" in message.lower() or "assistant" in message.lower():
+                    topics.add("AI Assistance")
+                if "project" in message.lower():
+                    topics.add("Projects")
+                if "search" in message.lower():
+                    topics.add("Search")
+        return list(topics)
+    
+    def _extract_features_from_behavior(self, actions: List[Dict]) -> List[str]:
+        """Extract used features from user behavior"""
+        features = set()
+        for action in actions:
+            feature = action.get("feature")
+            if feature:
+                features.add(feature)
+        return list(features)
 
     async def get_user_profile(self, user_id: str) -> Dict[str, Any]:
         """

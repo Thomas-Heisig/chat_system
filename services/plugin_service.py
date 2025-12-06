@@ -4,15 +4,24 @@
 Manages plugin lifecycle, sandboxed execution, and plugin registry.
 Provides a safe environment for third-party extensions.
 
-TODO:
-- [ ] Implement Docker-based sandbox for plugin execution
-- [ ] Add plugin permission system (filesystem, network, API access)
-- [ ] Implement plugin marketplace/registry
-- [ ] Add plugin versioning and dependency management
-- [ ] Implement plugin hot-reloading
-- [ ] Add resource limits (CPU, memory, execution time)
-- [ ] Implement plugin health monitoring
-- [ ] Add plugin analytics and telemetry
+Current Implementation:
+- Plugin registry and metadata management
+- Plugin lifecycle (install, enable, disable, uninstall)
+- Permission system definitions
+- Sandbox execution stubs (security-safe - prevents execution)
+
+Future Enhancements:
+- Docker-based sandbox for plugin execution (see docs/adr/ADR-006)
+- Plugin permission enforcement (filesystem, network, API access)
+- Plugin marketplace/registry integration
+- Plugin versioning and dependency management
+- Plugin hot-reloading capabilities
+- Resource limits (CPU, memory, execution time)
+- Plugin health monitoring and metrics
+- Plugin analytics and telemetry
+
+Security Note: Plugin execution is disabled by default and requires
+Docker-based sandboxing to be implemented before enabling.
 """
 
 import json
@@ -96,13 +105,18 @@ class Plugin:
 class PluginSandbox:
     """
     Sandbox environment for plugin execution
+    
+    Current Implementation: Stub with security safeguards
+    - Prevents execution without proper sandboxing
+    - Requires ENABLE_PLUGIN_EXECUTION=true to bypass (dev only)
+    - Documents execution interface for future implementation
 
-    TODO:
-    - [ ] Implement Docker container-based isolation
-    - [ ] Add resource limits (CPU, memory, timeout)
-    - [ ] Implement network isolation
-    - [ ] Add filesystem restrictions
-    - [ ] Implement syscall filtering (seccomp)
+    Future Implementation (see docs/adr/ADR-006-plugin-sandbox-architecture.md):
+    - Docker container-based isolation
+    - Resource limits (CPU, memory, timeout)
+    - Network isolation and filtering
+    - Filesystem access restrictions
+    - Syscall filtering with seccomp
     """
 
     def __init__(self, plugin: Plugin):
@@ -129,14 +143,15 @@ class PluginSandbox:
         Returns:
             Execution result
 
-        TODO:
-        - [ ] Implement actual sandboxed execution
-        - [ ] Add timeout enforcement
-        - [ ] Implement permission checks
-        - [ ] Add output sanitization
+        Future Implementation:
+        - Actual sandboxed execution in Docker container
+        - Timeout enforcement with container limits
+        - Permission checks before execution
+        - Output sanitization and validation
 
-        SECURITY: This is a stub. Raises NotImplementedError to prevent
-        accidental execution without proper sandboxing.
+        SECURITY: This is a stub implementation that prevents execution
+        by default. Raises NotImplementedError to ensure proper sandboxing
+        is implemented before plugins can execute.
         """
         # Prevent execution in stub mode for security
         if os.getenv("ENABLE_PLUGIN_EXECUTION", "false").lower() != "true":
