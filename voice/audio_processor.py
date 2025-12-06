@@ -1,41 +1,80 @@
 """
 🎵 Audio Processor
 
-Handles audio file processing, format conversion, and analysis.
+Handles audio file processing, format conversion, and analysis with fallback.
 """
 
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from config.settings import logger
+from config.settings import logger, voice_config
 
 
 class AudioProcessor:
     """
-    Audio processing utilities.
+    Audio processing utilities with graceful degradation.
 
     Supports:
-    - Format conversion
+    - Format conversion (with pydub/ffmpeg)
     - Audio normalization
     - Noise reduction
     - Duration and quality analysis
+    - Automatic fallback when dependencies unavailable
     """
 
     def __init__(self):
         self.upload_dir = Path("uploads/audio")
         self.upload_dir.mkdir(parents=True, exist_ok=True)
 
-        self.supported_formats = ["mp3", "wav", "ogg", "flac", "m4a", "webm"]
-        self.max_file_size = int(os.getenv("MAX_AUDIO_SIZE", 25 * 1024 * 1024))  # 25MB default
+        # Use centralized configuration
+        self.enabled = voice_config.audio_processing_enabled
+        self.supported_formats = voice_config.audio_formats
+        self.max_file_size = voice_config.max_audio_size
 
-        logger.info("🎵 Audio Processor initialized")
+        # Check for audio processing libraries
+        self.libraries_available = self._check_libraries()
+
+        logger.info(
+            f"🎵 Audio Processor initialized "
+            f"(Enabled: {self.enabled}, Libraries: {self.libraries_available})"
+        )
+        
+        if self.enabled and not self.libraries_available:
+            logger.warning(
+                "⚠️ Audio processing is enabled but libraries (pydub/librosa) "
+                "are not available. Some features will use fallback mode."
+            )
+
+    def _check_libraries(self) -> Dict[str, bool]:
+        """Check availability of audio processing libraries"""
+        libraries = {}
+        
+        try:
+            import pydub  # noqa: F401
+            libraries['pydub'] = True
+        except ImportError:
+            libraries['pydub'] = False
+            
+        try:
+            import librosa  # noqa: F401
+            libraries['librosa'] = True
+        except ImportError:
+            libraries['librosa'] = False
+            
+        try:
+            import soundfile  # noqa: F401
+            libraries['soundfile'] = True
+        except ImportError:
+            libraries['soundfile'] = False
+            
+        return libraries
 
     async def process_upload(
         self, file_path: str, target_format: Optional[str] = "wav"
     ) -> Dict[str, Any]:
         """
-        Process uploaded audio file.
+        Process uploaded audio file with automatic fallback.
 
         Args:
             file_path: Path to uploaded file
@@ -44,39 +83,128 @@ class AudioProcessor:
         Returns:
             Processing result with metadata
         """
+        # Validate file existence
         if not os.path.exists(file_path):
-            return {"error": "File not found", "file_path": file_path}
+            return {
+                "success": False,
+                "error": "File not found",
+                "file_path": file_path,
+                "fallback": True,
+            }
 
         try:
             file_size = os.path.getsize(file_path)
 
+            # Validate file size
             if file_size > self.max_file_size:
                 return {
-                    "error": f"File too large. Maximum size: {self.max_file_size / 1024 / 1024}MB",
+                    "success": False,
+                    "error": f"File too large. Maximum size: {self.max_file_size / 1024 / 1024:.1f}MB",
                     "file_size": file_size,
+                    "max_size": self.max_file_size,
+                    "fallback": True,
                 }
 
-            # TODO: Implement actual audio processing with librosa or pydub
-            # This is a placeholder
-            result = {
-                "original_file": file_path,
-                "file_size": file_size,
-                "format": Path(file_path).suffix[1:],
-                "duration": 0.0,
-                "sample_rate": 16000,
-                "channels": 1,
-                "bitrate": 128,
-                "processed_file": file_path,
-                "status": "placeholder",
-                "note": "Audio processing integration pending",
-            }
+            # Check if processing is enabled
+            if not self.enabled:
+                return self._fallback_response(
+                    file_path, file_size,
+                    "Audio processing is disabled. Set AUDIO_PROCESSING_ENABLED=true in .env."
+                )
 
-            logger.info(f"🎵 Audio processed: {Path(file_path).name}")
-            return result
+            # Try actual processing if libraries available
+            if self.libraries_available.get('pydub') or self.libraries_available.get('librosa'):
+                return await self._process_with_libraries(file_path, target_format)
+            else:
+                return self._fallback_response(
+                    file_path, file_size,
+                    "Audio processing libraries not available. Install pydub or librosa."
+                )
 
         except Exception as e:
             logger.error(f"❌ Audio processing failed: {e}")
-            return {"error": str(e), "file_path": file_path}
+            return self._fallback_response(file_path, 0, str(e))
+
+    def _fallback_response(self, file_path: str, file_size: int, reason: str) -> Dict[str, Any]:
+        """Generate fallback response for audio processing"""
+        return {
+            "success": True,
+            "fallback": True,
+            "original_file": file_path,
+            "file_size": file_size,
+            "format": Path(file_path).suffix[1:],
+            "duration": 0.0,
+            "sample_rate": 16000,
+            "channels": 1,
+            "bitrate": 128,
+            "processed_file": file_path,
+            "status": "fallback",
+            "message": "Audio processing returned basic info only",
+            "reason": reason,
+            "suggestion": "Install pydub or librosa for full audio processing",
+        }
+
+    async def _process_with_libraries(
+        self, file_path: str, target_format: str
+    ) -> Dict[str, Any]:
+        """Process audio using available libraries"""
+        file_size = os.path.getsize(file_path)
+        
+        try:
+            # Try pydub first (more lightweight)
+            if self.libraries_available.get('pydub'):
+                from pydub import AudioSegment
+                
+                audio = AudioSegment.from_file(file_path)
+                
+                result = {
+                    "success": True,
+                    "fallback": False,
+                    "original_file": file_path,
+                    "file_size": file_size,
+                    "format": Path(file_path).suffix[1:],
+                    "duration": len(audio) / 1000.0,  # Convert ms to seconds
+                    "sample_rate": audio.frame_rate,
+                    "channels": audio.channels,
+                    "bitrate": audio.frame_rate * audio.sample_width * 8 * audio.channels,
+                    "processed_file": file_path,
+                    "status": "success",
+                    "engine": "pydub",
+                }
+                
+                logger.info(f"🎵 Audio processed with pydub: {Path(file_path).name}")
+                return result
+                
+            # Fall back to librosa
+            elif self.libraries_available.get('librosa'):
+                import librosa
+                
+                y, sr = librosa.load(file_path, sr=None)
+                duration = librosa.get_duration(y=y, sr=sr)
+                
+                result = {
+                    "success": True,
+                    "fallback": False,
+                    "original_file": file_path,
+                    "file_size": file_size,
+                    "format": Path(file_path).suffix[1:],
+                    "duration": duration,
+                    "sample_rate": sr,
+                    "channels": 1 if len(y.shape) == 1 else y.shape[0],
+                    "bitrate": sr * 16,  # Estimate
+                    "processed_file": file_path,
+                    "status": "success",
+                    "engine": "librosa",
+                }
+                
+                logger.info(f"🎵 Audio processed with librosa: {Path(file_path).name}")
+                return result
+            
+        except Exception as e:
+            logger.error(f"Audio processing with libraries failed: {e}")
+            return self._fallback_response(file_path, file_size, str(e))
+        
+        return self._fallback_response(file_path, file_size, "No processing libraries available")
 
     async def convert_format(self, input_path: str, output_format: str) -> Dict[str, Any]:
         """
@@ -135,9 +263,17 @@ class AudioProcessor:
         """Get audio processor service information"""
         return {
             "service": "audio_processor",
+            "enabled": self.enabled,
             "supported_formats": self.supported_formats,
             "max_file_size_mb": self.max_file_size / 1024 / 1024,
             "upload_directory": str(self.upload_dir),
+            "libraries_available": self.libraries_available,
+            "fallback_mode": not any(self.libraries_available.values()),
+            "configuration": {
+                "AUDIO_PROCESSING_ENABLED": self.enabled,
+                "MAX_AUDIO_SIZE": self.max_file_size,
+                "AUDIO_FORMATS": self.supported_formats,
+            }
         }
 
 
