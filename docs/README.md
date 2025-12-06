@@ -17,9 +17,12 @@ This directory contains comprehensive documentation for the Universal Chat Syste
 - [Setup Guide](../SETUP.md) - Detailed installation instructions
 - [Configuration Guide](README_config-settings.md) - Environment variables and settings
 - [Deployment Guide](../DEPLOYMENT.md) - Production deployment instructions
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** 🔧 - Common issues and solutions
+- **[API Examples](API_EXAMPLES.md)** 📝 - Code examples in multiple languages
 
 ### Architecture & Design
 - [Architecture Overview](../ARCHITECTURE.md) - System architecture and design patterns
+- [Architecture Decision Records (ADRs)](adr/README.md) - Key architectural decisions
 - [Database Documentation](README_database-models.md) - Data models and schemas
 - [API Documentation](API.md) - REST API reference
 
@@ -265,12 +268,15 @@ See [Contributing Guidelines](../CONTRIBUTING.md) for:
 - ✅ Added Integration Guide
 - ✅ Added Plugin System documentation
 - ✅ Added Testing Guide with coverage goals
+- ✅ Added Troubleshooting Guide (2025-12-06)
+- ✅ Added API Examples with multiple languages (2025-12-06)
+- ✅ Added 3 new ADR documents (2025-12-06)
 
 ### Planned Updates
 - [ ] Add implementation examples for all new features
-- [ ] Add troubleshooting guides for each service
+- [x] Add troubleshooting guides for each service ✅
 - [ ] Add performance benchmarks
-- [ ] Add API usage examples
+- [x] Add API usage examples ✅
 - [ ] Add video tutorials
 
 ---
@@ -293,7 +299,7 @@ We strive for high-quality documentation that is:
 
 ---
 
-**Last Updated:** 2025-12-05  
+**Last Updated:** 2025-12-06  
 **Version:** 2.0.0  
 **Maintainer:** Thomas Heisig
 
