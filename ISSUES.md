@@ -18,10 +18,10 @@ Diese Datei enthält aktive und geplante Issues. Für abgeschlossene Arbeiten si
 **🎉 Großer Erfolg:** 83% aller identifizierten Issues wurden erfolgreich gelöst!
 
 **Siehe auch:** 
-- **[DONE.md](DONE.md)** - Vollständiges Archiv abgeschlossener Arbeiten und Erfolge
-- **[ISSUES_RESOLVED.md](ISSUES_RESOLVED.md)** - Detaillierte technische Lösungen
-- **[TODO.md](TODO.md)** - Aktuelle Aufgabenliste und Sprint-Planung
-- **[ROADMAP.md](ROADMAP.md)** - Langfristige Produkt-Roadmap
+- **[DONE.md](DONE.md)** - Vollständiges Archiv abgeschlossener Arbeiten (20 Issues, 6 Sprints, Erfolgs-Metriken)
+- **[ISSUES_RESOLVED.md](ISSUES_RESOLVED.md)** - Detaillierte technische Lösungen für jedes gelöste Issue
+- **[TODO.md](TODO.md)** - Aktuelle Aufgabenliste mit Sprint-Planung und Priorisierung
+- **[ROADMAP.md](ROADMAP.md)** - Langfristige Produkt-Roadmap (v2.3-v3.2, Q1-Q4 2026)
 
 ---
 
