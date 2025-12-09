@@ -1,12 +1,22 @@
 # 📚 Documentation Index
 
 **Universal Chat System Documentation**  
-**Version:** 2.0.0  
-**Last Updated:** 2025-12-06
+**Version:** 2.2.0  
+**Last Updated:** 2025-12-09
 
 ## Welcome
 
 Welcome to the comprehensive documentation for the Universal Chat System. This documentation follows international standards (ISO/IEC/IEEE 26513-26515) for software documentation.
+
+**🌍 Languages:**
+- 🇬🇧 **English:** [README.md](../README.md) | [docs/README.md](README.md)
+- 🇩🇪 **Deutsch:** [README_DE.md](../README_DE.md) | [DOKUMENTATION_DE.md](../DOKUMENTATION_DE.md)
+
+**📝 Project Tracking:**
+- **[DONE.md](../DONE.md)** - Archive of completed work (20 issues, 83% completion)
+- **[ISSUES.md](../ISSUES.md)** - Current and planned issues (4 open)
+- **[TODO.md](../TODO.md)** - Active task list and sprint planning
+- **[ROADMAP.md](../ROADMAP.md)** - Long-term product roadmap
 
 ---
 

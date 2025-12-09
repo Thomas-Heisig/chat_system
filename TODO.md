@@ -1,11 +1,16 @@
 # TODO Liste - Chat System
 
-**Letzte Aktualisierung:** 2025-12-06  
-**Version:** 2.0.0  
+**Letzte Aktualisierung:** 2025-12-09  
+**Version:** 2.2.0  
 **Priorisierung:** 🔴 Kritisch | 🟡 Hoch | 🟢 Medium | 🔵 Niedrig
 
-**Status:** Sprint 1 & 2 abgeschlossen ✅ (siehe [ISSUES_RESOLVED.md](ISSUES_RESOLVED.md))  
-**Siehe auch:** [ISSUES.md](ISSUES.md) für detaillierte Issue-Beschreibungen
+**Status:** Sprint 1-6 abgeschlossen ✅ (83% aller identifizierten Issues gelöst)
+
+**Siehe auch:** 
+- **[DONE.md](DONE.md)** - Vollständiges Archiv abgeschlossener Arbeiten (20 Issues, 6 Sprints)
+- **[ISSUES.md](ISSUES.md)** - Aktuelle und geplante Issues (4 offene)
+- **[ISSUES_RESOLVED.md](ISSUES_RESOLVED.md)** - Detaillierte technische Lösungen
+- **[ROADMAP.md](ROADMAP.md)** - Langfristige Produkt-Roadmap
 
 ---
 
