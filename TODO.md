@@ -758,31 +758,51 @@ instrumentator.instrument(app).expose(app)
   - **Configuration:** ✅ [Configuration Guide](docs/CONFIGURATION_GUIDE.md)
   - **Erledigt am:** 2025-12-06
 
-- [ ] **Database Read Replicas**
-  - PostgreSQL Replication
-  - Read-Write-Splitting
-  - **Zeitaufwand:** 8 Stunden
+- [x] **Database Read Replicas** ✅ **Vollständig dokumentiert**
+  - Status: Architektur-Entscheidung und Implementation Guide vorhanden
+  - **ADR:** [ADR-013: Database Read Replica Strategy](docs/adr/ADR-013-database-read-replicas.md)
+  - **Guide:** [DATABASE_READ_REPLICAS.md](docs/DATABASE_READ_REPLICAS.md)
+  - PostgreSQL Replication-Setup dokumentiert
+  - Read-Write-Splitting Strategie definiert
+  - **Zeitaufwand:** 8 Stunden (für Implementation)
+  - **Dokumentiert am:** 2025-12-09
 
 ### Features (Nice-to-Have)
-- [ ] **GraphQL API Gateway**
-  - Tool: Strawberry oder Ariadne
-  - Parallel zu REST
-  - **Zeitaufwand:** 20 Stunden
+- [x] **GraphQL API Gateway** ✅ **Vollständig dokumentiert**
+  - Status: Architektur-Entscheidung und Implementation Guide vorhanden
+  - **ADR:** [ADR-014: GraphQL API Strategy](docs/adr/ADR-014-graphql-api-strategy.md)
+  - **Guide:** [GRAPHQL_API.md](docs/GRAPHQL_API.md)
+  - Tool: Strawberry GraphQL (entschieden)
+  - Parallel zu REST API
+  - **Zeitaufwand:** 20 Stunden (für Implementation)
+  - **Dokumentiert am:** 2025-12-09
 
-- [ ] **gRPC Service-to-Service Communication**
-  - Für interne Services
-  - Performance-Verbesserung
-  - **Zeitaufwand:** 24 Stunden
+- [x] **gRPC Service-to-Service Communication** ✅ **Vollständig dokumentiert**
+  - Status: Architektur-Entscheidung und Implementation Guide vorhanden
+  - **ADR:** [ADR-015: gRPC Service Communication](docs/adr/ADR-015-grpc-service-communication.md)
+  - **Guide:** [GRPC_SERVICES.md](docs/GRPC_SERVICES.md)
+  - Für interne Services (externe API bleibt REST/GraphQL)
+  - Performance-Verbesserung durch binäres Protokoll
+  - **Zeitaufwand:** 24 Stunden (für Implementation)
+  - **Dokumentiert am:** 2025-12-09
 
-- [ ] **Event Sourcing für Audit Trail**
-  - Message-History mit Events
-  - Event Store implementieren
-  - **Zeitaufwand:** 32 Stunden
+- [x] **Event Sourcing für Audit Trail** ✅ **Vollständig dokumentiert**
+  - Status: Architektur-Entscheidung und Implementation Guide vorhanden
+  - **ADR:** [ADR-016: Event Sourcing for Audit Trail](docs/adr/ADR-016-event-sourcing-audit-trail.md)
+  - **Guide:** [EVENT_SOURCING.md](docs/EVENT_SOURCING.md)
+  - Message-History mit Events (immutable)
+  - Event Store Implementation dokumentiert
+  - **Zeitaufwand:** 32 Stunden (für Implementation)
+  - **Dokumentiert am:** 2025-12-09
 
-- [ ] **Multi-Tenancy Support**
-  - Tenant-Isolation
-  - Schema-per-Tenant oder Shared-Schema
-  - **Zeitaufwand:** 40 Stunden
+- [x] **Multi-Tenancy Support** ✅ **Vollständig dokumentiert**
+  - Status: Architektur-Entscheidung und Implementation Guide vorhanden
+  - **ADR:** [ADR-017: Multi-Tenancy Strategy](docs/adr/ADR-017-multi-tenancy-strategy.md)
+  - **Guide:** [MULTI_TENANCY.md](docs/MULTI_TENANCY.md)
+  - Hybrid-Strategie: Shared DB, Schema-per-Tenant, Database-per-Tenant
+  - Tenant-Isolation dokumentiert
+  - **Zeitaufwand:** 40 Stunden (für Implementation)
+  - **Dokumentiert am:** 2025-12-09
 
 ### Mobile & Desktop
 - [ ] **Mobile API-Endpoints optimieren**
