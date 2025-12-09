@@ -250,18 +250,27 @@ class TenantProvisioningService:
         return tenant
     
     async def provision_schema(self, tenant: Tenant):
+        # Validate tenant ID (alphanumeric only for security)
+        if not re.match(r'^[a-z0-9_]+$', tenant.id):
+            raise ValueError("Invalid tenant ID format")
+        
         schema_name = f"tenant_{tenant.id}"
         tenant.schema_name = schema_name
         
-        # Create schema
-        await db.execute(f"CREATE SCHEMA {schema_name}")
+        # Create schema using parameterized query
+        from sqlalchemy import text
+        await db.execute(
+            text("CREATE SCHEMA :schema_name"),
+            {"schema_name": schema_name}
+        )
         
         # Run migrations for schema
         await run_migrations(schema_name)
         
-        # Grant permissions
+        # Grant permissions using parameterized query
         await db.execute(
-            f"GRANT ALL ON SCHEMA {schema_name} TO app_user"
+            text("GRANT ALL ON SCHEMA :schema_name TO app_user"),
+            {"schema_name": schema_name}
         )
 ```
 

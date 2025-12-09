@@ -105,7 +105,7 @@ Create an ADR when making decisions about:
 ## Creating a New ADR
 
 1. **Check Existing ADRs:** Review existing ADRs to avoid duplication
-2. **Choose Next Number:** Use the next sequential number (currently: ADR-018)
+2. **Choose Next Number:** Use the next sequential number based on existing ADRs in this directory
 3. **Use Descriptive Name:** `ADR-XXX-short-descriptive-name.md`
 4. **Follow Template:** Use the format shown above
 5. **Include Context:** Explain why the decision is needed
@@ -162,7 +162,7 @@ For questions about ADRs or to propose new architectural decisions:
 ---
 
 **Last Updated:** 2025-12-09  
-**Total ADRs:** 17 (ADR-010 to ADR-017 in this directory)  
+**ADR Range:** ADR-010 to ADR-017 (this directory)  
 **Status:** Active
 
 For earlier ADRs (ADR-001 to ADR-009), see [05-architecture/adr/](../05-architecture/adr/)
