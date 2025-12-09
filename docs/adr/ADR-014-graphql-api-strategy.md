@@ -523,7 +523,7 @@ Measure N+1 query prevention effectiveness.
 
 - ADR-010: Dependency Injection Pattern (for resolver dependencies)
 - ADR-012: Error Handling Centralization (for GraphQL errors)
-- Future: ADR-015 gRPC Services (for internal service communication)
+- ADR-015: gRPC Service Communication (for internal service communication)
 
 ---
 

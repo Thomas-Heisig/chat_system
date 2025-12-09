@@ -652,7 +652,7 @@ async def test_time_travel():
 ## Related ADRs
 
 - ADR-013: Database Read Replicas (for projection performance)
-- ADR-007: Multi-Database Support (event store can use different DB)
+- [ADR-007: Multi-Database Support](../05-architecture/adr/ADR-007-multi-database-support.md) (event store can use different DB)
 - Future: CQRS pattern (natural fit with event sourcing)
 
 ---

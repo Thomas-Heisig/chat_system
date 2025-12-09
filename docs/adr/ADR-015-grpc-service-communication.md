@@ -586,7 +586,7 @@ ghz --insecure \
 
 - ADR-010: Dependency Injection Pattern (for gRPC service dependencies)
 - ADR-014: GraphQL API Strategy (external API, complements gRPC)
-- Future: Service mesh decision (Istio/Linkerd)
+- Future: Service mesh decision (Istio/Linkerd) - will be evaluated in 2026 Q4 when scaling to 50+ microservices
 
 ---
 
