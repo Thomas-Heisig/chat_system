@@ -54,10 +54,14 @@ Die verbleibenden 4 Issues sind geplante Enhancements, keine Blocker für Produc
 ### Issue #21: Database Read Replicas
 **Priorität:** 🔵 Niedrig  
 **Kategorie:** Infrastructure / Scalability  
-**Status:** ⏳ Geplant für v2.3.0
+**Status:** 📋 Vollständig dokumentiert (ADR vorhanden)
 
 **Beschreibung:**
 Implementierung von PostgreSQL Read Replicas für verbesserte Skalierbarkeit und Performance bei hoher Last.
+
+**Dokumentation:**
+- ✅ [ADR-013: Database Read Replica Strategy](docs/adr/ADR-013-database-read-replicas.md) - Architektur-Entscheidung
+- ✅ [DATABASE_READ_REPLICAS.md](docs/DATABASE_READ_REPLICAS.md) - Implementation Guide
 
 **Use Case:**
 - Verteilung von Lese-Operationen auf mehrere Replicas
@@ -104,7 +108,7 @@ class DatabaseRouter:
 ### Issue #22: GraphQL API Gateway
 **Priorität:** 🔵 Niedrig  
 **Kategorie:** Enhancement / API  
-**Status:** ⏳ Geplant für v2.5.0
+**Status:** 📋 Vollständig dokumentiert (ADR vorhanden)
 
 **Beschreibung:**
 Zusätzliche GraphQL API neben der bestehenden REST API für flexiblere Daten-Queries.
@@ -117,7 +121,8 @@ Zusätzliche GraphQL API neben der bestehenden REST API für flexiblere Daten-Qu
 - Reduzierte Anzahl an API-Calls
 
 **Dokumentation:**
-Vollständige Implementation Guide bereits vorhanden in [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md)
+- ✅ [ADR-014: GraphQL API Strategy](docs/adr/ADR-014-graphql-api-strategy.md) - Architektur-Entscheidung
+- ✅ [GRAPHQL_API.md](docs/GRAPHQL_API.md) - Implementation Guide
 
 **Implementation:**
 - Tool: Strawberry GraphQL
@@ -136,7 +141,7 @@ Vollständige Implementation Guide bereits vorhanden in [docs/INTEGRATIONS.md](d
 ### Issue #23: gRPC Service-to-Service Communication
 **Priorität:** 🔵 Niedrig  
 **Kategorie:** Enhancement / Performance  
-**Status:** ⏳ Geplant für v3.0.0
+**Status:** 📋 Vollständig dokumentiert (ADR vorhanden)
 
 **Beschreibung:**
 gRPC für interne Service-zu-Service-Kommunikation für verbesserte Performance.
@@ -155,7 +160,8 @@ gRPC für interne Service-zu-Service-Kommunikation für verbesserte Performance.
 5. Monitoring & Tracing für gRPC Calls
 
 **Dokumentation:**
-Vollständige Details in [docs/GRPC_SERVICES.md](docs/GRPC_SERVICES.md)
+- ✅ [ADR-015: gRPC Service Communication](docs/adr/ADR-015-grpc-service-communication.md) - Architektur-Entscheidung
+- ✅ [GRPC_SERVICES.md](docs/GRPC_SERVICES.md) - Implementation Guide
 
 **Labels:** `enhancement`, `performance`, `grpc`, `microservices`  
 **Zeitaufwand:** 24-40 Stunden  
@@ -168,7 +174,7 @@ Vollständige Details in [docs/GRPC_SERVICES.md](docs/GRPC_SERVICES.md)
 ### Issue #24: Event Sourcing für Audit Trail
 **Priorität:** 🔵 Niedrig  
 **Kategorie:** Enhancement / Architecture  
-**Status:** ⏳ Geplant für v3.0.0
+**Status:** 📋 Vollständig dokumentiert (ADR vorhanden)
 
 **Beschreibung:**
 Event Sourcing Pattern für vollständigen Audit Trail aller Änderungen.
@@ -188,7 +194,8 @@ Event Sourcing Pattern für vollständigen Audit Trail aller Änderungen.
 5. Event-Replay für Analysen
 
 **Dokumentation:**
-Details in [docs/EVENT_SOURCING.md](docs/EVENT_SOURCING.md)
+- ✅ [ADR-016: Event Sourcing for Audit Trail](docs/adr/ADR-016-event-sourcing-audit-trail.md) - Architektur-Entscheidung
+- ✅ [EVENT_SOURCING.md](docs/EVENT_SOURCING.md) - Implementation Guide
 
 **Use Cases:**
 - Vollständiger Audit Trail für Compliance
