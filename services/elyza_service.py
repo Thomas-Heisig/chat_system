@@ -706,13 +706,10 @@ class ElyzaService:
             return None
 
         try:
-            # For now, we'll use a simple placeholder response
-            # A real implementation would integrate with:
-            # - DuckDuckGo API
-            # - Google Custom Search API
-            # - Bing Search API
-            # - SearxNG instance
-            # using httpx.AsyncClient for HTTP requests
+            # Placeholder for future implementation
+            # Real implementation would integrate with search APIs:
+            # - DuckDuckGo, Google Custom Search, Bing, or SearxNG
+            # using HTTP requests to fetch current web results
 
             if language == Language.GERMAN:
                 response = (
