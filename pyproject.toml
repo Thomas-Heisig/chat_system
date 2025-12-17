@@ -167,7 +167,7 @@ exclude_lines = [
 ]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 # Strict mode configuration - enabled progressively
 # Note: Full strict mode (--strict flag) has 486 errors to fix
 # Focusing on critical type safety improvements first

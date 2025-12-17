@@ -19,12 +19,17 @@ from middleware import (
     metrics_endpoint,
 )
 from routes.admin import router as admin_router
+from routes.batch_operations import router as batch_router
 from routes.chat import router as chat_router
 from routes.database import router as database_router
 from routes.health import router as health_router
 from routes.messages import router as messages_router
+from routes.notifications import router as notifications_router
 from routes.rag import router as rag_router
+from routes.search import router as search_router
 from routes.settings import router as settings_router
+from routes.threads import router as threads_router
+from routes.users import router as users_router
 
 
 @asynccontextmanager
@@ -313,6 +318,11 @@ routes_config = [
     (health_router, "", "Health Check API routes"),
     (chat_router, "", "Chat routes (WebSocket, UI, AI)"),
     (messages_router, "/api", "Messages API routes"),
+    (users_router, "", "Users API routes"),
+    (search_router, "", "Search API routes"),
+    (batch_router, "", "Batch Operations API routes"),
+    (threads_router, "", "Thread API routes"),
+    (notifications_router, "", "Notification API routes"),
     (settings_router, "", "Settings API routes"),
     (rag_router, "", "RAG API routes"),
     (database_router, "", "Database Admin API routes"),
