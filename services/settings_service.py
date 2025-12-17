@@ -100,7 +100,7 @@ class SettingsService:
             enhanced_logger.error("Failed to load settings", error=str(e))
             self._settings = self._defaults.copy()
 
-    def _merge_settings(self, defaults: Dict, saved: Dict) -> Dict:
+    def _merge_settings(self, defaults: Dict[str, Any], saved: Dict[str, Any]) -> Dict[str, Any]:
         """Merge saved settings with defaults"""
         result = defaults.copy()
 

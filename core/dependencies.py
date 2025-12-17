@@ -305,7 +305,7 @@ def clear_singleton_cache():
 # ============================================================================
 
 
-def check_dependencies_health() -> dict:
+def check_dependencies_health() -> Dict[str, Any]:
     """
     Check health status of all dependencies.
 

@@ -37,7 +37,7 @@ class GestureRecognitionService:
 
     def __init__(self):
         self.model_loaded = False
-        self.custom_gestures: Dict[str, Dict] = {}
+        self.custom_gestures: Dict[str, Dict[str, Any]] = {}
         logger.info("🎭 Gesture Recognition Service initialized (placeholder)")
 
     async def detect_gesture(self, video_frame: bytes) -> Dict[str, Any]:

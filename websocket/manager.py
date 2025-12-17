@@ -68,7 +68,7 @@ class ConnectionManager:
         }
 
         # Message queue for guaranteed delivery
-        self.message_queue: asyncio.Queue = asyncio.Queue()
+        self.message_queue: asyncio.Queue[Dict[str, Any]] = asyncio.Queue()
 
         enhanced_logger.info(
             "ConnectionManager initialized",
@@ -202,7 +202,7 @@ class ConnectionManager:
             )
 
     async def send_personal_message(
-        self, message: dict, websocket: WebSocket, message_type: str = "chat"
+        self, message: Dict[str, Any], websocket: WebSocket, message_type: str = "chat"
     ) -> bool:
         """Send personal message with delivery confirmation"""
         start_time = datetime.now()
@@ -261,7 +261,7 @@ class ConnectionManager:
 
     async def broadcast(
         self,
-        message: dict,
+        message: Dict[str, Any],
         room_id: Optional[str] = None,
         exclude: Optional[List[WebSocket]] = None,
         message_type: str = "broadcast",

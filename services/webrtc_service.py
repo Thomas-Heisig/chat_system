@@ -25,7 +25,7 @@ class WebRTCService:
 
     def __init__(self):
         self.active_sessions: Dict[str, Any] = {}
-        self.ice_servers: List[Dict] = []
+        self.ice_servers: List[Dict[str, Any]] = []
         logger.info("🎤 WebRTC Service initialized (placeholder)")
 
     async def create_session(self, user_id: str, room_id: str) -> Dict[str, Any]:
@@ -56,15 +56,15 @@ class WebRTCService:
         """Verlässt eine Session"""
         return True
 
-    async def handle_offer(self, session_id: str, offer: Dict) -> Dict[str, Any]:
+    async def handle_offer(self, session_id: str, offer: Dict[str, Any]) -> Dict[str, Any]:
         """Verarbeitet ein WebRTC Offer"""
         return {"status": "not_implemented"}
 
-    async def handle_answer(self, session_id: str, answer: Dict) -> Dict[str, Any]:
+    async def handle_answer(self, session_id: str, answer: Dict[str, Any]) -> Dict[str, Any]:
         """Verarbeitet ein WebRTC Answer"""
         return {"status": "not_implemented"}
 
-    async def handle_ice_candidate(self, session_id: str, candidate: Dict) -> bool:
+    async def handle_ice_candidate(self, session_id: str, candidate: Dict[str, Any]) -> bool:
         """Verarbeitet einen ICE Candidate"""
         return True
 

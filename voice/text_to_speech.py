@@ -6,7 +6,7 @@ Handles text-to-speech conversion for voice output with fallback mechanisms.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from config.settings import logger, voice_config
 
@@ -281,7 +281,7 @@ class TextToSpeechService:
         # Not implemented - future enhancement
         yield b""  # Placeholder
 
-    def get_available_voices(self) -> list:
+    def get_available_voices(self) -> List[Dict[str, Any]]:
         """Get list of available voices"""
         # Placeholder voices based on common TTS services
         voices = {

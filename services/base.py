@@ -130,7 +130,7 @@ class PlaceholderService(BaseService):
         self,
         service_name: str,
         emoji: str = "🚧",
-        planned_features: Optional[list] = None,
+        planned_features: Optional[List[str]] = None,
         priority: str = "low",
     ):
         """

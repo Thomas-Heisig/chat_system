@@ -168,10 +168,32 @@ exclude_lines = [
 
 [tool.mypy]
 python_version = "3.9"
+# Strict mode configuration - enabled progressively
+# Note: Full strict mode (--strict flag) has 486 errors to fix
+# Focusing on critical type safety improvements first
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = false
-ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = false  # Disabled to avoid false positives
+strict_equality = true
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = false  # TODO: Enable after fixing 205 untyped function definitions
+disallow_untyped_defs = false  # TODO: Enable after adding return type annotations
+disallow_incomplete_defs = false  # Relaxed for gradual typing adoption
+no_implicit_optional = true
+warn_unreachable = false  # Disabled to reduce noise from fallback patterns
+ignore_missing_imports = true  # Keep for third-party libraries without stubs
+
+# Per-module options for gradual typing
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "examples.*"
+ignore_errors = true
 
 [tool.flake8]
 max-line-length = 100

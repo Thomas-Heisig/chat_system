@@ -20,7 +20,6 @@ Requirements:
 """
 
 import asyncio
-import os
 import sys
 from pathlib import Path
 from typing import List, Optional
@@ -28,7 +27,7 @@ from typing import List, Optional
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import aiohttp
+import aiohttp  # noqa: E402
 
 
 class RAGDocumentExample:
@@ -301,7 +300,7 @@ async def example_upload_document():
             tags=["python", "programming", "tutorial"],
         )
 
-        print(f"\n📄 Document processed:")
+        print("\n📄 Document processed:")
         print(f"   Chunks created: {result['chunks']}")
         print(f"   Embeddings generated: {result.get('embeddings', 'N/A')}")
 
@@ -318,7 +317,7 @@ async def example_semantic_search():
         await rag.authenticate("admin", "admin")
 
         # Ensure document exists
-        doc_id = await example_upload_document()
+        _ = await example_upload_document()  # Result used for side effects
 
         # Wait for processing
         await asyncio.sleep(2)
@@ -387,7 +386,7 @@ async def example_document_management():
         await rag.authenticate("admin", "admin")
 
         # Upload document
-        doc_id = await example_upload_document()
+        _ = await example_upload_document()  # Result used for side effects
         await asyncio.sleep(1)
 
         # List documents

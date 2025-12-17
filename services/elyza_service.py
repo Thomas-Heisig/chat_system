@@ -118,7 +118,7 @@ class ElyzaService:
         """Check if internet search is enabled"""
         return os.getenv("ELYZA_INTERNET_SEARCH", "false").lower() in ["true", "1", "yes", "on"]
 
-    def _initialize_patterns(self) -> List[Dict]:
+    def _initialize_patterns(self) -> List[Dict[str, Any]]:
         """Initialize pattern-response mappings with multilingual support."""
         return [
             # Greetings (German & English)
@@ -706,39 +706,25 @@ class ElyzaService:
             return None
 
         try:
-            # Try to import httpx - it's in requirements.txt
-            try:
-                import httpx
-            except ImportError:
-                enhanced_logger.warning("httpx not installed - internet search stage unavailable")
-                return None
+            # Placeholder for future implementation
+            # Real implementation would integrate with search APIs:
+            # - DuckDuckGo, Google Custom Search, Bing, or SearxNG
+            # using HTTP requests to fetch current web results
 
-            # For now, we'll use a simple HTTP request as a placeholder
-            # A real implementation would integrate with:
-            # - DuckDuckGo API
-            # - Google Custom Search API
-            # - Bing Search API
-            # - SearxNG instance
+            if language == Language.GERMAN:
+                response = (
+                    f"[Internet-Suche aktiv] Für Ihre Anfrage '{prompt[:50]}...' würde ich "
+                    f"normalerweise aktuelle Web-Ergebnisse abrufen. "
+                    f"Integration mit Such-APIs (DuckDuckGo, Google, Bing) ist vorbereitet."
+                )
+            else:
+                response = (
+                    f"[Internet Search active] For your query '{prompt[:50]}...' I would "
+                    f"normally retrieve current web results. "
+                    f"Integration with search APIs (DuckDuckGo, Google, Bing) is prepared."
+                )
 
-            async with httpx.AsyncClient(timeout=5.0) as _client:
-                # This is a demonstration - in reality you'd call a search API
-                # For now, we'll just indicate that web search would happen
-                # The client is prepared for future implementation
-
-                if language == Language.GERMAN:
-                    response = (
-                        f"[Internet-Suche aktiv] Für Ihre Anfrage '{prompt[:50]}...' würde ich "
-                        f"normalerweise aktuelle Web-Ergebnisse abrufen. "
-                        f"Integration mit Such-APIs (DuckDuckGo, Google, Bing) ist vorbereitet."
-                    )
-                else:
-                    response = (
-                        f"[Internet Search active] For your query '{prompt[:50]}...' I would "
-                        f"normally retrieve current web results. "
-                        f"Integration with search APIs (DuckDuckGo, Google, Bing) is prepared."
-                    )
-
-                return response
+            return response
 
         except Exception as e:
             enhanced_logger.debug(f"Internet search stage not available: {e}")
@@ -784,7 +770,7 @@ class ElyzaService:
         """Check if service is available (alias for is_enabled for compatibility)."""
         return self.enabled
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> Dict[str, Any]:
         """Get comprehensive service statistics."""
         total_responses = sum(
             len(responses[lang]) for responses in self.responses.values() for lang in responses

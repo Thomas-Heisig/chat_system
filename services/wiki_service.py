@@ -25,8 +25,8 @@ class WikiService:
     """
 
     def __init__(self):
-        self.pages: Dict[str, Dict] = {}
-        self.page_versions: Dict[str, List[Dict]] = {}
+        self.pages: Dict[str, Dict[str, Any]] = {}
+        self.page_versions: Dict[str, List[Dict[str, Any]]] = {}
         logger.info("📚 Wiki Service initialized (placeholder)")
 
     async def create_page(
@@ -152,7 +152,7 @@ class WikiService:
         category: Optional[str] = None,
         tags: Optional[List[str]] = None,
         limit: int = 20,
-    ) -> List[Dict]:
+    ) -> List[Dict[str, Any]]:
         """
         Durchsucht Wiki-Seiten
 

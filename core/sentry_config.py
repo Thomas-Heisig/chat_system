@@ -176,7 +176,7 @@ def add_breadcrumb(
     message: str,
     category: str = "default",
     level: str = "info",
-    data: Optional[dict] = None,
+    data: Optional[Dict[str, Any]] = None,
 ):
     """
     Add a breadcrumb for debugging

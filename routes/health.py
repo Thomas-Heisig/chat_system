@@ -41,7 +41,7 @@ class ComponentHealth(BaseModel):
 
     status: str
     message: Optional[str] = None
-    details: Optional[Dict] = None
+    details: Optional[Dict[str, Any]] = None
 
 
 class DetailedHealthResponse(BaseModel):
@@ -49,9 +49,9 @@ class DetailedHealthResponse(BaseModel):
 
     status: str
     timestamp: float
-    app: Dict
+    app: Dict[str, Any]
     components: Dict[str, ComponentHealth]
-    metrics: Optional[Dict] = None
+    metrics: Optional[Dict[str, Any]] = None
 
 
 @router.get("", response_model=HealthStatus, summary="Basic Health Check")
@@ -269,7 +269,7 @@ async def _check_ai_service_health() -> ComponentHealth:
         return ComponentHealth(status="unhealthy", message=f"AI service error: {str(e)}")
 
 
-def _get_system_metrics() -> Dict:
+def _get_system_metrics() -> Dict[str, Any]:
     """Get system resource metrics"""
     try:
         # CPU usage

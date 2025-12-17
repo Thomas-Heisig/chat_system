@@ -25,7 +25,7 @@ class DictionaryService:
     """
 
     def __init__(self):
-        self.terms: Dict[str, Dict] = {}
+        self.terms: Dict[str, Dict[str, Any]] = {}
         self.categories: Dict[str, List[str]] = {}
         self.synonyms: Dict[str, List[str]] = {}
         logger.info("📖 Dictionary Service initialized (placeholder)")

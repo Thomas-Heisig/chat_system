@@ -24,8 +24,8 @@ class AvatarService:
     """
 
     def __init__(self):
-        self.avatars: Dict[str, Dict] = {}
-        self.default_avatars: List[Dict] = []
+        self.avatars: Dict[str, Dict[str, Any]] = {}
+        self.default_avatars: List[Dict[str, Any]] = []
         logger.info("🤖 Avatar Service initialized (placeholder)")
 
     async def create_avatar(self, user_id: str, avatar_config: Dict[str, Any]) -> Dict[str, Any]:

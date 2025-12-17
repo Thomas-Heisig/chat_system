@@ -22,8 +22,8 @@ class MemoryStore:
     """
 
     def __init__(self):
-        self.session_memory: Dict[str, List[Dict]] = {}
-        self.long_term_memory: Dict[str, List[Dict]] = {}
+        self.session_memory: Dict[str, List[Dict[str, Any]]] = {}
+        self.long_term_memory: Dict[str, List[Dict[str, Any]]] = {}
         self.context_window = 10
         self.session_ttl = timedelta(hours=24)
 

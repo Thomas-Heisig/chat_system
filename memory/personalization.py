@@ -22,8 +22,8 @@ class PersonalizationEngine:
     """
 
     def __init__(self):
-        self.user_preferences: Dict[str, Dict] = {}
-        self.user_behavior: Dict[str, List] = {}
+        self.user_preferences: Dict[str, Dict[str, Any]] = {}
+        self.user_behavior: Dict[str, List[Dict[str, Any]]] = {}
 
         logger.info("👤 Personalization Engine initialized")
 
@@ -178,7 +178,7 @@ class PersonalizationEngine:
         logger.debug(f"Generated {len(recommendations)} recommendations for user {user_id}")
         return recommendations
 
-    def _extract_topics_from_behavior(self, actions: List[Dict]) -> List[str]:
+    def _extract_topics_from_behavior(self, actions: List[Dict[str, Any]]) -> List[str]:
         """Extract topics from user behavior actions"""
         topics = set()
         for action in actions[-20:]:  # Last 20 actions
@@ -194,7 +194,7 @@ class PersonalizationEngine:
                     topics.add("Search")
         return list(topics)
 
-    def _extract_features_from_behavior(self, actions: List[Dict]) -> List[str]:
+    def _extract_features_from_behavior(self, actions: List[Dict[str, Any]]) -> List[str]:
         """Extract used features from user behavior"""
         features = set()
         for action in actions:

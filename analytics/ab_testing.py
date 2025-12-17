@@ -32,8 +32,8 @@ class ABTestingFramework:
     """
 
     def __init__(self):
-        self.experiments: Dict[str, Dict] = {}
-        self.assignments: Dict[str, Dict] = {}
+        self.experiments: Dict[str, Dict[str, Any]] = {}
+        self.assignments: Dict[str, Dict[str, Any]] = {}
 
         logger.info("🧪 A/B Testing Framework initialized")
 

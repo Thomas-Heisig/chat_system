@@ -150,21 +150,21 @@ class ResourceNotFoundError(ServiceException):
 class UserNotFoundError(ResourceNotFoundError):
     """Raised when a user is not found."""
 
-    def __init__(self, user_id: str = None):
+    def __init__(self, user_id: Optional[str] = None):
         super().__init__("User", user_id)
 
 
 class ProjectNotFoundError(ResourceNotFoundError):
     """Raised when a project is not found."""
 
-    def __init__(self, project_id: str = None):
+    def __init__(self, project_id: Optional[str] = None):
         super().__init__("Project", project_id)
 
 
 class MessageNotFoundError(ResourceNotFoundError):
     """Raised when a message is not found."""
 
-    def __init__(self, message_id: str = None):
+    def __init__(self, message_id: Optional[str] = None):
         super().__init__("Message", message_id)
 
 
@@ -181,7 +181,7 @@ class DuplicateResourceError(ConflictError):
 
     error_code = "DUPLICATE_RESOURCE"
 
-    def __init__(self, resource_type: str, identifier: str = None):
+    def __init__(self, resource_type: str, identifier: Optional[str] = None):
         message = f"{resource_type} already exists"
         if identifier:
             message += f": {identifier}"
@@ -203,7 +203,7 @@ class RateLimitExceededError(ServiceException):
     status_code = 429
     error_code = "RATE_LIMIT_EXCEEDED"
 
-    def __init__(self, message: str = "Rate limit exceeded", retry_after: int = None):
+    def __init__(self, message: str = "Rate limit exceeded", retry_after: Optional[int] = None):
         details = {"retry_after": retry_after} if retry_after else {}
         super().__init__(message, details)
 
@@ -239,7 +239,7 @@ class ExternalServiceError(ServiceException):
     status_code = 502
     error_code = "EXTERNAL_SERVICE_ERROR"
 
-    def __init__(self, service_name: str = None, message: str = None):
+    def __init__(self, service_name: Optional[str] = None, message: Optional[str] = None):
         self.service_name = service_name
         msg = (
             message or f"External service failed: {service_name}"
@@ -268,7 +268,7 @@ class ExternalAIUnavailableError(ExternalServiceError):
 
     error_code = "AI_SERVICE_UNAVAILABLE"
 
-    def __init__(self, service_name: str = None):
+    def __init__(self, service_name: Optional[str] = None):
         message = (
             f"AI service is unavailable: {service_name}"
             if service_name
@@ -285,7 +285,7 @@ class ServiceUnavailableError(ServiceException):
     error_code = "SERVICE_UNAVAILABLE"
 
     def __init__(
-        self, message: str = "Service is temporarily unavailable", retry_after: int = None
+        self, message: str = "Service is temporarily unavailable", retry_after: Optional[int] = None
     ):
         details = {"retry_after": retry_after} if retry_after else {}
         super().__init__(message, details)

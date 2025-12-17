@@ -28,8 +28,8 @@ from pathlib import Path
 # Add parent directory to path to import from project
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import aiohttp
-from typing import Optional
+import aiohttp  # noqa: E402
+from typing import Optional  # noqa: E402
 
 
 class AIChatExample:

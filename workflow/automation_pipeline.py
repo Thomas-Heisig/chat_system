@@ -36,9 +36,9 @@ class AutomationPipeline:
     """
 
     def __init__(self):
-        self.workflows: Dict[str, Dict] = {}
-        self.templates: Dict[str, Dict] = {}
-        self.active_executions: Dict[str, Dict] = {}
+        self.workflows: Dict[str, Dict[str, Any]] = {}
+        self.templates: Dict[str, Dict[str, Any]] = {}
+        self.active_executions: Dict[str, Dict[str, Any]] = {}
         self._initialize_default_templates()
 
         logger.info("⚙️ Automation Pipeline initialized")
