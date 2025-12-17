@@ -15,7 +15,7 @@ Date: 2025-12-06
 """
 
 import time
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import psutil
 from fastapi import APIRouter, HTTPException, status

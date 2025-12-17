@@ -4,7 +4,7 @@
 Specialized agent for conversational interactions and dialogue management.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from config.settings import logger
 

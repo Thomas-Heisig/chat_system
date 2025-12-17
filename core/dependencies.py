@@ -17,13 +17,12 @@ Architecture Decision:
 See: ADR-010-dependency-injection-pattern.md
 """
 
+import sqlite3
 from functools import lru_cache
-from typing import Generator
-
-from sqlalchemy.orm import Session
+from typing import Any, Dict, Generator, Optional
 
 from config.settings import enhanced_logger
-from database.connection import get_db_session
+from database.connection import get_db_connection
 from database.repositories import (
     FileRepository,
     MessageRepository,
@@ -46,26 +45,23 @@ from services.settings_service import SettingsService
 # ============================================================================
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db() -> Generator[sqlite3.Connection, None, None]:
     """
-    Database session dependency.
+    Database connection dependency.
 
-    Provides a SQLAlchemy session with automatic cleanup.
-    Each request gets its own session.
+    Provides a SQLite database connection with automatic cleanup.
+    Each request gets its own connection.
 
     Yields:
-        SQLAlchemy Session object
+        sqlite3.Connection object
 
     Example:
         @router.get("/users")
-        async def get_users(db: Session = Depends(get_db)):
-            return db.query(User).all()
+        async def get_users(db = Depends(get_db)):
+            return fetch_users(db)
     """
-    db = get_db_session()
-    try:
+    with get_db_connection() as db:
         yield db
-    finally:
-        db.close()
 
 
 # ============================================================================
@@ -73,34 +69,34 @@ def get_db() -> Generator[Session, None, None]:
 # ============================================================================
 
 
-def get_user_repository(db: Session = None) -> UserRepository:
+def get_user_repository() -> UserRepository:
     """Get UserRepository instance"""
-    return UserRepository(db)
+    return UserRepository()
 
 
-def get_message_repository(db: Session = None) -> MessageRepository:
+def get_message_repository() -> MessageRepository:
     """Get MessageRepository instance"""
-    return MessageRepository(db)
+    return MessageRepository()
 
 
-def get_project_repository(db: Session = None) -> ProjectRepository:
+def get_project_repository() -> ProjectRepository:
     """Get ProjectRepository instance"""
-    return ProjectRepository(db)
+    return ProjectRepository()
 
 
-def get_ticket_repository(db: Session = None) -> TicketRepository:
+def get_ticket_repository() -> TicketRepository:
     """Get TicketRepository instance"""
-    return TicketRepository(db)
+    return TicketRepository()
 
 
-def get_file_repository(db: Session = None) -> FileRepository:
+def get_file_repository() -> FileRepository:
     """Get FileRepository instance"""
-    return FileRepository(db)
+    return FileRepository()
 
 
-def get_statistics_repository(db: Session = None) -> StatisticsRepository:
+def get_statistics_repository() -> StatisticsRepository:
     """Get StatisticsRepository instance"""
-    return StatisticsRepository(db)
+    return StatisticsRepository()
 
 
 # ============================================================================
@@ -172,7 +168,7 @@ def get_ai_service() -> AIService:
 
 
 def get_message_service(
-    repository: MessageRepository = None,
+    repository: Optional[MessageRepository] = None,
 ) -> MessageService:
     """
     Get MessageService instance with injected repository.
@@ -196,7 +192,7 @@ def get_message_service(
 
 
 def get_file_service(
-    repository: FileRepository = None,
+    repository: Optional[FileRepository] = None,
 ) -> FileService:
     """
     Get FileService instance with injected repository.
@@ -213,20 +209,24 @@ def get_file_service(
 
 
 def get_project_service(
-    repository: ProjectRepository = None,
+    repository: Optional[ProjectRepository] = None,
+    user_repository: Optional[UserRepository] = None,
 ) -> ProjectService:
     """
     Get ProjectService instance with injected repository.
 
     Args:
         repository: ProjectRepository instance (injected)
+        user_repository: UserRepository instance (injected)
 
     Returns:
         ProjectService instance with dependencies
     """
     if repository is None:
         repository = get_project_repository()
-    return ProjectService(repository)
+    if user_repository is None:
+        user_repository = get_user_repository()
+    return ProjectService(repository, user_repository)
 
 
 # ============================================================================
@@ -324,10 +324,13 @@ def check_dependencies_health() -> Dict[str, Any]:
 
     # Check database
     try:
-        db = get_db_session()
-        db.execute("SELECT 1")
+        with get_db_connection() as db:
+            # Verify the connection works by executing a simple query
+            cursor = db.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+            cursor.close()
         health_status["database"] = "healthy"
-        db.close()
     except Exception as e:
         health_status["database"] = f"unhealthy: {str(e)}"
 
