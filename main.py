@@ -2,6 +2,7 @@ import sys
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -359,9 +360,9 @@ async def prometheus_metrics(request: Request):
 
 # Enhanced system info endpoints
 @app.get("/status", tags=["monitoring"])
-async def system_status():
+async def system_status() -> Dict[str, Any]:
     """Comprehensive health check with system status"""
-    health_data = {
+    health_data: Dict[str, Any] = {
         "status": "healthy",
         "app": {
             "name": settings.APP_NAME,
