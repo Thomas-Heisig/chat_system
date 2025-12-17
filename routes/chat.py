@@ -712,12 +712,13 @@ async def get_ai_statistics():
         system_stats = stats_repository.get_system_statistics()
 
         # Extract AI-relevant statistics
+        ai_available = ai_status.get("ollama_available", False) or ai_status.get("custom_model_available", False)
         stats = {
-            "ai_available": ai_status.get("ollama_available", False) or ai_status.get("custom_model_available", False),
+            "ai_available": ai_available,
             "models": ai_status.get("available_models", {}),
             "total_messages": system_stats.get("total_messages", 0),
             "ai_messages": system_stats.get("ai_messages", 0),
-            "status": ai_status.get("status", "unknown"),
+            "status": "available" if ai_available else "unavailable",
         }
 
         logger.info("🤖 AI statistics requested")
