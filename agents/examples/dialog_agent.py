@@ -34,7 +34,7 @@ class DialogAgent(BaseAgent):
             description="Handles conversational interactions and dialogue management",
         )
 
-        self.conversation_history: Dict[str, list] = {}
+        self.conversation_history: Dict[str, List[Dict[str, Any]]] = {}
         self.context_window = 10
 
     async def process(self, task: Dict[str, Any]) -> Dict[str, Any]:

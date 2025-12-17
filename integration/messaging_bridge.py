@@ -24,8 +24,8 @@ class MessagingBridge:
 
     def __init__(self):
         self.adapters: Dict[str, Any] = {}
-        self.message_queue: List[Dict] = []
-        self.rate_limits: Dict[str, Dict] = {}
+        self.message_queue: List[Dict[str, Any]] = []
+        self.rate_limits: Dict[str, Dict[str, Any]] = {}
 
         logger.info("🌉 Messaging Bridge initialized")
 

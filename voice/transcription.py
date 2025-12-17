@@ -7,7 +7,7 @@ Handles speech-to-text conversion using Whisper or other STT engines with fallba
 import os
 import wave
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from config.settings import logger, voice_config
 
@@ -298,7 +298,7 @@ class TranscriptionService:
             "note": "Streaming transcription not yet implemented",
         }
 
-    def get_supported_languages(self) -> list:
+    def get_supported_languages(self) -> List[Dict[str, str]]:
         """Get list of supported languages"""
         return [
             {"code": "de", "name": "German"},

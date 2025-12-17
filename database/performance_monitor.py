@@ -15,7 +15,7 @@ Date: 2025-12-06
 
 import time
 from contextlib import contextmanager
-from typing import Optional
+from typing import Any, Dict, Optional, Tuple
 
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
@@ -175,7 +175,7 @@ class DatabasePerformanceMonitor:
     def _log_slow_query(
         self,
         statement: str,
-        parameters: Optional[tuple],
+        parameters: Optional[Tuple[Any, ...]],
         duration_ms: float,
         operation: str,
     ):
@@ -229,7 +229,7 @@ class DatabasePerformanceMonitor:
         """
         enhanced_logger.debug("Connection returned to pool")
 
-    def get_statistics(self) -> dict:
+    def get_statistics(self) -> Dict[str, Any]:
         """
         Get performance statistics
 
