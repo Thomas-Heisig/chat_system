@@ -9,7 +9,7 @@ See: docs/SERVICE_CONSOLIDATION_ANALYSIS.md for architecture decisions.
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from config.settings import enhanced_logger, logger
 

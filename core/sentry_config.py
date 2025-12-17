@@ -14,7 +14,7 @@ Date: 2025-12-06
 """
 
 import logging
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from config.settings import settings
 

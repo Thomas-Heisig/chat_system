@@ -18,7 +18,7 @@ See: ADR-010-dependency-injection-pattern.md
 """
 
 from functools import lru_cache
-from typing import Generator
+from typing import Any, Dict, Generator
 
 from sqlalchemy.orm import Session
 
