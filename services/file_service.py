@@ -61,8 +61,8 @@ class FileService:
             # Calculate file hash
             file_hash = self._calculate_file_hash(file_path)
 
-            # Determine file type (for future validation)
-            _file_type = self._determine_file_type(file.filename, file.content_type)
+            # Determine file type (available for future validation if needed)
+            # _file_type = self._determine_file_type(file.filename, file.content_type)
 
             # Create file record
             safe_mime_type = file.content_type or "application/octet-stream"

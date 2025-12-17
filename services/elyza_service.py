@@ -706,39 +706,28 @@ class ElyzaService:
             return None
 
         try:
-            # Try to import httpx - it's in requirements.txt
-            try:
-                import httpx
-            except ImportError:
-                enhanced_logger.warning("httpx not installed - internet search stage unavailable")
-                return None
-
-            # For now, we'll use a simple HTTP request as a placeholder
+            # For now, we'll use a simple placeholder response
             # A real implementation would integrate with:
             # - DuckDuckGo API
             # - Google Custom Search API
             # - Bing Search API
             # - SearxNG instance
+            # using httpx.AsyncClient for HTTP requests
 
-            async with httpx.AsyncClient(timeout=5.0) as _client:
-                # This is a demonstration - in reality you'd call a search API
-                # For now, we'll just indicate that web search would happen
-                # The client is prepared for future implementation
+            if language == Language.GERMAN:
+                response = (
+                    f"[Internet-Suche aktiv] Für Ihre Anfrage '{prompt[:50]}...' würde ich "
+                    f"normalerweise aktuelle Web-Ergebnisse abrufen. "
+                    f"Integration mit Such-APIs (DuckDuckGo, Google, Bing) ist vorbereitet."
+                )
+            else:
+                response = (
+                    f"[Internet Search active] For your query '{prompt[:50]}...' I would "
+                    f"normally retrieve current web results. "
+                    f"Integration with search APIs (DuckDuckGo, Google, Bing) is prepared."
+                )
 
-                if language == Language.GERMAN:
-                    response = (
-                        f"[Internet-Suche aktiv] Für Ihre Anfrage '{prompt[:50]}...' würde ich "
-                        f"normalerweise aktuelle Web-Ergebnisse abrufen. "
-                        f"Integration mit Such-APIs (DuckDuckGo, Google, Bing) ist vorbereitet."
-                    )
-                else:
-                    response = (
-                        f"[Internet Search active] For your query '{prompt[:50]}...' I would "
-                        f"normally retrieve current web results. "
-                        f"Integration with search APIs (DuckDuckGo, Google, Bing) is prepared."
-                    )
-
-                return response
+            return response
 
         except Exception as e:
             enhanced_logger.debug(f"Internet search stage not available: {e}")

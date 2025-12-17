@@ -37,7 +37,7 @@ except ImportError:
     print("Install it with: pip install websockets")
     sys.exit(1)
 
-import aiohttp
+import aiohttp  # noqa: E402
 
 
 class WebSocketClient:
@@ -440,7 +440,7 @@ async def interactive_chat():
     async def on_chat_message(data):
         user = data.get("username", "Unknown")
         content = data.get("content", "")
-        timestamp = data.get("timestamp", "")
+        _ = data.get("timestamp", "")  # Timestamp available but not currently used
         msg_type = data.get("message_type", "user")
 
         if msg_type == "ai":

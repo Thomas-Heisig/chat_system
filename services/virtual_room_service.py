@@ -66,7 +66,7 @@ class VirtualRoomService:
         return True
 
     async def join_room(
-        self, room_id: str, user_id: str, position: Dict[str, float] = None
+        self, room_id: str, user_id: str, position: Optional[Dict[str, float]] = None
     ) -> Dict[str, Any]:
         """Betritt einen virtuellen Raum"""
         return {
