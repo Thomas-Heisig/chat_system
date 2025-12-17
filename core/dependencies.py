@@ -21,8 +21,6 @@ import sqlite3
 from functools import lru_cache
 from typing import Any, Dict, Generator, Optional
 
-from sqlalchemy.orm import Session
-
 from config.settings import enhanced_logger
 from database.connection import get_db_connection
 from database.repositories import (

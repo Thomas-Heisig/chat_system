@@ -707,10 +707,10 @@ async def get_ai_statistics():
     try:
         # Get AI status from message service
         ai_status = message_service.get_ai_status()
-        
+
         # Get overall system statistics for AI-related metrics
         system_stats = stats_repository.get_system_statistics()
-        
+
         # Extract AI-relevant statistics
         stats = {
             "ai_available": ai_status.get("ollama_available", False) or ai_status.get("custom_model_available", False),
