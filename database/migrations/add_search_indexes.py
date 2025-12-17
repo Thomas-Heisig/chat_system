@@ -152,7 +152,9 @@ def drop_search_indexes():
         dropped = []
         for index_name in index_names:
             try:
-                engine.execute(text(f"DROP INDEX IF EXISTS {index_name}"))
+                # SQLAlchemy 2.0+ compatible execution
+                with engine.begin() as conn:
+                    conn.execute(text(f"DROP INDEX IF EXISTS {index_name}"))
                 dropped.append(index_name)
                 logger.info(f"✅ Dropped index: {index_name}")
             except Exception as e:

@@ -350,9 +350,21 @@ async def get_notification_settings(user_id: str = Query(..., description="User 
         raise HTTPException(status_code=500, detail="Failed to retrieve settings")
 
 
+class NotificationSettings(BaseModel):
+    """Notification settings model"""
+
+    enabled: bool = Field(default=True, description="Enable/disable all notifications")
+    email_notifications: bool = Field(default=False, description="Send email notifications")
+    push_notifications: bool = Field(default=True, description="Send push notifications")
+    sound_enabled: bool = Field(default=True, description="Enable notification sounds")
+    types_enabled: Dict[str, bool] = Field(
+        default_factory=dict, description="Enable/disable specific notification types"
+    )
+
+
 @router.put("/api/notifications/settings")
 async def update_notification_settings(
-    user_id: str = Query(..., description="User ID"), settings: Dict = None
+    user_id: str = Query(..., description="User ID"), settings: NotificationSettings = None
 ):
     """
     Update notification settings for a user
@@ -366,14 +378,17 @@ async def update_notification_settings(
         if settings is None:
             raise HTTPException(status_code=400, detail="Settings object required")
 
-        notification_settings[user_id] = settings
+        # Convert to dict for storage
+        settings_dict = settings.model_dump()
+
+        notification_settings[user_id] = settings_dict
 
         enhanced_logger.info("Notification settings updated", user_id=user_id)
 
         return {
             "message": "Notification settings updated successfully",
             "user_id": user_id,
-            "settings": settings,
+            "settings": settings_dict,
         }
 
     except HTTPException:
