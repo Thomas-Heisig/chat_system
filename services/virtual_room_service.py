@@ -24,8 +24,8 @@ class VirtualRoomService:
     """
 
     def __init__(self):
-        self.rooms: Dict[str, Dict] = {}
-        self.room_templates: List[Dict] = []
+        self.rooms: Dict[str, Dict[str, Any]] = {}
+        self.room_templates: List[Dict[str, Any]] = []
         logger.info("🎭 Virtual Room Service initialized (placeholder)")
 
     async def create_room(

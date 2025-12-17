@@ -118,7 +118,7 @@ class ElyzaService:
         """Check if internet search is enabled"""
         return os.getenv("ELYZA_INTERNET_SEARCH", "false").lower() in ["true", "1", "yes", "on"]
 
-    def _initialize_patterns(self) -> List[Dict]:
+    def _initialize_patterns(self) -> List[Dict[str, Any]]:
         """Initialize pattern-response mappings with multilingual support."""
         return [
             # Greetings (German & English)
@@ -773,7 +773,7 @@ class ElyzaService:
         """Check if service is available (alias for is_enabled for compatibility)."""
         return self.enabled
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> Dict[str, Any]:
         """Get comprehensive service statistics."""
         total_responses = sum(
             len(responses[lang]) for responses in self.responses.values() for lang in responses

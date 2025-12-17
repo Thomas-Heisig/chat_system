@@ -135,7 +135,7 @@ class PluginManager:
         self.hooks[hook_name].append(callback)
         return True
 
-    async def execute_hook(self, hook_name: str, data: Dict) -> List[Any]:
+    async def execute_hook(self, hook_name: str, data: Dict[str, Any]) -> List[Any]:
         """
         Führt registrierte Hooks aus
 
@@ -161,7 +161,7 @@ class PluginManager:
 
         return results
 
-    def get_available_plugins(self) -> List[Dict]:
+    def get_available_plugins(self) -> List[Dict[str, Any]]:
         """
         Gibt alle verfügbaren Plugins zurück
 
