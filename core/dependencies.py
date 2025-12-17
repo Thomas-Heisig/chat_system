@@ -17,6 +17,7 @@ Architecture Decision:
 See: ADR-010-dependency-injection-pattern.md
 """
 
+import sqlite3
 from functools import lru_cache
 from typing import Any, Dict, Generator, Optional
 
@@ -46,27 +47,23 @@ from services.settings_service import SettingsService
 # ============================================================================
 
 
-def get_db() -> Generator[Any, None, None]:
+def get_db() -> Generator[sqlite3.Connection, None, None]:
     """
     Database connection dependency.
 
-    Provides a database connection with automatic cleanup.
+    Provides a SQLite database connection with automatic cleanup.
     Each request gets its own connection.
 
     Yields:
-        Database connection object
+        sqlite3.Connection object
 
     Example:
         @router.get("/users")
         async def get_users(db = Depends(get_db)):
             return fetch_users(db)
     """
-    db = get_db_connection()
-    try:
+    with get_db_connection() as db:
         yield db
-    finally:
-        if hasattr(db, 'close'):
-            db.close()
 
 
 # ============================================================================
@@ -74,32 +71,32 @@ def get_db() -> Generator[Any, None, None]:
 # ============================================================================
 
 
-def get_user_repository(db: Optional[Session] = None) -> UserRepository:
+def get_user_repository() -> UserRepository:
     """Get UserRepository instance"""
     return UserRepository()
 
 
-def get_message_repository(db: Optional[Session] = None) -> MessageRepository:
+def get_message_repository() -> MessageRepository:
     """Get MessageRepository instance"""
     return MessageRepository()
 
 
-def get_project_repository(db: Optional[Session] = None) -> ProjectRepository:
+def get_project_repository() -> ProjectRepository:
     """Get ProjectRepository instance"""
     return ProjectRepository()
 
 
-def get_ticket_repository(db: Optional[Session] = None) -> TicketRepository:
+def get_ticket_repository() -> TicketRepository:
     """Get TicketRepository instance"""
     return TicketRepository()
 
 
-def get_file_repository(db: Optional[Session] = None) -> FileRepository:
+def get_file_repository() -> FileRepository:
     """Get FileRepository instance"""
     return FileRepository()
 
 
-def get_statistics_repository(db: Optional[Session] = None) -> StatisticsRepository:
+def get_statistics_repository() -> StatisticsRepository:
     """Get StatisticsRepository instance"""
     return StatisticsRepository()
 
@@ -329,11 +326,13 @@ def check_dependencies_health() -> Dict[str, Any]:
 
     # Check database
     try:
-        db = get_db_connection()
-        # For SQLite connections, just check if we can get a connection
+        with get_db_connection() as db:
+            # Verify the connection works by executing a simple query
+            cursor = db.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+            cursor.close()
         health_status["database"] = "healthy"
-        if hasattr(db, 'close'):
-            db.close()
     except Exception as e:
         health_status["database"] = f"unhealthy: {str(e)}"
 
